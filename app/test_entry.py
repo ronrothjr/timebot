@@ -1,6 +1,9 @@
-import unittest
+import unittest, os
 from datetime import  time
 from entry import Entry
+
+
+os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
 
 
 class TestEntry(unittest.TestCase):
