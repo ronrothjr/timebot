@@ -7,7 +7,8 @@ class DB:
         self.db_name = db_name
         self.tables = tables
         self.now = f"'{str(datetime.datetime.now())}'"
-        [self.create(name, fields) for name, fields in tables.items()]
+        for name, fields in tables.items():
+            self.create(name, fields)
 
     def create(self, name: str, fields: dict):
         fields_str, fields = self.get_field_definitions(name, fields)
