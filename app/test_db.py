@@ -1,5 +1,4 @@
 import unittest
-from datetime import  time
 from db import DB
 
 
@@ -9,12 +8,13 @@ class TestDB(unittest.TestCase):
         self.db = DB(db_name='test.db', tables={
             'test': [{
                 'name': 'test',
-                'type': 'text'
+                'type': 'text',
+                'id': True
             }]
         })
 
     def tearDown(self) -> None:
-        self.db.remove('test')
+        self.db.remove('test', 1)
 
     def test_can_instanciate_db(self):
         self.assertIsInstance(self.db, DB)

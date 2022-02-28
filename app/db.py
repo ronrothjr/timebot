@@ -6,7 +6,8 @@ class DB:
     def __init__(self, db_name: str, tables: dict):
         self.db_name = db_name
         self.tables = tables
-        [self.create(name, fields) for name, fields in tables.items()]
+        for name, fields in tables.items():
+            self.create(name, fields)
 
     def create(self, name: str, fields: list):
         field_list = ','.join([f'{f["name"]} {f["type"]}' for f in fields])
@@ -30,8 +31,8 @@ class DB:
             records.append(record)
         return records
 
-    def remove(self, table_name):
-        self.execute(f"DELETE FROM {table_name}")
+    def remove(self, table_name:str, id:int=None):
+        self.execute(f"DELETE FROM {table_name}{' id=' + str(id) if id else ''}")
 
     def execute(self, sql, fetch:bool=False):
         records = None
