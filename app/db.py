@@ -1,18 +1,24 @@
 import sqlite3, datetime
 
 
-class DB:
+class DatabaseSchema:
 
     def __init__(self, db_name: str, tables: dict):
         self.db_name = db_name
         self.tables = tables
+
+
+class DB:
+
+    def __init__(self, schema: DatabaseSchema):
+        self.schema = schema
         self.now = f"'{str(datetime.datetime.now())}'"
-        for name, fields in tables.items():
+        for name, fields in schema.tables.items():
             self.create(name, fields)
 
     def create(self, name: str, fields: dict):
         fields_str, fields = self.get_field_definitions(name, fields)
-        self.tables[name] = fields
+        self.schema.tables[name] = fields
         sql = f'CREATE TABLE if not exists {name} ({fields_str})'
         self.execute(sql)
 
@@ -40,7 +46,7 @@ class DB:
         value = None
         if 'id' in field and field['id'] and field['type'] == 'INTEGER':
             records = self.get(table_name)
-            id_field = self.get_id_field(self.tables[table_name])
+            id_field = self.get_id_field(self.schema.tables[table_name])
             max_id = max(records.values(), key=lambda x:x[id_field])[id_field] if records else 0
             value = f"{max_id + 1}"
         elif '_timestamp' in field['name']:
@@ -65,12 +71,13 @@ class DB:
 
     def add(self, table_name: str, data: dict):
         self.now = str(datetime.datetime.now())
-        fields = self.tables[table_name]
+        fields = self.schema.tables[table_name]
         values = ','.join([self.get_field_value(table_name, f, data) for f in fields.values()])
-        self.execute("INSERT INTO {} VALUES ({})".format(table_name, values))
+        id = self.execute("INSERT INTO {} VALUES ({})".format(table_name, values), lastrowid=True)
+        return id
 
     def get(self, table_name, id_value: int=None):
-        fields = self.tables[table_name]
+        fields = self.schema.tables[table_name]
         id_field = self.get_id_field(fields)
         sql_id_value = (id_value if isinstance(id_value, int) else f"'{id_value}'") if id_value else ''
         where = f" WHERE {id_field} = {sql_id_value}" if id_value else ''
@@ -87,7 +94,7 @@ class DB:
 
     def update(self, table_name: str, data: dict, update: dict):
         self.now = str(datetime.datetime.now())
-        fields = self.tables[table_name]
+        fields = self.schema.tables[table_name]
         id_field = self.get_id_field(fields)
         id_value = data[id_field] if id_field else None
         record = self.get(table_name, id_value)
@@ -109,27 +116,29 @@ class DB:
     def remove(self, table_name, id_value=None):
         where = ''
         if id_value:
-            fields = self.tables[table_name]
+            fields = self.schema.tables[table_name]
             id_field = self.get_id_field(fields)
             sql_id_value = (id_value if isinstance(id_value, int) else f"'{id_value}'") if id_value else ''
             where = f' WHERE {id_field} = {sql_id_value}'
         self.execute(f"DELETE FROM {table_name}{where}")
 
-    def execute(self, sql, fetch:bool=False):
-        records = None
-        conn = sqlite3.connect(self.db_name)
+    def execute(self, sql, fetch:bool=False, lastrowid:bool=False):
+        results = None
+        conn = sqlite3.connect(self.schema.db_name)
         c = conn.cursor()
         c.execute('PRAGMA foreign_keys = ON;')
         c.execute('BEGIN;')
         try:
             c.execute(sql)
             if fetch:
-                records = c.fetchall()
+                results = c.fetchall()
+            if lastrowid:
+                results =  c.lastrowid
             c.execute('COMMIT;')
         except Exception as e:
             print(e)
             c.execute('ROLLBACK;')
         conn.commit()
         conn.close()
-        if fetch:
-            return records
+        if fetch or lastrowid:
+            return results

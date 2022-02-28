@@ -14,3 +14,25 @@ class Utils:
             else:
                 data[k] = v if isinstance(v, int) else str(v)
         return data
+
+    def get_schema():        
+        tables = {
+            'project': {
+                'code': {'name': 'code', 'type': 'TEXT', 'id': True}
+            },
+            'timecard': {
+                'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'id': True},
+                'end_date': {'name': 'end_date', 'type': 'TEXT'}
+            },
+            'day': {
+                'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'ref': 'timecard(begin_date)', 'trigger': 'CASCADE'},
+                'weekday': {'name': 'weekday', 'type': 'TEXT'}
+            },
+            'entry': {
+                'dayid': {'name': 'dayid', 'type': 'TEXT', 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
+                'begin': {'name': 'begin', 'type': 'TEXT'},
+                'end': {'name': 'end', 'type': 'TEXT'},
+                'code': {'name': 'code', 'type': 'TEXT', 'ref': 'project(code)', 'trigger': 'CASCADE'}
+            }
+        }
+        return {'db_name': 'app.db', 'tables': tables}
