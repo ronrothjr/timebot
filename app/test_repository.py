@@ -7,6 +7,8 @@ from timecard import Timecard
 from day import Day
 from utils import Utils
 
+os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
+
 
 class TestRepository(unittest.TestCase):
 
