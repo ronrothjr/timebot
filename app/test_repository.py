@@ -1,6 +1,6 @@
 import unittest, os
 from repository import Repository
-from db import DB, DatabaseSchema
+from db import Sqlite3DB, DatabaseSchema
 from entry import Entry
 from project import Project
 from timecard import Timecard
@@ -12,10 +12,10 @@ class TestRepository(unittest.TestCase):
 
     def setUp(self) -> None:
         schema = DatabaseSchema(**Utils.get_schema())
-        self.project = Repository[Project](Project, DB, schema)
-        self.timecard = Repository[Timecard](Timecard, DB, schema)
-        self.day = Repository[Day](Day, DB, schema)
-        self.entry = Repository[Entry](Entry, DB, schema)
+        self.project = Repository[Project](Project, Sqlite3DB, schema)
+        self.timecard = Repository[Timecard](Timecard, Sqlite3DB, schema)
+        self.day = Repository[Day](Day, Sqlite3DB, schema)
+        self.entry = Repository[Entry](Entry, Sqlite3DB, schema)
 
     def tearDown(self) -> None:
         self.remove_db()
@@ -28,7 +28,7 @@ class TestRepository(unittest.TestCase):
 
     def test_can_instantiate_a_repository(self):
         self.assertIsInstance(self.entry, Repository)
-        self.assertIsInstance(self.entry.db, DB)
+        self.assertIsInstance(self.entry.db, Sqlite3DB)
         self.assertIsInstance(self.entry.name, str)
 
     def test_repository_can_handle_timecard_data(self):

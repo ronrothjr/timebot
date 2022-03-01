@@ -1,5 +1,5 @@
 import unittest, os
-from db import DB, DatabaseSchema
+from db import Sqlite3DB, DatabaseSchema
 from utils import Utils
 
 
@@ -15,7 +15,7 @@ class TestDB(unittest.TestCase):
             pass
 
     def test_can_instanciate_db(self):
-        self.db = DB(DatabaseSchema(db_name='app.db', tables={
+        self.db = Sqlite3DB(DatabaseSchema(db_name='app.db', tables={
             'test': {
                 'test': {
                     'name': 'test',
@@ -31,7 +31,7 @@ class TestDB(unittest.TestCase):
                 }
             }
         }))
-        self.assertIsInstance(self.db, DB)
+        self.assertIsInstance(self.db, Sqlite3DB)
         self.assertIsInstance(self.db.schema.db_name, str)
         self.assertIsInstance(self.db.schema.tables, dict)
         self.assertTrue(callable(self.db.add))
@@ -39,7 +39,7 @@ class TestDB(unittest.TestCase):
         self.assertTrue(callable(self.db.execute))
 
     def test_can_add_read_update_and_remove_record(self):
-        self.db = DB(DatabaseSchema(db_name='app.db', tables={
+        self.db = Sqlite3DB(DatabaseSchema(db_name='app.db', tables={
             'test': {
                 'test': {
                     'name': 'test',
@@ -71,7 +71,7 @@ class TestDB(unittest.TestCase):
         self.assertTrue(len(child) == 0)
 
     def test_can_add_read_update_and_remove_record_with_text_primary_key(self):
-        self.db = DB(DatabaseSchema(db_name='app.db', tables={
+        self.db = Sqlite3DB(DatabaseSchema(db_name='app.db', tables={
             'test': {
                 'test': {
                     'name': 'test',
@@ -112,7 +112,7 @@ class TestDB(unittest.TestCase):
         self.assertTrue(len(child) == 0)
 
     def test_can_handle_timecard_data(self):
-        self.db = DB(DatabaseSchema(**Utils.get_schema()))
+        self.db = Sqlite3DB(DatabaseSchema(**Utils.get_schema()))
         self.db.add('project', {'code': 'DRG-403009'})
         self.db.add('project', {'code': 'DRG-403001'})
         self.db.add('project', {'code': 'DRG-403005'})

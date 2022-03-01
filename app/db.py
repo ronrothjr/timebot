@@ -95,7 +95,7 @@ class Table:
         return value
 
 
-class DB:
+class Sqlite3DB:
 
     def __init__(self, schema: DatabaseSchema):
         self.schema = schema

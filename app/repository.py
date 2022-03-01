@@ -1,14 +1,14 @@
 import re
 from typing import TypeVar, Generic, List
-from db import DB, DatabaseSchema
+from db import Sqlite3DB, DatabaseSchema
 
 T = TypeVar('T')
 
 class Repository(Generic[T]):
     
-    def __init__(self, object_class: T, Database: DB, schema: DatabaseSchema):
+    def __init__(self, object_class: T, Database: Sqlite3DB, schema: DatabaseSchema):
         self.object_class = object_class
-        self.db: DB = Database(schema)
+        self.db: Sqlite3DB = Database(schema)
 
     @property
     def name(self):
