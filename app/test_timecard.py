@@ -9,7 +9,7 @@ os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
 class TestTimecard(unittest.TestCase):
 
     def setUp(self):
-        self.timecard = Timecard(begin_date='2022-02-20', days={
+        self.timecard = Timecard('2022-02-20', {
             'Sunday': {'0901': {'begin': '0901', 'end': '1600'}},
             'Monday': {'0902': {'begin': '0902', 'end': '1602'}},
             'Tuesday': {'0801': {'begin': '0801', 'end': '1501'}}

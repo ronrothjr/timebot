@@ -29,7 +29,7 @@ class Utils:
                 'weekday': {'name': 'weekday', 'type': 'TEXT'}
             },
             'entry': {
-                'dayid': {'name': 'dayid', 'type': 'TEXT', 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
+                'dayid': {'name': 'dayid', 'type': 'INTEGER', 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
                 'begin': {'name': 'begin', 'type': 'TEXT'},
                 'end': {'name': 'end', 'type': 'TEXT'},
                 'code': {'name': 'code', 'type': 'TEXT', 'ref': 'project(code)', 'trigger': 'CASCADE'}

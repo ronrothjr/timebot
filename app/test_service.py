@@ -1,5 +1,5 @@
 import unittest, os
-from repository import Repository
+from service import Service
 from db import DB, DatabaseSchema
 from entry import Entry
 from project import Project
@@ -11,11 +11,10 @@ from utils import Utils
 class TestRepository(unittest.TestCase):
 
     def setUp(self) -> None:
-        schema = DatabaseSchema(**Utils.get_schema())
-        self.project = Repository[Project](Project, DB, schema)
-        self.timecard = Repository[Timecard](Timecard, DB, schema)
-        self.day = Repository[Day](Day, DB, schema)
-        self.entry = Repository[Entry](Entry, DB, schema)
+        self.project = Service(Project, DB)
+        self.timecard = Service(Timecard, DB)
+        self.day = Service(Day, DB)
+        self.entry = Service(Entry, DB)
 
     def tearDown(self) -> None:
         self.remove_db()
@@ -27,20 +26,18 @@ class TestRepository(unittest.TestCase):
             pass
 
     def test_can_instantiate_a_repository(self):
-        self.assertIsInstance(self.entry, Repository)
-        self.assertIsInstance(self.entry.db, DB)
-        self.assertIsInstance(self.entry.name, str)
+        self.assertIsInstance(self.project, Service)
+        self.assertIs(self.project.object_class, Project)
+        self.assertIsInstance(self.project.repository.db, DB)
 
     def test_repository_can_handle_timecard_data(self):
-        self.project.add(Project('DRG-403009'))
-        self.project.add(Project('DRG-403001'))
-        self.project.add(Project('DRG-403005'))
-        self.project.add(Project('DRG-413005'))
-        self.timecard.add(Timecard('2022-02-20', {}))
-        day = Day('2022-02-20', 'Monday')
-        day = self.day.add(day)
-        entry = Entry(0, day.dayid, '0900', '1600', 'DRG-403009')
-        entry = self.entry.add(entry)
+        self.project.add('DRG-403009')
+        self.project.add('DRG-403001')
+        self.project.add('DRG-403005')
+        self.project.add('DRG-413005')
+        self.timecard.add('2022-02-20', {})
+        day = self.day.add('2022-02-20', 'Monday')
+        entry = self.entry.add(0, day.dayid, '0900', '1600', 'DRG-403009')
         self.entry.update(entry, {'begin': '0830'})
         entries = self.entry.get()
         self.assertEqual(len(entries), 1, 'entries should have only 1')

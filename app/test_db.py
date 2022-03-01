@@ -34,7 +34,6 @@ class TestDB(unittest.TestCase):
         self.assertIsInstance(self.db, DB)
         self.assertIsInstance(self.db.schema.db_name, str)
         self.assertIsInstance(self.db.schema.tables, dict)
-        self.assertTrue(callable(self.db.create))
         self.assertTrue(callable(self.db.add))
         self.assertTrue(callable(self.db.get))
         self.assertTrue(callable(self.db.execute))

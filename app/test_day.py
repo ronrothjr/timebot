@@ -6,7 +6,7 @@ from datetime import time
 class TestDay(unittest.TestCase):
     
     def setUp(self):
-        self.day = Day('Monday', {'0900': {'begin': '0900', 'end': '1600'}})
+        self.day = Day({'weekday': 'Monday', 'entries': {'0900': {'begin': '0900', 'end': '1600'}}})
 
     def test_can_instantiate_hours(self):
         self.assertIsInstance(self.day, Day)
