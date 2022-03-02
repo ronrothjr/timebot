@@ -1,0 +1,23 @@
+#: import environ os.environ
+
+<TimebotRootScreen>
+    canvas:
+        Color:
+            rgba: gch("33333d")
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    MDScreen:
+
+        MDFloatingActionButtonSpeedDial:
+            data: app.add_buttons
+            rotation_root_button: True
+            callback: app.callback
+            icon: 'dots-vertical'
+            bg_color_root_button: gch("33773d")
+            bg_color_stack_button: gch("33993d")
+            color_icon_stack_button: gch("dddddd")
+            color_icon_root_button: gch("dddddd")
+            label_text_color: gch("dddddd")
+            bg_hint_color: gch("dddddd")
