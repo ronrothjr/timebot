@@ -8,16 +8,26 @@
             pos: self.pos
             size: self.size
 
-    MDScreen:
+    MDBoxLayout:
+        adaptive_height: True
+        orientation: "vertical"
+        spacing: dp(80)
+        padding: dp(30)
+        pos_hint: {"center_x": .5, "center_y": .5}
 
-        MDFloatingActionButtonSpeedDial:
-            data: app.add_buttons
-            rotation_root_button: True
-            callback: app.callback
-            icon: 'dots-vertical'
-            bg_color_root_button: gch("33773d")
-            bg_color_stack_button: gch("33993d")
-            color_icon_stack_button: gch("dddddd")
-            color_icon_root_button: gch("dddddd")
-            label_text_color: gch("dddddd")
-            bg_hint_color: gch("dddddd")
+        Image:
+            source: f"{environ['TIMEBOT_ROOT']}/assets/images/logo.png"
+            pos_hint: {"center_x": .5}
+            size_hint: None, None
+
+    MDFloatingActionButtonSpeedDial:
+        data: app.add_buttons
+        rotation_root_button: True
+        callback: app.callback
+        icon: 'dots-vertical'
+        bg_color_root_button: gch("33773d")
+        bg_color_stack_button: gch("33993d")
+        color_icon_stack_button: gch("dddddd")
+        color_icon_root_button: gch("dddddd")
+        label_text_color: gch("dddddd")
+        bg_hint_color: gch("dddddd")
