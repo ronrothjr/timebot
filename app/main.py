@@ -5,7 +5,7 @@ from kivymd.app import MDApp
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, FadeTransition
 from kivy.utils import get_color_from_hex as C 
-from libs.baseclass.splash_screen import TimebotSplashScreen
+from libs.baseclass.pre_splash_screen import TimebotPreSplashScreen
 from libs.baseclass.root_screen import TimebotRootScreen
 from service import Service
 from project import Project
@@ -89,7 +89,7 @@ class MDTimebot(MDApp):
             }
         )
         self.sm = ScreenManager(transition=FadeTransition())
-        self.sm.add_widget(TimebotSplashScreen(name="timebot splash screen"))
+        self.sm.add_widget(TimebotPreSplashScreen(name="timebot splash screen"))
         self.sm.add_widget(TimebotRootScreen(name="timebot root screen"))
         self.sm.current = "timebot splash screen"
         Clock.schedule_once(self.switch, 2)

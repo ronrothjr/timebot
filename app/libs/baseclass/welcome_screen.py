@@ -1,5 +1,5 @@
 from kivymd.uix.screen import MDScreen
 
 
-class TimebotEmptyScreen(MDScreen):
+class TimebotWelcomeScreen(MDScreen):
     pass

@@ -4,8 +4,11 @@
 #: import NavigationItem libs.baseclass.tabnavigation.NavigationItem
 #: import NavigationBar libs.baseclass.tabnavigation.NavigationBar
 
+#: import TimebotSplashScreen libs.baseclass.splash_screen.TimebotSplashScreen
 
-<TimebotSplashScreen>
+
+<TimebotPreSplashScreen>
+    md_bg_color: gch("000000")
     canvas:
         Color:
             rgba: gch("000000")
@@ -14,14 +17,17 @@
             size: self.size
 
     MDBoxLayout:
-        adaptive_height: True
-        orientation: "vertical"
-        spacing: dp(80)
-        padding: dp(30)
-        pos_hint: {"center_x": .5, "center_y": .5}
         orientation: 'vertical'
 
-        Image:
-            source: f"{environ['TIMEBOT_ROOT']}/assets/images/logo.png"
-            pos_hint: {"center_x": .5}
-            size_hint: None, None
+        NavigationBar:
+            id: nav_bar
+
+            NavigationItem:
+                text: ""
+                icon: ""
+
+        ScreenManager:
+            id: scr_manager
+
+            TimebotSplashScreen:
+                name: "WELCOME"

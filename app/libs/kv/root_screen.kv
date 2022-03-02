@@ -6,7 +6,7 @@
 #: import NavigationItem libs.baseclass.tabnavigation.NavigationItem
 #: import NavigationBar libs.baseclass.tabnavigation.NavigationBar
 
-#: import TimebotEmptyScreen libs.baseclass.empty_screen.TimebotEmptyScreen
+#: import TimebotWelcomeScreen libs.baseclass.welcome_screen.TimebotWelcomeScreen
 #: import TimebotEntryScreen libs.baseclass.entry_screen.TimebotEntryScreen
 #: import TimebotProjectsScreen libs.baseclass.projects_screen.TimebotProjectsScreen
 #: import TimebotTimecardsScreen libs.baseclass.timecards_screen.TimebotTimecardsScreen
@@ -29,11 +29,11 @@
             id: nav_bar
 
             NavigationItem:
-                text: "EMPTY"
+                text: "WELCOME"
                 icon: "chart-pie"
                 on_release:
                     scr_manager.transition.direction = "right"
-                    scr_manager.current = "EMPTY"
+                    scr_manager.current = "WELCOME"
 
             NavigationItem:
                 text: "ENTRY"
@@ -58,7 +58,7 @@
                 icon: "file-table-box-multiple"
                 on_release:
                     scr_manager.transition.direction = "left" \
-                    if scr_manager.current in ["EMPTY", "ENTRY", "PROJECTS"] \
+                    if scr_manager.current in ["WELCOME", "ENTRY", "PROJECTS"] \
                     else "right"
                     scr_manager.current = "TIMECARDS"
 
@@ -72,8 +72,8 @@
         ScreenManager:
             id: scr_manager
 
-            TimebotEmptyScreen:
-                name: "EMPTY"
+            TimebotWelcomeScreen:
+                name: "WELCOME"
 
             TimebotEntryScreen:
                 name: "ENTRY"
