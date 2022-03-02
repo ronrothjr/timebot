@@ -1,33 +1,88 @@
 #: import environ os.environ
+#: import gch kivy.utils.get_color_from_hex
+
+#: import StiffScrollEffect kivymd.effects.stiffscroll.StiffScrollEffect
+
+#: import NavigationItem libs.baseclass.tabnavigation.NavigationItem
+#: import NavigationBar libs.baseclass.tabnavigation.NavigationBar
+
+#: import TimebotEmptyScreen libs.baseclass.empty_screen.TimebotEmptyScreen
+#: import TimebotEntryScreen libs.baseclass.entry_screen.TimebotEntryScreen
+#: import TimebotProjectsScreen libs.baseclass.projects_screen.TimebotProjectsScreen
+#: import TimebotTimecardsScreen libs.baseclass.timecards_screen.TimebotTimecardsScreen
+#: import TimebotSettingsScreen libs.baseclass.settings_screen.TimebotSettingsScreen
+
 
 <TimebotRootScreen>
+    md_bg_color: gch("#33333d")
     canvas:
         Color:
-            rgba: gch("33333d")
+            rgba: gch("#33333d")
         Rectangle:
             pos: self.pos
             size: self.size
 
     MDBoxLayout:
-        adaptive_height: True
-        orientation: "vertical"
-        spacing: dp(80)
-        padding: dp(30)
-        pos_hint: {"center_x": .5, "center_y": .5}
+        orientation: 'vertical'
 
-        Image:
-            source: f"{environ['TIMEBOT_ROOT']}/assets/images/logo.png"
-            pos_hint: {"center_x": .5}
-            size_hint: None, None
+        NavigationBar:
+            id: nav_bar
 
-    MDFloatingActionButtonSpeedDial:
-        data: app.add_buttons
-        rotation_root_button: True
-        callback: app.callback
-        icon: 'dots-vertical'
-        bg_color_root_button: gch("33773d")
-        bg_color_stack_button: gch("33993d")
-        color_icon_stack_button: gch("dddddd")
-        color_icon_root_button: gch("dddddd")
-        label_text_color: gch("dddddd")
-        bg_hint_color: gch("dddddd")
+            NavigationItem:
+                text: "EMPTY"
+                icon: "chart-pie"
+                on_release:
+                    scr_manager.transition.direction = "right"
+                    scr_manager.current = "EMPTY"
+
+            NavigationItem:
+                text: "ENTRY"
+                icon: "clock-time-five-outline"
+                on_release:
+                    scr_manager.transition.direction = "right" \
+                    if scr_manager.current in ["PROJECTS", "TIMECARDS", "SETTINGS"] \
+                    else "left"
+                    scr_manager.current = "ENTRY"
+
+            NavigationItem:
+                text: "PROJECTS"
+                icon: "apps"
+                on_release:
+                    scr_manager.transition.direction = "right" \
+                    if scr_manager.current in ["TIMECARDS", "SETTINGS"] \
+                    else "left"
+                    scr_manager.current = "PROJECTS"
+
+            NavigationItem:
+                text: "TIMECARDS"
+                icon: "file-table-box-multiple"
+                on_release:
+                    scr_manager.transition.direction = "left" \
+                    if scr_manager.current in ["EMPTY", "ENTRY", "PROJECTS"] \
+                    else "right"
+                    scr_manager.current = "TIMECARDS"
+
+            NavigationItem:
+                text: "SETTINGS"
+                icon: "cog"
+                on_release:
+                    scr_manager.transition.direction = "left"
+                    scr_manager.current = "SETTINGS"
+
+        ScreenManager:
+            id: scr_manager
+
+            TimebotEmptyScreen:
+                name: "EMPTY"
+
+            TimebotEntryScreen:
+                name: "ENTRY"
+
+            TimebotProjectsScreen:
+                name: "PROJECTS"
+
+            TimebotTimecardsScreen:
+                name: "TIMECARDS"
+
+            TimebotSettingsScreen:
+                name: "SETTINGS"
