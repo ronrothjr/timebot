@@ -42,7 +42,7 @@ class Table:
         new_fields = {}
         id_field = list(filter(lambda x: 'id' in x and x['id'], fields.values()))
         if not id_field:
-            new_fields[f'{self.name}id'] = {'name': f'{self.name}id', 'type': 'INTEGER', 'id': True}
+            new_fields[f'{self.name}id'] = {'name': f'{self.name}id', 'type': 'INTEGER', 'id': True, 'dp': 30}
         for name, f in fields.items():
             new_fields[name] = f
         if not 'create_timestamp' in fields:

@@ -1,3 +1,4 @@
+from kivy.metrics import dp
 from timecard import Timecard
 from day import Day
 from entry import Entry
@@ -15,24 +16,30 @@ class Utils:
                 data[k] = v if isinstance(v, int) else str(v)
         return data
 
+    @staticmethod
     def get_schema():        
         tables = {
             'project': {
-                'code': {'name': 'code', 'type': 'TEXT', 'id': True}
+                'code': {'name': 'code', 'type': 'TEXT', 'id': True, 'dp': 70}
             },
             'timecard': {
-                'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'id': True},
-                'end_date': {'name': 'end_date', 'type': 'TEXT'}
+                'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'id': True, 'dp': 70},
+                'end_date': {'name': 'end_date', 'type': 'TEXT', 'dp': 70}
             },
             'day': {
-                'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'ref': 'timecard(begin_date)', 'trigger': 'CASCADE'},
-                'weekday': {'name': 'weekday', 'type': 'TEXT'}
+                'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'dp': 70, 'ref': 'timecard(begin_date)', 'trigger': 'CASCADE'},
+                'weekday': {'name': 'weekday', 'type': 'TEXT', 'dp': 70}
             },
             'entry': {
-                'dayid': {'name': 'dayid', 'type': 'INTEGER', 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
-                'begin': {'name': 'begin', 'type': 'TEXT'},
-                'end': {'name': 'end', 'type': 'TEXT'},
-                'code': {'name': 'code', 'type': 'TEXT', 'ref': 'project(code)', 'trigger': 'CASCADE'}
+                'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 30, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
+                'begin': {'name': 'begin', 'type': 'TEXT', 'dp': 70},
+                'end': {'name': 'end', 'type': 'TEXT', 'dp': 70},
+                'code': {'name': 'code', 'type': 'TEXT', 'dp': 70, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }
         return {'db_name': 'app.db', 'tables': tables}
+
+    @staticmethod
+    def schema_dict_to_tuple(schema: dict):
+        columns = []
+        return columns
