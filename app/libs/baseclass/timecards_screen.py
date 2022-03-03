@@ -1,14 +1,10 @@
-from calendar import week
 from kivy.metrics import dp
 from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
 from kivymd.effects.stiffscroll import StiffScrollEffect
-from kivy.app import App
-from kivy.properties import ListProperty, StringProperty
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.label import MDLabel
 from pyparsing import col
 from service import Service
@@ -65,9 +61,3 @@ class TimebotTimecardsScreen(MDScreen):
         scroller.add_widget(view)
 
         self.add_widget(scroller)
-
-    def scroll_view(self):
-        return Widget()
-
-    def get_label(self, text: str, font_style: str) -> MDLabel:
-        return MDLabel(adaptive_height=True, text=text, font_style=font_style)
