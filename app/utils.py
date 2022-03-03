@@ -1,3 +1,4 @@
+import datetime
 from kivy.metrics import dp
 from timecard import Timecard
 from day import Day
@@ -57,3 +58,11 @@ class Utils:
             tuple_data = tuple([row_data[name] for name in columns])
             rows.append(tuple_data)
         return rows
+
+    @staticmethod
+    def switch_project_code_task(code: str):
+        today = datetime.datetime.now()
+        begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
+        weekday = Timecard.weekdays[today.weekday() + 1]
+        print(begin_date, weekday, code)
+        
