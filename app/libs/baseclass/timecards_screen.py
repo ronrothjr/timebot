@@ -16,11 +16,13 @@ from utils import Utils
 
 class TimebotTimecardsScreen(MDScreen):
     def on_enter(self):
-        scroller = ScrollView()
-        scroller.bar_width = 0
-        scroller.effect_cls = StiffScrollEffect
-        scroller.size_hint = (0.9, 0.9)
-        scroller.pos_hint = {"center_x": .5, "center_y": .5}
+        if self.scroller:
+            self.scroller.clear_widgets()
+        self.scroller = ScrollView()
+        self.scroller.bar_width = 0
+        self.scroller.effect_cls = StiffScrollEffect
+        self.scroller.size_hint = (0.9, 0.9)
+        self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
         
         view = MDList(spacing=dp(10))
 
@@ -58,6 +60,6 @@ class TimebotTimecardsScreen(MDScreen):
                             entry_row_box.add_widget(entry_label)
                     view.add_widget(entry_row_box)        
 
-        scroller.add_widget(view)
+        self.scroller.add_widget(view)
 
-        self.add_widget(scroller)
+        self.add_widget(self.scroller)
