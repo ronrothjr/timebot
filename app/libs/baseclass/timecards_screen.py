@@ -20,14 +20,14 @@ class TimebotTimecardsScreen(MDScreen):
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
         self.scroller.effect_cls = StiffScrollEffect
-        self.scroller.size_hint = (0.9, 0.9)
+        self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
 
         view = MDList(spacing=dp(10))
 
         heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
         timecard: Timecard = Service(Timecard).get()[0]
-        timecard_label = MDLabel(adaptive_height=True, text=f"Timecard: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
+        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
         heading_box.add_widget(timecard_label)
 
         entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
