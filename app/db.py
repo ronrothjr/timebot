@@ -42,7 +42,7 @@ class Table:
         new_fields = {}
         id_field = list(filter(lambda x: 'id' in x and x['id'], fields.values()))
         if not id_field:
-            new_fields[f'{self.name}id'] = {'name': f'{self.name}id', 'type': 'INTEGER', 'id': True, 'dp': 30}
+            new_fields[f'{self.name}id'] = {'name': f'{self.name}id', 'type': 'INTEGER', 'id': True, 'dp': 10}
         for name, f in fields.items():
             new_fields[name] = f
         if not 'create_timestamp' in fields:
@@ -117,11 +117,20 @@ class Sqlite3DB:
         max_id = max(records.values(), key=lambda x:x[id_column])[id_column] if records else 0
         return max_id
 
-    def get(self, table_name, id_value: int=None):
+    def get(self, table_name, query: int=None):
         table: Table = self.schema.tables[table_name]
-        id_column = table.get_id_name()
-        sql_id_value = (id_value if isinstance(id_value, int) else f"'{id_value}'") if id_value else ''
-        where = f" WHERE {id_column} = {sql_id_value}" if id_value else ''
+        where = ''
+        if isinstance(query, dict):
+            query_list = []
+            for k, v in query.items():
+                sql_value = (v if isinstance(v, int) else f"'{v}'") if v else ''
+                query_list.append(f'{k} = {sql_value}')
+            sql_query = ' and '.join(query_list)
+            where = f" WHERE {sql_query}"
+        elif isinstance(query, (int, str)):
+            id_column = table.get_id_name()
+            sql_id_value = (query if isinstance(query, int) else f"'{query}'") if query else ''
+            where = f" WHERE {id_column} = {sql_id_value}" if query else ''
         results = self.execute(f"SELECT * from {table_name}{where}", fetch=True)
         records = {}
         for r in results:

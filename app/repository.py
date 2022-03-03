@@ -25,10 +25,10 @@ class Repository(Generic[T]):
             setattr(t, column.name, id_value)
         return t
 
-    def get(self, id_value=None):
-        records = self.db.get(self.name, id_value)
-        if (id_value):
-            return self.object_class(records[id_value]) if records else None
+    def get(self, query=None):
+        records = self.db.get(self.name, query)
+        if (isinstance(query, (int, str))):
+            return self.object_class(records[query]) if records else None
         else:
             return [self.object_class(r) for r in records.values()]
 

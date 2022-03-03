@@ -8,6 +8,7 @@ from kivy.utils import get_color_from_hex as C
 from libs.baseclass.pre_splash_screen import TimebotPreSplashScreen
 from libs.baseclass.root_screen import TimebotRootScreen
 from service import Service
+from utils import Utils
 from project import Project
 from timecard import Timecard
 from day import Day
@@ -36,6 +37,7 @@ class MDTimebot(MDApp):
         self.title = "Timebot"
         self.icon = f"{os.environ['TIMEBOT_ROOT']}/assets/images/logo.png"
         self.services()
+        self.utils = Utils
 
     def services(self):
         self.project = Service(Project)

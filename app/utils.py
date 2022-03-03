@@ -17,24 +17,24 @@ class Utils:
         return data
 
     @staticmethod
-    def get_schema():        
+    def get_schema():
         tables = {
             'project': {
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'id': True, 'dp': 70}
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'id': True, 'dp': 30}
             },
             'timecard': {
-                'begin_date': {'name': 'begin_date', 'display': 'Begin', 'type': 'TEXT', 'id': True, 'dp': 70},
-                'end_date': {'name': 'end_date', 'display': 'End', 'type': 'TEXT', 'dp': 70}
+                'begin_date': {'name': 'begin_date', 'display': 'Begin', 'type': 'TEXT', 'id': True, 'dp': 30},
+                'end_date': {'name': 'end_date', 'display': 'End', 'type': 'TEXT', 'dp': 30}
             },
             'day': {
-                'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'dp': 70, 'ref': 'timecard(begin_date)', 'trigger': 'CASCADE'},
-                'weekday': {'name': 'weekday', 'display': 'Weekday', 'type': 'TEXT', 'dp': 70}
+                'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'dp': 30, 'ref': 'timecard(begin_date)', 'trigger': 'CASCADE'},
+                'weekday': {'name': 'weekday', 'display': 'Weekday', 'type': 'TEXT', 'dp': 30}
             },
             'entry': {
-                'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 30, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
-                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 70},
-                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 70},
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 70, 'ref': 'project(code)', 'trigger': 'CASCADE'}
+                'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
+                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 30},
+                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 30},
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 30, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }
         return {'db_name': 'app.db', 'tables': tables}
@@ -44,15 +44,16 @@ class Utils:
         columns = []
         schema = Utils.get_schema()
         for name, column in schema['tables'][table_name].items():
-            if column['display']:
-                columns.append((column['display'], column['dp']))
+            if 'display' in column:
+                columns.append((column['display'], dp(column['dp'])))
         return columns
 
     @staticmethod
     def data_to_tuple(table_name: str, data: list):
         table = Utils.get_schema()['tables'][table_name]
         rows = []
-        columns = [name for name, value in table.items() if value['display']]
+        columns = [name for name, value in table.items() if 'display' in value]
         for row_data in data:
-            rows.append(tuple([row_data[name] for name in columns]))
+            tuple_data = tuple([row_data[name] for name in columns])
+            rows.append(tuple_data)
         return rows

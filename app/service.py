@@ -15,8 +15,8 @@ class Service:
         obj = self.object_class(*args)
         return self.repository.add(obj)
 
-    def get(self, id_value=None):
-        return self.repository.get(id_value)
+    def get(self, query=None):
+        return self.repository.get(query)
 
     def update(self, obj, data):
         return self.repository.update(obj, data)
