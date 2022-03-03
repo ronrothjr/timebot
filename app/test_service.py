@@ -38,7 +38,7 @@ class TestRepository(unittest.TestCase):
         self.project.add('DRG-403001')
         self.project.add('DRG-403005')
         self.project.add('DRG-413005')
-        self.timecard.add('2022-02-20', {})
+        self.timecard.add('2022-02-20', {'days': {}})
         day = self.day.add('2022-02-20', 'Monday')
         entry = self.entry.add(0, day.dayid, '0900', '1600', 'DRG-403009')
         self.entry.update(entry, {'begin': '0830'})
