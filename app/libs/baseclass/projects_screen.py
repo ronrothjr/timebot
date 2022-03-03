@@ -27,7 +27,7 @@ class TimebotProjectsScreen(MDScreen):
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
 
-        grid_row_width = int(Window.size[0] / 150)
+        grid_row_width = int(Window.size[0] / 200)
         view = MDGridLayout(cols=grid_row_width, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
         projects: List[Project] = Service(Project).get()
         for project in projects:
