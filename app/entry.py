@@ -10,8 +10,8 @@ class Entry:
             entry = args[0]
         else:
             entry = {'entryid': args[0], 'dayid': args[1], 'begin': args[2], 'end': args[3], 'code': args[4]}
-        self.entryid = entry.get('entryid')
-        self.dayid = entry.get('dayid')
+        self.entryid = entry.get('entryid', 0)
+        self.dayid = entry.get('dayid', 0)
         self.set_begin_time(entry)
         self.set_end_time(entry)
         self.code = entry.get('code', default_code)
