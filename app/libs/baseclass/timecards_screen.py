@@ -16,8 +16,7 @@ from utils import Utils
 
 class TimebotTimecardsScreen(MDScreen):
     def on_enter(self):
-        if self.scroller:
-            self.scroller.clear_widgets()
+        self.clear_widgets()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
         self.scroller.effect_cls = StiffScrollEffect
