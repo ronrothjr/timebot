@@ -22,7 +22,7 @@ class TimebotProjectsScreen(MDScreen):
     def on_enter(self):
         self.clear_widgets()
         cards = []
-        card_width = int(self.size[0] * 0.8 / 2)
+        card_width = int(dp(self.size[0]) * 0.8 / 2)
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
         self.scroller.effect_cls = StiffScrollEffect
@@ -35,7 +35,7 @@ class TimebotProjectsScreen(MDScreen):
             project_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), size=(f'{card_width}dp', "80dp"), line_color=(1, 1, 1, 1))
             cards.append(project_card)
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
-            project_label = MDLabel(text=project.code, adaptive_size=True, font_style="Caption", halign="center", pos_hint={"center_x": .5, "center_y": .5})
+            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", pos_hint={"center_x": .5, "center_y": .5})
             icon_left_pos = project_card.width - (project_card.padding[0] + dp(40))
             icon_top_pos = project_card.height - (project_card.padding[0] + dp(40))
             project_icon = MDIconButton(icon='dots-vertical', pos=(icon_left_pos, icon_top_pos), on_release=self.released)
@@ -46,11 +46,6 @@ class TimebotProjectsScreen(MDScreen):
 
         self.scroller.add_widget(view)
         self.add_widget(self.scroller)
-
-        card_width = int(self.size[0] * 0.8 / 2)
-
-        for card in cards:
-            card.size = (f'{card_width}dp', "80dp")
 
 
 
