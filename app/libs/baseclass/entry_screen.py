@@ -12,6 +12,7 @@ from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
+from kivymd.uix.button import MDFillRoundFlatButton
 from service import Service
 from project import Project
 from day import Day
@@ -82,10 +83,19 @@ class TimebotEntryScreen(MDScreen):
                         entry_row_box.add_widget(entry_label)
                 weekday_box.add_widget(entry_row_box)
 
+        last_entry = API.get_last_entry()
+        if not last_entry.end:
+            end_task_button = MDFillRoundFlatButton(text="End Current Task", on_release=self.end_task, pos_hint={"center_x": .5, "center_y": .5})
+            weekday_box.add_widget(end_task_button)
+
         self.list_view.add_widget(weekday_box)
 
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[0].text)
+        self.show_today()
+
+    def end_task(self,instance):
+        API.switch_or_start_task()
         self.show_today()
 
 
