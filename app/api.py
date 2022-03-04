@@ -8,10 +8,10 @@ from day import Day
 from utils import Utils
 
 
-class Sample:
+class API:
 
     @staticmethod
-    def add_data():
+    def add_current_timecard():
         schema = Utils.get_schema()
         project = Service(Project, Sqlite3DB, schema)
         timecard = Service(Timecard, Sqlite3DB, schema)
@@ -23,10 +23,10 @@ class Sample:
             project.add('DRG-403001')
             project.add('DRG-403005')
             project.add('DRG-413005')
-        timecards = timecard.get()
+        today = datetime.datetime.now()
+        begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
+        timecards = timecard.get({'begin_date': begin_date})
         if not timecards:
-            today = datetime.datetime.now()
-            begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
             timecard_data = {
                 'days': {
                     'Monday': {
@@ -47,6 +47,27 @@ class Sample:
                     new_entry['dayid'] = new_day.dayid
                     entry.add(new_entry)
 
+    @staticmethod
+    def switch_or_start_task(code: str):
+        today = datetime.datetime.now()
+        begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
+        weekday = Utils.weekdays[today.weekday() + 1]
+        print(begin_date, weekday, code)
+        schema = Utils.get_schema()
+        now = datetime.datetime.now().time()
+        day = Service(Day, Sqlite3DB, schema)
+        entry = Service(Entry, Sqlite3DB, schema)
+        day_obj: Day = day.get({'begin_date': begin_date, 'weekday': weekday})[0]
+        entries = entry.get({'dayid': day_obj.dayid})
+        for entry_obj in entries:
+            if entry_obj.begin < now and (entry_obj.end is None or entry_obj.end > now):
+                entry.update(entry_obj, {'end': Utils.db_format_time(now)})
+        new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': Utils.db_format_time(now), 'end': None, 'code': code}
+        added = entry.add(new_entry)
+        print(f'addd {added.as_dict()}')
+            
+        
+
 if __name__ == '__main__':
     os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
-    Sample.add_data()
+    API.add_current_timecard()

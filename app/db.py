@@ -90,6 +90,8 @@ class Table:
             value = f"{max_id + 1}"
         elif '_timestamp' in column.name:
             value = f"'{self.now}'"
+        elif data.get(column.name) is None:
+            value = 'null'
         else:
             value = f"'{data[column.name]}'"
         return value

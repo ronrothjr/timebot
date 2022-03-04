@@ -1,5 +1,6 @@
 import os
 from datetime import time
+from utils import Utils
 
 
 class Entry:
@@ -23,16 +24,12 @@ class Entry:
         self.begin = time(int(hour), int(minute))
 
     def set_end_time(self, entry: dict):
-        end_str = entry.get('end')
-        hour = end_str[0:2]
-        minute = end_str[-2:]
-        self.end = time(int(hour), int(minute))
-
-    def db_format_time(self, t: time):
-        hour = str(t.hour).rjust(2, '0')
-        minute = str(t.minute).rjust(2, '0')
-        return f'{hour}{minute}'
+        if entry.get('end'):
+            end_str = entry.get('end')
+            hour = end_str[0:2]
+            minute = end_str[-2:]
+        self.end = time(int(hour), int(minute)) if entry.get('end') else None
 
     def as_dict(self):
-        items = {'entryid': self.entryid, 'dayid': self.dayid, 'begin': self.db_format_time(self.begin), 'end': self.db_format_time(self.end), 'code': self.code}
+        items = {'entryid': self.entryid, 'dayid': self.dayid, 'begin': Utils.db_format_time(self.begin), 'end': Utils.db_format_time(self.end), 'code': self.code}
         return items

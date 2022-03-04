@@ -1,20 +1,18 @@
 import datetime
-from kivy.metrics import dp
-from timecard import Timecard
-from day import Day
-from entry import Entry
 
 class Utils:
+
+    weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     
     @staticmethod
     def get_data(obj):
         data = {}
         obj_dict = obj if isinstance(obj, dict) else obj.as_dict()
         for k, v in obj_dict.items():
-            if isinstance(v, (dict, Timecard, Day, Entry)):
-                data[k] = Utils.get_data(v)
-            else:
+            if isinstance(v, (int, str)):
                 data[k] = v if isinstance(v, int) else str(v)
+            else:
+                data[k] = Utils.get_data(v)
         return data
 
     @staticmethod
@@ -46,8 +44,16 @@ class Utils:
         schema = Utils.get_schema()
         for name, column in schema['tables'][table_name].items():
             if 'display' in column:
-                columns.append((column['display'], dp(column['dp'])))
+                columns.append((column['display'], column['dp']))
         return columns
+
+    @staticmethod
+    def db_format_time(t: datetime.datetime.time):
+        if t:
+            hour = str(t.hour).rjust(2, '0')
+            minute = str(t.minute).rjust(2, '0')
+            return f'{hour}{minute}'
+        return None
 
     @staticmethod
     def data_to_tuple(table_name: str, data: list):
@@ -63,6 +69,6 @@ class Utils:
     def switch_project_code_task(code: str):
         today = datetime.datetime.now()
         begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
-        weekday = Timecard.weekdays[today.weekday() + 1]
+        weekday = Utils.weekdays[today.weekday() + 1]
         print(begin_date, weekday, code)
         

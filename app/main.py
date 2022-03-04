@@ -13,7 +13,7 @@ from project import Project
 from timecard import Timecard
 from day import Day
 from entry import Entry
-from sample import Sample
+from api import API
 
 os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
 
@@ -44,7 +44,7 @@ class MDTimebot(MDApp):
         self.timecard = Service(Timecard)
         self.day = Service(Day)
         self.entry = Service(Entry)
-        Sample.add_data()
+        API.add_current_timecard()
 
     def callback(self, instance):
         print(instance.icon)

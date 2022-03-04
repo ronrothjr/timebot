@@ -55,7 +55,8 @@ class TimebotTimecardsScreen(MDScreen):
                     print(entry_rowdata)
                     for entry_row in entry_rowdata:
                         for entry_column in entry_row:
-                            entry_label = MDLabel(adaptive_height=True, text=entry_column, font_style="Body2")
+                            entry_column_value = entry_column if entry_column else '(In progress)'
+                            entry_label = MDLabel(adaptive_height=True, text=entry_column_value, font_style="Body2")
                             entry_row_box.add_widget(entry_label)
                     weekday_box.add_widget(entry_row_box)
 

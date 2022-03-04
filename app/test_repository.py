@@ -47,6 +47,6 @@ class TestRepository(unittest.TestCase):
         entries = self.entry.get()
         self.assertEqual(len(entries), 1, 'entries should have only 1')
         entry = entries[0]
-        self.assertEqual(entry.db_format_time(entry.end), '1600', '0830 entry should end at 4pm')
+        self.assertEqual(Utils.db_format_time(entry.end), '1600', '0830 entry should end at 4pm')
         self.day.update(day, {'weekday': 'Tuesday'})
         self.entry.remove(entry.entryid)

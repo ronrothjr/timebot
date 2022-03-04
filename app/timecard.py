@@ -1,11 +1,10 @@
 import os
 from datetime import date, timedelta
 from day import Day
+from utils import Utils
 
 
 class Timecard:
-
-    weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     
     
     def __init__(self, *args):
@@ -48,7 +47,7 @@ class Timecard:
         self.days[weekday] = Day(self.begin_date, weekday, entries)
 
     def add_days(self, days: dict):
-        for weekday in self.weekdays:
+        for weekday in Utils.weekdays:
             entries_dict = {}
             day = days.get(weekday)
             if day:
