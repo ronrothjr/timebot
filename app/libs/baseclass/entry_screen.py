@@ -2,6 +2,7 @@ from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
 from typing import List
 from kivy.core.window import Window
+from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
 from kivymd.effects.stiffscroll import StiffScrollEffect
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
@@ -12,7 +13,7 @@ from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
-from kivymd.uix.button import MDFillRoundFlatButton
+from kivymd.uix.button import MDRoundFlatButton
 from service import Service
 from project import Project
 from day import Day
@@ -85,7 +86,9 @@ class TimebotEntryScreen(MDScreen):
 
         last_entry = API.get_last_entry()
         if not last_entry.end:
-            end_task_button = MDFillRoundFlatButton(text="End Current Task", on_release=self.end_task, pos_hint={"center_x": .5, "center_y": .5})
+            widget_spacer = Widget(size_hint_y=None, height="10dp")
+            weekday_box.add_widget(widget_spacer)
+            end_task_button = MDRoundFlatButton(text="End Current Task", on_release=self.end_task, pos_hint={"center_x": .5, "center_y": .5}, line_color=gch('ffffff'))
             weekday_box.add_widget(end_task_button)
 
         self.list_view.add_widget(weekday_box)
