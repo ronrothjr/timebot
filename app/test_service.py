@@ -36,10 +36,11 @@ class TestRepository(unittest.TestCase):
         self.assertIsInstance(self.project.repository.db, Sqlite3DB)
 
     def test_repository_can_handle_timecard_data(self):
-        self.project.add('DRG-403009')
-        self.project.add('DRG-403001')
-        self.project.add('DRG-403005')
-        self.project.add('DRG-413005')
+        self.project.add({'code': 'DRG-403009', 'show': 1})
+        self.project.add({'code': 'DRG-403001', 'show': 1})
+        self.project.add({'code': 'DRG-403005', 'show': 1})
+        self.project.add({'code': 'DRG-413005', 'show': 1})
+        self.project.add({'code': 'DRG-000099', 'show': 0})
         self.timecard.add('2022-02-20', {'days': {}})
         day = self.day.add('2022-02-20', 'Monday')
         entry = self.entry.add(0, day.dayid, '0900', '1600', 'DRG-403009')

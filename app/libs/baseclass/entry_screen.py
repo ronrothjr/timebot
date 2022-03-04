@@ -9,10 +9,14 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
 from service import Service
 from project import Project
+from day import Day
+from entry import Entry
+from utils import Utils
 from api import API
 
 
@@ -26,21 +30,63 @@ class TimebotEntryScreen(MDScreen):
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
 
-        view = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
-        projects: List[Project] = Service(Project).get()
+        view = MDList(spacing=dp(10))
+
+        grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+
+        projects: List[Project] = Service(Project).get({'show': 1})
         for project in projects:
             project_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1), on_release=self.released)
-            project_layout = MDBoxLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
-            project_label = MDLabel(text=project.code, adaptive_size=True, font_style="Caption", halign="center", pos_hint={"center_x": .5, "center_y": .5})
+            project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
+            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", pos_hint={"center_x": .5, "center_y": .5})
             project_layout.add_widget(project_label)
             project_card.add_widget(project_layout)
-            view.add_widget(project_card)
+            grid.add_widget(project_card)
+
+        view.add_widget(grid)
+
+        self.list_view = MDList(spacing=dp(10))
+        self.show_today()
+        view.add_widget(self.list_view)
 
         self.scroller.add_widget(view)
         self.add_widget(self.scroller)
 
+    def show_today(self):
+        self.list_view.clear_widgets()
+
+        today, begin_date, weekday = Utils.get_begin_date()
+        day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
+        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
+        weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
+        weekday_box.add_widget(weekday_label)
+        
+        entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+        entry_column_data = Utils.schema_dict_to_tuple('entry')
+        for entry_column in entry_column_data:
+            entry_label = MDLabel(adaptive_height=True, text=entry_column[0], font_style="Body1")
+            entry_column_box.add_widget(entry_label)
+        weekday_box.add_widget(entry_column_box)
+
+        entries = Service(Entry).get({'dayid': day.dayid})
+        if entries:
+            entry_rows = entries if isinstance(entries, list) else [entries]
+            for entry in entry_rows:
+                entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+                entry_rowdata = Utils.data_to_tuple('entry', [entry.as_dict()])
+                print(entry_rowdata)
+                for entry_row in entry_rowdata:
+                    for entry_column in entry_row:
+                        entry_column_value = entry_column if entry_column else '(In progress)'
+                        entry_label = MDLabel(adaptive_height=True, text=entry_column_value, font_style="Body2")
+                        entry_row_box.add_widget(entry_label)
+                weekday_box.add_widget(entry_row_box)
+
+        self.list_view.add_widget(weekday_box)
+
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[0].text)
+        self.show_today()
 
 
 class MD3Card(MDCard, RoundedRectangularElevationBehavior):

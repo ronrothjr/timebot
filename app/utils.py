@@ -19,7 +19,8 @@ class Utils:
     def get_schema():
         tables = {
             'project': {
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'id': True, 'dp': 30}
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'id': True, 'dp': 30},
+                'show': {'name': 'show', 'display': 'Show', 'type': 'INTEGER', 'dp': 30}
             },
             'timecard': {
                 'begin_date': {'name': 'begin_date', 'display': 'Begin', 'type': 'TEXT', 'id': True, 'dp': 30},
@@ -65,10 +66,15 @@ class Utils:
             rows.append(tuple_data)
         return rows
 
-    @staticmethod
-    def switch_project_code_task(code: str):
+    def get_begin_date():
         today = datetime.datetime.now()
         begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
+        weekday = Utils.weekdays[today.weekday() + 1]
+        return today, begin_date, weekday
+
+    @staticmethod
+    def switch_project_code_task(code: str):
+        today, begin_date = Utils.get_begin_date()
         weekday = Utils.weekdays[today.weekday() + 1]
         print(begin_date, weekday, code)
         
