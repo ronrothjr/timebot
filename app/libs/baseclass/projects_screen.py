@@ -30,7 +30,7 @@ class TimebotProjectsScreen(MDScreen):
         view = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
         projects: List[Project] = Service(Project).get()
         for project in projects:
-            project_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), size=("120dp", "80dp"), line_color=(1, 1, 1, 1))
+            project_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), size=(f'{int(Window.size[0] * 0.8 / 2)}dp', "80dp"), line_color=(1, 1, 1, 1))
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
             project_label = MDLabel(text=project.code, adaptive_size=True, font_style="Caption", halign="center", pos_hint={"center_x": .5, "center_y": .5})
             icon_left_pos = project_card.width - (project_card.padding[0] + dp(40))
