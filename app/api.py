@@ -91,7 +91,7 @@ class API:
         last = API.get_last_entry()
         last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
         last_end_str = Utils.db_format_time(last.end) if last and last.end else ''
-        if code != '' and last and last_end_str < now_str:
+        if code != '' and last and last.end and last_end_str < now_str:
             new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': 'DRG-000099'}
             entry.add(new_entry)
         if code != '' and not last or (last.code != code and last_begin_str != now_str):

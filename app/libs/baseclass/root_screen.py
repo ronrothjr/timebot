@@ -16,7 +16,7 @@ class TimebotRootScreen(MDScreen):
         self.listen = False
         def listen_again(target):
             self.listen = True
-        Clock.schedule_once(listen_again, 0.5)
+        Clock.schedule_once(listen_again, 0.3)
         bar = self.ids.nav_bar
         mgr = self.ids.scr_manager
         tabs = [c.text for c in bar.get_buttons()]
