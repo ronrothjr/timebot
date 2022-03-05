@@ -83,6 +83,12 @@ class NavigationBar(ThemableBehavior, BoxLayout):
         self.ids._button_box.spacing = spacing
         self.ids._button_box.padding = [spacing, 0, spacing, 0]
 
+    def get_buttons(self):
+        return self.ids._button_box.children
+
+    def get_button(self, index):
+        return self.ids._button_box.children[index]
+
     def set_current(self, index):
         if not index:
             index = -1

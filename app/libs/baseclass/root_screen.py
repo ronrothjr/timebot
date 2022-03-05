@@ -1,5 +1,39 @@
 from kivymd.uix.screen import MDScreen
+from kivy.clock import Clock
 
 
 class TimebotRootScreen(MDScreen):
-    pass
+
+    buttons = ["WELCOME", "ENTRY", "PROJECTS", "TIMECARDS", "SETTINGS"]
+    listen = True
+
+    def on_touch_move(self, touch):
+        if not self.listen:
+            return
+        if touch.dx > 50 or touch.dx < -50:
+            self.set_tab(touch.dx)
+
+    def set_tab(self, change: int):
+        self.listen = False
+        def listen_again(target):
+            self.listen = True
+        Clock.schedule_once(listen_again, 0.5)
+        bar = self.ids.nav_bar
+        mgr = self.ids.scr_manager
+        tabs = [c.text for c in bar.get_buttons()]
+        indeces = {}
+        for b in self.buttons:
+            indeces[b] = tabs.index(b)
+        size = len(tabs) - 1
+        index = indeces[mgr.current]
+        print(index)
+        if change > 50:
+            index += 1 if index < size else -size
+        elif change < -50:
+            index += -1 if index >= 0 else size
+            
+        button = bar.get_button(index)
+        button.dispatch("on_release")
+    
+    
+        

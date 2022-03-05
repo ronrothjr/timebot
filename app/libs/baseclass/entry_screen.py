@@ -85,7 +85,7 @@ class TimebotEntryScreen(MDScreen):
                 weekday_box.add_widget(entry_row_box)
 
         last_entry = API.get_last_entry()
-        if not last_entry.end:
+        if last_entry and not last_entry.end:
             widget_spacer = Widget(size_hint_y=None, height="10dp")
             weekday_box.add_widget(widget_spacer)
             end_task_button = MDRoundFlatButton(text="End Current Task", on_release=self.end_task, pos_hint={"center_x": .5, "center_y": .5}, line_color=gch('ffffff'))
