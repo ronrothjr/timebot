@@ -4,7 +4,6 @@ from kivy.clock import Clock
 
 class TimebotRootScreen(MDScreen):
 
-    buttons = ["WELCOME", "ENTRY", "PROJECTS", "TIMECARDS", "SETTINGS"]
     listen = True
 
     def on_touch_move(self, touch):
@@ -21,12 +20,8 @@ class TimebotRootScreen(MDScreen):
         bar = self.ids.nav_bar
         mgr = self.ids.scr_manager
         tabs = [c.text for c in bar.get_buttons()]
-        indeces = {}
-        for b in self.buttons:
-            indeces[b] = tabs.index(b)
         size = len(tabs) - 1
-        index = indeces[mgr.current]
-        print(index)
+        index = tabs.index(mgr.current)
         if change > 50:
             index += 1 if index < size else -size
         elif change < -50:
