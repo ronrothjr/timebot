@@ -1,3 +1,4 @@
+import datetime
 from kivy.metrics import dp
 from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
@@ -7,6 +8,7 @@ from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 from pyparsing import col
+from api import API
 from service import Service
 from day import Day
 from timecard import Timecard
@@ -26,7 +28,7 @@ class TimebotTimecardsScreen(MDScreen):
         view = MDList(spacing=dp(10))
 
         heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
-        timecard: Timecard = Service(Timecard).get()[0]
+        timecard: Timecard = API.get_current_timecard()
         timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
         heading_box.add_widget(timecard_label)
 

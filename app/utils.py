@@ -66,10 +66,13 @@ class Utils:
             rows.append(tuple_data)
         return rows
 
+    @staticmethod
     def get_begin_date():
         today = datetime.datetime.now()
-        begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
-        weekday = Utils.weekdays[today.weekday() + 1]
+        days_from_sunday = 0 if today.weekday() == 6 else today.weekday() + 1
+        sunday_date = (today - datetime.timedelta(days=days_from_sunday)).date()
+        begin_date = str(sunday_date)
+        weekday = Utils.weekdays[days_from_sunday]
         return today, begin_date, weekday
 
     @staticmethod

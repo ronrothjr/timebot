@@ -11,8 +11,15 @@ from utils import Utils
 class API:
 
     @staticmethod
-    def add_current_timecard():
+    def get_now():
+        today, begin_date, weekday = Utils.get_begin_date()
+        now = today.time()
         schema = Utils.get_schema()
+        return today, now, begin_date, weekday, schema
+
+    @staticmethod
+    def add_current_timecard():
+        today, now, begin_date, weekday, schema = API.get_now()
         project = Service(Project, Sqlite3DB, schema)
         timecard = Service(Timecard, Sqlite3DB, schema)
         day = Service(Day, Sqlite3DB, schema)
@@ -24,8 +31,6 @@ class API:
             project.add({'code': 'DRG-403005', 'show': 1})
             project.add({'code': 'DRG-413005', 'show': 1})
             project.add({'code': 'DRG-000099', 'show': 0})
-        today = datetime.datetime.now()
-        begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
         timecards = timecard.get({'begin_date': begin_date})
         if not timecards:
             timecard_data = {
@@ -60,16 +65,18 @@ class API:
 
     @staticmethod
     def get_today():
-        today = datetime.datetime.now()
-        begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
-        weekday = Utils.weekdays[today.weekday() + 1]
-        schema = Utils.get_schema()
-        now = datetime.datetime.now().time()
+        today, now, begin_date, weekday, schema = API.get_now()
         day = Service(Day, Sqlite3DB, schema)
         entry = Service(Entry, Sqlite3DB, schema)
         day_obj: Day = day.get({'begin_date': begin_date, 'weekday': weekday})[0]
         entries = entry.get({'dayid': day_obj.dayid})
         return now, entry, day_obj, entries
+
+    @staticmethod
+    def get_current_timecard():
+        today, now, begin_date, weekday, schema = API.get_now()
+        timecard: Timecard = Service(Timecard).get(begin_date)
+        return timecard
 
     @staticmethod
     def switch_or_start_task(code: str=''):
