@@ -134,6 +134,13 @@ class API:
             if end and entry_dict['begin'] == end:
                 entry.update(entry_obj, {'begin': begin})
 
+    @staticmethod
+    def resume_task():
+        now, entry, day_obj, entries = API.get_today()
+        last = API.get_last_entry()
+        if last:
+            entry.update(last, {'end': None})
+
 if __name__ == '__main__':
     os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
     API.add_current_timecard()

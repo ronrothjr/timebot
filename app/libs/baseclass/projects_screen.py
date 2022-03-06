@@ -84,7 +84,7 @@ class TimebotProjectsScreen(MDScreen):
             )
             self.custom_dialog.md_bg_color = App.get_running_app().theme_cls.bg_dark
             self.custom_dialog.open()
-        else:
+        elif instance.icon == 'star':
             print(instance.icon, instance.parent.children[2].text)
             API.remove_or_toggle_project_code(instance.icon, instance.parent.children[2].text)
             self.show_projects()

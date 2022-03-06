@@ -97,11 +97,13 @@ class TimebotEntryScreen(MDScreen):
                 weekday_box.add_widget(entry_row_box)
 
             last_entry = API.get_last_entry()
-            if last_entry and not last_entry.end:
-                widget_spacer = Widget(size_hint_y=None, height="10dp")
-                weekday_box.add_widget(widget_spacer)
-                end_task_button = MDRoundFlatButton(text="End Current Task", on_release=self.end_task, pos_hint={"center_x": .5, "center_y": .5}, line_color=gch('ffffff'))
-                weekday_box.add_widget(end_task_button)
+            widget_spacer = Widget(size_hint_y=None, height="10dp")
+            weekday_box.add_widget(widget_spacer)
+            end_task = last_entry and not last_entry.end
+            button_text = 'End Current' if end_task else 'Resume Last'
+            button_action = self.end_task if end_task else self.continue_task
+            end_task_button = MDRoundFlatButton(text=f"{button_text} Task", on_release=button_action, pos_hint={"center_x": .5, "center_y": .5}, line_color=gch('ffffff'))
+            weekday_box.add_widget(end_task_button)
 
             self.list_view.add_widget(weekday_box)
 
@@ -116,6 +118,10 @@ class TimebotEntryScreen(MDScreen):
 
     def end_task(self, instance):
         API.switch_or_start_task()
+        self.show_today()
+
+    def continue_task(self, instance):
+        API.resume_task()
         self.show_today()
 
 

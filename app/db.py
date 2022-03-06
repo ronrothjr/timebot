@@ -156,9 +156,11 @@ class Sqlite3DB:
                 column = list(filter(lambda c: c.name == k, table.model.values()))
                 if column and k not in ['create_timestamp']:
                     value = v
-                    if k == 'last_update_timestamp':
+                    if value is None:
+                        value = 'null'
+                    elif k == 'last_update_timestamp':
                         value = self.now
-                    if not column[0].type == 'INTEGER':
+                    elif not column[0].type == 'INTEGER':
                         value = f"'{value}'"
                     updates.append(f"{k} = {value}")
             updates_str = ', '.join(updates)
