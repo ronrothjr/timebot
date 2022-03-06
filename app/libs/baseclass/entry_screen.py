@@ -60,21 +60,28 @@ class TimebotEntryScreen(MDScreen):
 
         today, begin_date, weekday = Utils.get_begin_date()
         day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
-        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
-        weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
-        weekday_box.add_widget(weekday_label)
-        
-        entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.9, None), pos_hint={"center_x": .6, "center_y": .5})
-        entry_column_data = Utils.schema_dict_to_tuple('entry')
-        for entry_column in entry_column_data:
-            entry_label = MDLabel(adaptive_height=True, text=entry_column[0], pos_hint={"center_x": .5, "center_y": .5}, font_style="Body1")
-            entry_column_box.add_widget(entry_label)
-        entry_label = MDLabel(adaptive_height=True, text="", font_style="Body1")
-        entry_column_box.add_widget(entry_label)
-        weekday_box.add_widget(entry_column_box)
-
         entries = Service(Entry).get({'dayid': day.dayid})
-        if entries:
+        if not entries:
+            empty_card = MD3Card(padding=16, radius=[15,], size_hint=(.98, None), size=('120dp', "80dp"), md_bg_color=gch('606060'), line_color=(1, 1, 1, 1))
+            empty_layout = MDRelativeLayout(size=empty_card.size, pos_hint={"center_x": .5, "center_y": .5})
+            empty_label = MDLabel(text="You have no tasks for today", adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+            empty_layout.add_widget(empty_label)
+            empty_card.add_widget(empty_layout)
+            self.list_view.add_widget(empty_card)
+        else:
+            weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
+            weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
+            weekday_box.add_widget(weekday_label)
+        
+            entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.9, None), pos_hint={"center_x": .6, "center_y": .5})
+            entry_column_data = Utils.schema_dict_to_tuple('entry')
+            for entry_column in entry_column_data:
+                entry_label = MDLabel(adaptive_height=True, text=entry_column[0], pos_hint={"center_x": .5, "center_y": .5}, font_style="Body1")
+                entry_column_box.add_widget(entry_label)
+            entry_label = MDLabel(adaptive_height=True, text="", font_style="Body1")
+            entry_column_box.add_widget(entry_label)
+            weekday_box.add_widget(entry_column_box)
+
             entry_rows = entries if isinstance(entries, list) else [entries]
             for entry in entry_rows:
                 entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.9, None), pos_hint={"center_x": .6, "center_y": .5})
@@ -89,14 +96,14 @@ class TimebotEntryScreen(MDScreen):
                     entry_row_box.add_widget(entry_delete)
                 weekday_box.add_widget(entry_row_box)
 
-        last_entry = API.get_last_entry()
-        if last_entry and not last_entry.end:
-            widget_spacer = Widget(size_hint_y=None, height="10dp")
-            weekday_box.add_widget(widget_spacer)
-            end_task_button = MDRoundFlatButton(text="End Current Task", on_release=self.end_task, pos_hint={"center_x": .5, "center_y": .5}, line_color=gch('ffffff'))
-            weekday_box.add_widget(end_task_button)
+            last_entry = API.get_last_entry()
+            if last_entry and not last_entry.end:
+                widget_spacer = Widget(size_hint_y=None, height="10dp")
+                weekday_box.add_widget(widget_spacer)
+                end_task_button = MDRoundFlatButton(text="End Current Task", on_release=self.end_task, pos_hint={"center_x": .5, "center_y": .5}, line_color=gch('ffffff'))
+                weekday_box.add_widget(end_task_button)
 
-        self.list_view.add_widget(weekday_box)
+            self.list_view.add_widget(weekday_box)
 
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[0].text)

@@ -127,11 +127,11 @@ class API:
         now, entry, day_obj, entries = API.get_today()
         for entry_obj in entries:
             entry_dict = entry_obj.as_dict()
-            if entry_dict['begin'] == begin and entry_dict['end'] == end:
+            if entry_dict['begin'] == begin:
                 entry.remove(entry_obj.entryid)
         for entry_obj in entries:
             entry_dict = entry_obj.as_dict()
-            if entry_dict['begin'] == end:
+            if end and entry_dict['begin'] == end:
                 entry.update(entry_obj, {'begin': begin})
 
 if __name__ == '__main__':
