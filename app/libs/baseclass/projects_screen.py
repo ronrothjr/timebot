@@ -48,21 +48,15 @@ class TimebotProjectsScreen(MDScreen):
         self.add_project_card(Project({'code': 'ADD', 'show': 0}))
     
     def add_project_card(self, project):
-        project_card = MD3Card(padding=16, radius=[15,], size_hint=(1, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1))
+        project_card = MD3Card(padding=16, radius=[15,], size_hint=(.98, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1))
         project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
         if project.code == 'ADD':
-            icon_left_pos = project_card.width / 2 - (project_card.padding[0])
-            icon_top_pos = project_card.height / 2 - (project_card.padding[0] + dp(20))
-            project_icon_add = MDIconButton(icon='plus', pos=(icon_left_pos, icon_top_pos), on_release=self.released)
+            project_icon_add = MDIconButton(icon='plus', pos_hint={"center_x": .5, "center_y": .5}, on_release=self.released)
             project_layout.add_widget(project_icon_add)
         else:
             project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
-            icon_left_pos = project_card.width - (project_card.padding[0])
-            icon_top_pos = project_card.height - (project_card.padding[0] + dp(40))
-            project_icon_close = MDIconButton(icon='close', pos=(icon_left_pos, icon_top_pos), on_release=self.released)
-            icon_left_pos = project_card.width - (project_card.padding[0])
-            icon_top_pos = project_card.height - (project_card.padding[0] + dp(85))
-            project_icon_star = MDIconButton(icon='star' if project.show else 'star-outline', pos=(icon_left_pos, icon_top_pos), on_release=self.released)
+            project_icon_close = MDIconButton(icon='close', pos_hint={"center_x": .95, "center_y": .9}, on_release=self.released)
+            project_icon_star = MDIconButton(icon='star' if project.show else 'star-outline', pos_hint={"center_x": .95, "center_y": .1}, on_release=self.released)
             project_layout.add_widget(project_label)
             project_layout.add_widget(project_icon_close)
             project_layout.add_widget(project_icon_star)
@@ -72,7 +66,6 @@ class TimebotProjectsScreen(MDScreen):
 
     def released(self, instance):
         if instance.icon == 'plus':
-            print(instance.icon)
             self.custom_dialog = MDDialog(
                 title="Add Project Code:",
                 type="custom",
