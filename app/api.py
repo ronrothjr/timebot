@@ -59,7 +59,7 @@ class API:
             project.update(project_obj, {'show': 0 if icon == 'star' else 1})
 
     @staticmethod
-    def switch_or_start_task(code: str=''):
+    def get_today():
         today = datetime.datetime.now()
         begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
         weekday = Utils.weekdays[today.weekday() + 1]
@@ -69,6 +69,11 @@ class API:
         entry = Service(Entry, Sqlite3DB, schema)
         day_obj: Day = day.get({'begin_date': begin_date, 'weekday': weekday})[0]
         entries = entry.get({'dayid': day_obj.dayid})
+        return now, entry, day_obj, entries
+
+    @staticmethod
+    def switch_or_start_task(code: str=''):
+        now, entry, day_obj, entries = API.get_today()
         now_str = Utils.db_format_time(now)
         for entry_obj in entries:
             in_progress = entry_obj.end is None
@@ -98,17 +103,9 @@ class API:
             new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': now_str, 'end': None, 'code': code}
             entry.add(new_entry)
 
+    @staticmethod
     def get_last_entry():
-        today = datetime.datetime.now()
-        weekday = Utils.weekdays[today.weekday() + 1]
-        now = datetime.datetime.now().time()
-        begin_date = str((today - datetime.timedelta(days=today.weekday() + 1)).date())
-        schema = Utils.get_schema()
-        day = Service(Day, Sqlite3DB, schema)
-        entry = Service(Entry, Sqlite3DB, schema)
-        day_obj: Day = day.get({'begin_date': begin_date, 'weekday': weekday})[0]
-        entry = Service(Entry, Sqlite3DB, schema)
-        entries = entry.get({'dayid': day_obj.dayid})
+        now, entry, day_obj, entries = API.get_today()
         last = None
         for entry_obj in entries:
             begin_str = Utils.db_format_time(entry_obj.begin)
@@ -116,7 +113,19 @@ class API:
             if not last or (last and begin_str > last_str):
                 last = entry_obj
         return last
-        
+
+    @staticmethod
+    def remove_task(icon: str, code: str, end: str, begin: str):
+        print(begin, end, code)
+        now, entry, day_obj, entries = API.get_today()
+        for entry_obj in entries:
+            entry_dict = entry_obj.as_dict()
+            if entry_dict['begin'] == begin and entry_dict['end'] == end:
+                entry.remove(entry_obj.entryid)
+        for entry_obj in entries:
+            entry_dict = entry_obj.as_dict()
+            if entry_dict['begin'] == end:
+                entry.update(entry_obj, {'begin': begin})
 
 if __name__ == '__main__':
     os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
