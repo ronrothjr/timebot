@@ -19,7 +19,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.clear_widgets()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
-        self.scroller.effect_cls = StiffScrollEffect
+        # self.scroller.effect_cls = StiffScrollEffect
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
 

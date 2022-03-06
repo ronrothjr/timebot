@@ -31,11 +31,11 @@ class TimebotProjectsScreen(MDScreen):
         self.clear_widgets()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
-        self.scroller.effect_cls = StiffScrollEffect
+        # self.scroller.effect_cls = StiffScrollEffect
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
 
-        self.view = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+        self.view = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         self.show_projects()
         self.scroller.add_widget(self.view)
         self.add_widget(self.scroller)
@@ -48,19 +48,19 @@ class TimebotProjectsScreen(MDScreen):
         self.add_project_card(Project({'code': 'ADD', 'show': 0}))
     
     def add_project_card(self, project):
-        project_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), size=(f'120dp', "80dp"), line_color=(1, 1, 1, 1))
+        project_card = MD3Card(padding=16, radius=[15,], size_hint=(1, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1))
         project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
         if project.code == 'ADD':
-            icon_left_pos = project_card.width / 2 - (project_card.padding[0] + dp(20))
+            icon_left_pos = project_card.width / 2 - (project_card.padding[0])
             icon_top_pos = project_card.height / 2 - (project_card.padding[0] + dp(20))
             project_icon_add = MDIconButton(icon='plus', pos=(icon_left_pos, icon_top_pos), on_release=self.released)
             project_layout.add_widget(project_icon_add)
         else:
-            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", pos_hint={"center_x": .5, "center_y": .5})
-            icon_left_pos = project_card.width - (project_card.padding[0] + dp(40))
+            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+            icon_left_pos = project_card.width - (project_card.padding[0])
             icon_top_pos = project_card.height - (project_card.padding[0] + dp(40))
             project_icon_close = MDIconButton(icon='close', pos=(icon_left_pos, icon_top_pos), on_release=self.released)
-            icon_left_pos = project_card.width - (project_card.padding[0] + dp(40))
+            icon_left_pos = project_card.width - (project_card.padding[0])
             icon_top_pos = project_card.height - (project_card.padding[0] + dp(85))
             project_icon_star = MDIconButton(icon='star' if project.show else 'star-outline', pos=(icon_left_pos, icon_top_pos), on_release=self.released)
             project_layout.add_widget(project_label)

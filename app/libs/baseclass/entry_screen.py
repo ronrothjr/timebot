@@ -12,6 +12,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDIconButton
 from kivymd.uix.card import MDCard
 from kivymd.uix.button import MDRoundFlatButton
 from service import Service
@@ -28,19 +29,19 @@ class TimebotEntryScreen(MDScreen):
         self.clear_widgets()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
-        self.scroller.effect_cls = StiffScrollEffect
+        # self.scroller.effect_cls = StiffScrollEffect
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
 
         view = MDList(spacing=dp(10))
 
-        grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+        grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
 
         projects: List[Project] = Service(Project).get({'show': 1})
         for project in projects:
-            project_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1), on_release=self.released)
+            project_card = MD3Card(padding=16, radius=[15,], size_hint=(1, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1), on_release=self.released)
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
-            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", pos_hint={"center_x": .5, "center_y": .5})
+            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
             project_layout.add_widget(project_label)
             project_card.add_widget(project_layout)
             grid.add_widget(project_card)
@@ -63,25 +64,29 @@ class TimebotEntryScreen(MDScreen):
         weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
         weekday_box.add_widget(weekday_label)
         
-        entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+        entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.9, None), pos_hint={"center_x": .6, "center_y": .5})
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for entry_column in entry_column_data:
-            entry_label = MDLabel(adaptive_height=True, text=entry_column[0], font_style="Body1")
+            entry_label = MDLabel(adaptive_height=True, text=entry_column[0], pos_hint={"center_x": .5, "center_y": .5}, font_style="Body1")
             entry_column_box.add_widget(entry_label)
+        entry_label = MDLabel(adaptive_height=True, text="", font_style="Body1")
+        entry_column_box.add_widget(entry_label)
         weekday_box.add_widget(entry_column_box)
 
         entries = Service(Entry).get({'dayid': day.dayid})
         if entries:
             entry_rows = entries if isinstance(entries, list) else [entries]
             for entry in entry_rows:
-                entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+                entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.9, None), pos_hint={"center_x": .6, "center_y": .5})
                 entry_rowdata = Utils.data_to_tuple('entry', [entry.as_dict()])
                 print(entry_rowdata)
                 for entry_row in entry_rowdata:
                     for entry_column in entry_row:
                         entry_column_value = entry_column if entry_column else '(In progress)'
-                        entry_label = MDLabel(adaptive_height=True, text=entry_column_value, font_style="Body2")
+                        entry_label = MDLabel(text=entry_column_value, size_hint=(.5, None), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
                         entry_row_box.add_widget(entry_label)
+                    entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.delete_entry)
+                    entry_row_box.add_widget(entry_delete)
                 weekday_box.add_widget(entry_row_box)
 
         last_entry = API.get_last_entry()
@@ -97,7 +102,12 @@ class TimebotEntryScreen(MDScreen):
         API.switch_or_start_task(instance.children[0].children[0].text)
         self.show_today()
 
-    def end_task(self,instance):
+    def delete_entry(self, instance):
+        labels = [c.text for c in instance.parent.children]
+        API.remove_task(*labels)
+        self.show_today()
+
+    def end_task(self, instance):
         API.switch_or_start_task()
         self.show_today()
 
