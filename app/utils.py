@@ -32,8 +32,8 @@ class Utils:
             },
             'entry': {
                 'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
-                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 50},
-                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 70},
+                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 60},
+                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 60},
                 'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 130, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }

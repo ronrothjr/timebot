@@ -22,6 +22,7 @@ from kivymd.uix.button import MDFlatButton, MDRoundFlatButton, MDTextButton
 from kivymd.uix.textfield import MDTextField
 from service import Service
 from project import Project
+from timecard import Timecard
 from day import Day
 from entry import Entry
 from utils import Utils
@@ -56,7 +57,7 @@ class TimebotEntryScreen(MDScreen):
         for project in projects:
             project_card = MD3Card(padding=16, radius=[15,], size_hint=(1, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1), on_release=self.released)
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
-            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
             project_layout.add_widget(project_label)
             project_card.add_widget(project_layout)
             self.project_grid.add_widget(project_card)
@@ -82,9 +83,14 @@ class TimebotEntryScreen(MDScreen):
 
     def show_weekday(self, day, entries):
         self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="330dp", spacing="5dp", pos_hint={"center_x": .5})
+        heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None))
+        weekday_label = MDLabel(adaptive_height=True, text=day.weekday, size_hint_x=None, width="130dp", font_style="H6")
+        timecard: Timecard = API.get_current_timecard()
+        heading_box.add_widget(weekday_label)
+        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week of: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
+        heading_box.add_widget(timecard_label)
+        self.weekday_box.add_widget(heading_box)
         entry_rows = entries if isinstance(entries, list) else [entries]
-        weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
-        self.weekday_box.add_widget(weekday_label)
         self.add_task_grid(day, entry_rows)
         self.add_last_task_button()
         self.list_view.add_widget(self.weekday_box)

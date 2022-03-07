@@ -54,7 +54,7 @@ class TimebotProjectsScreen(MDScreen):
             project_icon_add = MDIconButton(icon='plus', pos_hint={"center_x": .5, "center_y": .5}, on_release=self.released)
             project_layout.add_widget(project_icon_add)
         else:
-            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
             project_icon_close = MDIconButton(icon='close', pos_hint={"center_x": .95, "center_y": .9}, on_release=self.released)
             project_icon_star = MDIconButton(icon='star' if project.show else 'star-outline', pos_hint={"center_x": .95, "center_y": .1}, on_release=self.released)
             project_layout.add_widget(project_label)
