@@ -26,3 +26,28 @@
     MDTextField:
         id: code
         hint_text: "Project Code"
+
+<TimebotConfirmDeleteTaskDialog>
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "200dp"
+
+    MDLabel:
+        id: error
+        text: "Delete this task?"
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 0, 0, 1
+
+    MDLabel:
+        id: begin
+        text: "Begin Time"
+
+    MDLabel:
+        id: end
+        text: "End Time"
+
+    MDLabel:
+        id: code
+        text: "Project Code"

@@ -187,7 +187,7 @@ class API:
             entry.update(task_to_update, {'begin': begin, 'end': None if end == '' else end, 'code': code})
 
     @staticmethod
-    def remove_task(icon: str, code: str, end: str, begin: str):
+    def remove_task(begin: str, end: str, code: str):
         print(begin, end, code)
         now, entry, day_obj, entries = API.get_today()
         for entry_obj in entries:

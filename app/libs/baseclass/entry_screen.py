@@ -31,6 +31,9 @@ from api import API
 class TimebotEditTaskDialog(MDBoxLayout):
     pass
 
+class TimebotConfirmDeleteTaskDialog(MDBoxLayout):
+    pass
+
 class TimebotEntryScreen(MDScreen):
 
     def on_enter(self):
@@ -113,7 +116,7 @@ class TimebotEntryScreen(MDScreen):
             entry_column_value = entry_rowdata[entry_column[2]] if entry_rowdata[entry_column[2]] else '(active)'
             entry_label = MDLabel(text=entry_column_value, size_hint=(None, None), width=dp(entry_column[1]), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
             entry_row_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.delete_entry, pos_hint={"center_x": .5, "center_y": .5})
+        entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_delete)
         self.weekday_box.add_widget(entry_row_box)
 
@@ -132,7 +135,7 @@ class TimebotEntryScreen(MDScreen):
         app = App.get_running_app()
         edit_dialog = TimebotEditTaskDialog()
         self.custom_dialog = MDDialog(
-            title="Edit Task:",
+            title="Edit Task",
             type="custom",
             content_cls=edit_dialog,
             buttons=[
@@ -172,9 +175,36 @@ class TimebotEntryScreen(MDScreen):
             self.custom_dialog.dismiss(force=True)
             self.show_today()
 
-    def delete_entry(self, instance):
+    def confirm_delete_entry(self, instance):
         labels = [c.text for c in instance.parent.children]
-        API.remove_task(*labels)
+        self.remove_me = list(reversed(labels[1:4]))
+        app = App.get_running_app()
+        confirm_dialog = TimebotConfirmDeleteTaskDialog()
+        self.custom_dialog = MDDialog(
+            title="Delete Task",
+            type="custom",
+            content_cls=confirm_dialog,
+            buttons=[
+                MDFlatButton(
+                    text="CANCEL",
+                    text_color=app.theme_cls.primary_color,
+                    on_release=self.cancel_dialog
+                ),
+                MDFlatButton(
+                    text="OK", text_color=app.theme_cls.primary_color,
+                    on_release=self.delete_entry
+                ),
+            ],
+        )
+        self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
+        self.custom_dialog.content_cls.ids.begin.text = f'Begin: {labels[3]}'
+        self.custom_dialog.content_cls.ids.end.text = f'End: {labels[2]}'
+        self.custom_dialog.content_cls.ids.code.text = f'Code: {labels[1]}'
+        self.custom_dialog.open()
+
+    def delete_entry(self, instance):
+        self.custom_dialog.dismiss(force=True)
+        API.remove_task(*self.remove_me)
         self.show_today()
 
     def end_task(self, instance):
