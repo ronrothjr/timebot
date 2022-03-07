@@ -121,6 +121,9 @@ class API:
                 last = entry_obj
         return last
 
+    def update_task(original, begin, end, code):
+        pass
+
     @staticmethod
     def remove_task(icon: str, code: str, end: str, begin: str):
         print(begin, end, code)

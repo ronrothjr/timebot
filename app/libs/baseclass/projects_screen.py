@@ -66,6 +66,7 @@ class TimebotProjectsScreen(MDScreen):
 
     def released(self, instance):
         if instance.icon == 'plus':
+            app = App.get_running_app()
             self.custom_dialog = MDDialog(
                 title="Add Project Code:",
                 type="custom",
@@ -73,16 +74,16 @@ class TimebotProjectsScreen(MDScreen):
                 buttons=[
                     MDFlatButton(
                         text="CANCEL",
-                        text_color=App.get_running_app().theme_cls.primary_color,
+                        text_color=app.theme_cls.primary_color,
                         on_release=self.cancel_dialog
                     ),
                     MDFlatButton(
-                        text="OK", text_color=App.get_running_app().theme_cls.primary_color,
+                        text="OK", text_color=app.theme_cls.primary_color,
                         on_release=self.add_project
                     ),
                 ],
             )
-            self.custom_dialog.md_bg_color = App.get_running_app().theme_cls.bg_dark
+            self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
             self.custom_dialog.open()
         elif instance.icon == 'star':
             print(instance.icon, instance.parent.children[2].text)

@@ -1,7 +1,10 @@
+from functools import partial
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
 from typing import List
 from kivy.core.window import Window
+from kivy.app import App
+from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
 from kivymd.effects.stiffscroll import StiffScrollEffect
@@ -14,7 +17,9 @@ from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDIconButton
 from kivymd.uix.card import MDCard
-from kivymd.uix.button import MDRoundFlatButton
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDFlatButton, MDRoundFlatButton, MDTextButton
+from kivymd.uix.textfield import MDTextField
 from service import Service
 from project import Project
 from day import Day
@@ -22,6 +27,9 @@ from entry import Entry
 from utils import Utils
 from api import API
 
+
+class TimebotEditTaskDialog(MDBoxLayout):
+    pass
 
 class TimebotEntryScreen(MDScreen):
 
@@ -84,13 +92,16 @@ class TimebotEntryScreen(MDScreen):
 
             entry_rows = entries if isinstance(entries, list) else [entries]
             for entry in entry_rows:
-                entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.9, None), pos_hint={"center_x": .6, "center_y": .5})
+                
+                entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+                entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task)
+                entry_row_box.add_widget(entry_edit)
                 entry_rowdata = Utils.data_to_tuple('entry', [entry.as_dict()])
                 print(entry_rowdata)
                 for entry_row in entry_rowdata:
                     for entry_column in entry_row:
                         entry_column_value = entry_column if entry_column else '(In progress)'
-                        entry_label = MDLabel(text=entry_column_value, size_hint=(.5, None), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
+                        entry_label = MDLabel(text=entry_column_value, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
                         entry_row_box.add_widget(entry_label)
                     entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.delete_entry)
                     entry_row_box.add_widget(entry_delete)
@@ -107,9 +118,46 @@ class TimebotEntryScreen(MDScreen):
 
             self.list_view.add_widget(weekday_box)
 
+    def edit_task(self, instance):
+        labels = [c.text for c in instance.parent.children]
+        app = App.get_running_app()
+        edit_dialog = TimebotEditTaskDialog()
+        self.custom_dialog = MDDialog(
+            title="Edit Task:",
+            type="custom",
+            content_cls=edit_dialog,
+            buttons=[
+                MDFlatButton(
+                    text="CANCEL",
+                    text_color=app.theme_cls.primary_color,
+                    on_release=self.cancel_dialog
+                ),
+                MDFlatButton(
+                    text="SAVE", text_color=app.theme_cls.primary_color,
+                    on_release=self.save_task
+                ),
+            ],
+        )
+        self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
+        self.custom_dialog.open()
+        self.original_values = labels[1:3]
+        Clock.schedule_once(self.set_begin)
+
+    def set_begin(self, values, instance):
+        self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
+
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[0].text)
         self.show_today()
+
+    def cancel_dialog(self, *args):
+        self.custom_dialog.dismiss(force=True)
+
+    def save_task(self, *args):
+        begin = self.custom_dialog.content_cls.ids.begin.text
+        end = self.custom_dialog.content_cls.ids.end.text
+        code = self.custom_dialog.content_cls.ids.code.text
+        API.update_task(self.original_values, begin, end, code)
 
     def delete_entry(self, instance):
         labels = [c.text for c in instance.parent.children]
