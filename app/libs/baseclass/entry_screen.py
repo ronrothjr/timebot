@@ -147,7 +147,7 @@ class TimebotEntryScreen(MDScreen):
         self.custom_dialog.open()
         self.original_values = list(reversed(labels[1:4]))
         self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
-        self.custom_dialog.content_cls.ids.end.text = self.original_values[1]
+        self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(In progress)' else self.original_values[1] 
         self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
 
     def released(self, instance):
@@ -161,9 +161,12 @@ class TimebotEntryScreen(MDScreen):
         begin = self.custom_dialog.content_cls.ids.begin.text
         end = self.custom_dialog.content_cls.ids.end.text
         code = self.custom_dialog.content_cls.ids.code.text
-        API.update_task(self.original_values, begin, end, code)
-        self.custom_dialog.dismiss(force=True)
-        self.show_today()
+        error = API.update_task(self.original_values, begin, end, code)
+        if error:
+            self.custom_dialog.content_cls.ids.error.text = error
+        else:
+            self.custom_dialog.dismiss(force=True)
+            self.show_today()
 
     def delete_entry(self, instance):
         labels = [c.text for c in instance.parent.children]

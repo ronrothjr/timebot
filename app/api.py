@@ -123,11 +123,61 @@ class API:
 
     def update_task(original, begin, end, code):
         print(begin, end, code)
+        has_valid_time_lengths = len(begin) == 4 or len(end) == 0 or len(end) == 4
+        if not has_valid_time_lengths:
+            return f'invalid length for {begin} or {end}'
+        try:
+            int(begin[0:2])
+            int(begin[-2:])
+        except:
+            return f'int value failed for begin: {begin}'
+        has_valid_time_values = int(begin[0:2]) >= 0 and int(begin[0:2]) < 24 and int(begin[-2:]) >= 0 and int(begin[-2:]) < 60
+        if len(end) == 4:
+            try:
+                int(end[0:2])
+                int(end[-2:])
+            except:
+                return f'int value failed for end: {end}'
+            has_valid_time_values = has_valid_time_values and int(end[0:2]) >= 0 and int(end[0:2]) < 24 and int(end[-2:]) >= 0 and int(end[-2:]) < 60 and begin < end
+        if not has_valid_time_values:
+            return f'invalid time value for {begin} or {end}'
+        schema = Utils.get_schema()
+        project = Service(Project, Sqlite3DB, schema)
+        project_obj = project.get(code)
+        has_valid_project_code = project_obj
+        if not has_valid_project_code:
+            return f'invalid project code: {code}'
         now, entry, day_obj, entries = API.get_today()
+        previous_task = None
+        task_to_update = None
+        next_task = None
         for entry_obj in entries:
             entry_dict = entry_obj.as_dict()
+            if task_to_update:
+                next_task = entry_obj
             if entry_dict['begin'] == original[0]:
-                entry.update(entry_obj, {'begin': begin, 'end': end, 'code': code})
+                task_to_update = entry_obj
+            if not task_to_update:
+                previous_task = entry_obj
+        if task_to_update:
+            if previous_task and Utils.db_format_time(previous_task.end) > begin:
+                if Utils.db_format_time(previous_task.begin) >= begin:
+                    print('deleting previous task')
+                    begin = Utils.db_format_time(previous_task.begin)
+                    entry.remove(previous_task.entryid)
+                else:
+                    print('updating previous task')
+                    entry.update(previous_task, {'end': begin})
+            if end and next_task and Utils.db_format_time(next_task.begin) < end:
+                if Utils.db_format_time(next_task.end) >= end:
+                    print('deleting next task')
+                    end = Utils.db_format_time(previous_task.end)
+                    entry.remove(next_task.entryid)
+                else:
+                    print('updating next task')
+                    entry.update(next_task, {'begin': end})
+            print('updating current task')
+            entry.update(task_to_update, {'begin': begin, 'end': None if end == '' else end, 'code': code})
 
     @staticmethod
     def remove_task(icon: str, code: str, end: str, begin: str):
