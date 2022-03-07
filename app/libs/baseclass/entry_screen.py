@@ -7,7 +7,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
-from kivymd.effects.stiffscroll import StiffScrollEffect
+from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import MDList
@@ -78,39 +78,43 @@ class TimebotEntryScreen(MDScreen):
         self.list_view.add_widget(empty_card)
 
     def show_weekday(self, day, entries):
-        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
-        self.add_weekday_header(day)
+        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None), spacing="5dp")
         entry_rows = entries if isinstance(entries, list) else [entries]
-        for entry in entry_rows:
-            self.add_entry_row(entry)
+        weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
+        self.weekday_box.add_widget(weekday_label)
+        self.add_task_grid(day, entry_rows)
         self.add_last_task_button()
         self.list_view.add_widget(self.weekday_box)
 
+    def add_task_grid(self, day, entry_rows):
+        self.add_weekday_header(day)
+        for entry in entry_rows:
+            self.add_entry_row(entry)
+
     def add_weekday_header(self, day):
-        weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
-        self.weekday_box.add_widget(weekday_label)
-        entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.9, None), pos_hint={"center_x": .6, "center_y": .5})
+        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", padding=0, spacing=0)
+        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
+        entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for entry_column in entry_column_data:
-            entry_label = MDLabel(adaptive_height=True, text=entry_column[0], pos_hint={"center_x": .5, "center_y": .5}, font_style="Body1")
+            entry_label = MDLabel(text=entry_column[0], size_hint=(None, None), width=dp(entry_column[1]), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body1")
             entry_column_box.add_widget(entry_label)
-        entry_label = MDLabel(adaptive_height=True, text="", font_style="Body1")
-        entry_column_box.add_widget(entry_label)
+        entry_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
+        entry_column_box.add_widget(entry_delete)
         self.weekday_box.add_widget(entry_column_box)
 
     def add_entry_row(self, entry):
-        entry_row_box = MDGridLayout(cols=5, adaptive_height=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5}, line_color=gch('ffffff'), radius="10dp")
+        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="40dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp")
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_edit)
-        entry_rowdata = Utils.data_to_tuple('entry', [entry.as_dict()])
-        print(entry_rowdata)
-        for entry_row in entry_rowdata:
-            for entry_column in entry_row:
-                entry_column_value = entry_column if entry_column else '(In progress)'
-                entry_label = MDLabel(text=entry_column_value, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
-                entry_row_box.add_widget(entry_label)
-            entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.delete_entry, pos_hint={"center_x": .5, "center_y": .5})
-            entry_row_box.add_widget(entry_delete)
+        entry_column_data = Utils.schema_dict_to_tuple('entry')
+        entry_rowdata = entry.as_dict()
+        for entry_column in entry_column_data:
+            entry_column_value = entry_rowdata[entry_column[2]] if entry_rowdata[entry_column[2]] else '(active)'
+            entry_label = MDLabel(text=entry_column_value, size_hint=(None, None), width=dp(entry_column[1]), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
+            entry_row_box.add_widget(entry_label)
+        entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.delete_entry, pos_hint={"center_x": .5, "center_y": .5})
+        entry_row_box.add_widget(entry_delete)
         self.weekday_box.add_widget(entry_row_box)
 
     def add_last_task_button(self):
@@ -147,7 +151,7 @@ class TimebotEntryScreen(MDScreen):
         self.custom_dialog.open()
         self.original_values = list(reversed(labels[1:4]))
         self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
-        self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(In progress)' else self.original_values[1] 
+        self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
         self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
 
     def released(self, instance):

@@ -32,9 +32,9 @@ class Utils:
             },
             'entry': {
                 'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
-                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 30},
-                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 30},
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 30, 'ref': 'project(code)', 'trigger': 'CASCADE'}
+                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 50},
+                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 70},
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 130, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }
         return {'db_name': 'app.db', 'tables': tables}
@@ -45,7 +45,7 @@ class Utils:
         schema = Utils.get_schema()
         for name, column in schema['tables'][table_name].items():
             if 'display' in column:
-                columns.append((column['display'], column['dp']))
+                columns.append((column['display'], column['dp'], column['name']))
         return columns
 
     @staticmethod
@@ -62,8 +62,18 @@ class Utils:
         rows = []
         columns = [name for name, value in table.items() if 'display' in value]
         for row_data in data:
-            tuple_data = tuple([row_data[name] for name in columns])
+            tuple_data = ([row_data[name] for name in columns])
             rows.append(tuple_data)
+        return rows
+
+    @staticmethod
+    def data_to_list(table_name: str, data: list):
+        table = Utils.get_schema()['tables'][table_name]
+        rows = []
+        columns = [name for name, value in table.items() if 'display' in value]
+        for row_data in data:
+            list_data = [row_data[name] for name in columns]
+            rows.append(list_data)
         return rows
 
     @staticmethod
