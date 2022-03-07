@@ -123,9 +123,16 @@ class API:
 
     def update_task(original, begin, end, code):
         print(begin, end, code)
-        has_valid_time_lengths = len(begin) == 4 or len(end) == 0 or len(end) == 4
+        has_valid_time_lengths = len(begin) == 3 or len(begin) == 4
         if not has_valid_time_lengths:
-            return f'invalid length for {begin} or {end}'
+            return f'invalid length for begin: {begin}'
+        if len(begin) == 3:
+            begin = '0' + begin
+        has_valid_time_lengths = len(end) == 0 or len(end) == 3 or len(end) == 4
+        if not has_valid_time_lengths:
+            return f'invalid length for end: {end}'
+        if len(end) == 3:
+            end = '0' + end
         try:
             int(begin[0:2])
             int(begin[-2:])
