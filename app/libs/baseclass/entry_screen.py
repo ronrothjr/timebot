@@ -67,7 +67,7 @@ class TimebotEntryScreen(MDScreen):
         if not entries:
             self.show_empty_card()
         else:
-            self.show_weedkay(day, entries)
+            self.show_weekday(day, entries)
 
     def show_empty_card(self):
         empty_card = MD3Card(padding=16, radius=[15,], size_hint=(.98, None), size=('120dp', "80dp"), md_bg_color=gch('606060'), line_color=(1, 1, 1, 1))
@@ -83,7 +83,7 @@ class TimebotEntryScreen(MDScreen):
         entry_rows = entries if isinstance(entries, list) else [entries]
         for entry in entry_rows:
             self.add_entry_row(entry)
-        self.add_last_task_buttonz()
+        self.add_last_task_button()
         self.list_view.add_widget(self.weekday_box)
 
     def add_weekday_header(self, day):
