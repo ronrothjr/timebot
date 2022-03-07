@@ -78,7 +78,7 @@ class TimebotEntryScreen(MDScreen):
         self.list_view.add_widget(empty_card)
 
     def show_weekday(self, day, entries):
-        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None), spacing="5dp")
+        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="330dp", spacing="5dp", pos_hint={"center_x": .5})
         entry_rows = entries if isinstance(entries, list) else [entries]
         weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
         self.weekday_box.add_widget(weekday_label)
@@ -92,7 +92,7 @@ class TimebotEntryScreen(MDScreen):
             self.add_entry_row(entry)
 
     def add_weekday_header(self, day):
-        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", padding=0, spacing=0)
+        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="320dp", padding=0, spacing=0)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
         entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
@@ -104,7 +104,7 @@ class TimebotEntryScreen(MDScreen):
         self.weekday_box.add_widget(entry_column_box)
 
     def add_entry_row(self, entry):
-        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="40dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp")
+        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="40dp", width="320dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp")
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
