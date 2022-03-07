@@ -99,8 +99,8 @@ class TimebotEntryScreen(MDScreen):
         self.weekday_box.add_widget(entry_column_box)
 
     def add_entry_row(self, entry):
-        entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
-        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task)
+        entry_row_box = MDGridLayout(cols=5, adaptive_height=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5}, line_color=gch('ffffff'), radius="10dp")
+        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_edit)
         entry_rowdata = Utils.data_to_tuple('entry', [entry.as_dict()])
         print(entry_rowdata)
@@ -109,7 +109,7 @@ class TimebotEntryScreen(MDScreen):
                 entry_column_value = entry_column if entry_column else '(In progress)'
                 entry_label = MDLabel(text=entry_column_value, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
                 entry_row_box.add_widget(entry_label)
-            entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.delete_entry)
+            entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.delete_entry, pos_hint={"center_x": .5, "center_y": .5})
             entry_row_box.add_widget(entry_delete)
         self.weekday_box.add_widget(entry_row_box)
 
