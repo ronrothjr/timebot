@@ -122,7 +122,12 @@ class API:
         return last
 
     def update_task(original, begin, end, code):
-        pass
+        print(begin, end, code)
+        now, entry, day_obj, entries = API.get_today()
+        for entry_obj in entries:
+            entry_dict = entry_obj.as_dict()
+            if entry_dict['begin'] == original[0]:
+                entry.update(entry_obj, {'begin': begin, 'end': end, 'code': code})
 
     @staticmethod
     def remove_task(icon: str, code: str, end: str, begin: str):

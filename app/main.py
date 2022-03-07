@@ -2,6 +2,7 @@ import os, sys
 from pathlib import Path
 from kivy.lang import Builder
 from kivymd.app import MDApp
+from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, FadeTransition
 from kivy.utils import get_color_from_hex as C 
@@ -34,6 +35,7 @@ class MDTimebot(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        Window.size = (360, 780)
         self.title = "Timebot"
         self.icon = f"{os.environ['TIMEBOT_ROOT']}/assets/images/logo.png"
         self.services()
