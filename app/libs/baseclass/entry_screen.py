@@ -88,7 +88,7 @@ class TimebotEntryScreen(MDScreen):
     def show_weekday(self, day, entries):
         self.day = day
         self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="330dp", spacing="5dp", pos_hint={"center_x": .5})
-        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="320dp", padding="0dp", spacing="0dp")
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="330dp", padding="0dp", spacing="0dp")
         self.show_heading()
         self.weekday_box.add_widget(self.heading_box)
         entry_rows = entries if isinstance(entries, list) else [entries]
