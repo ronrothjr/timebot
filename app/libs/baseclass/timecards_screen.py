@@ -52,7 +52,7 @@ class TimebotTimecardsScreen(MDScreen):
         heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
         timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", font_style="Body2")
         heading_box.add_widget(timecard_label)
-        entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0, None), height="30dp", padding=0, spacing=0)
+        entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0, None), height="30dp", width="330dp", padding=0, spacing=0)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
         entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
