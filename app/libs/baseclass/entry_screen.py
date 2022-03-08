@@ -87,8 +87,8 @@ class TimebotEntryScreen(MDScreen):
 
     def show_weekday(self, day, entries):
         self.day = day
-        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="330dp", spacing="5dp", pos_hint={"center_x": .5})
-        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="330dp", padding="0dp", spacing="0dp")
+        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="340dp", spacing="5dp", pos_hint={"center_x": .5})
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
         self.show_heading()
         self.weekday_box.add_widget(self.heading_box)
         entry_rows = entries if isinstance(entries, list) else [entries]
@@ -101,7 +101,7 @@ class TimebotEntryScreen(MDScreen):
         weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width="80dp", font_style="H6")
         timecard: Timecard = API.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
-        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="50dp", padding="0dp", spacing="0dp")
+        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="60dp", padding="0dp", spacing="0dp")
         self.show_time()
         self.heading_box.add_widget(self.time_box)
         timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week of: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
@@ -113,7 +113,7 @@ class TimebotEntryScreen(MDScreen):
     def show_time(self, event=None):
         self.time_box.clear_widgets()
         current_time = datetime.datetime.now().strftime("%H:%M:%S")
-        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="50dp", font_style="Caption")
+        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="60dp", font_style="Caption")
         self.time_box.add_widget(current_time_label)
 
     def add_task_grid(self, day, entry_rows):
