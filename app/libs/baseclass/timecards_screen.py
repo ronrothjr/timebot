@@ -1,10 +1,11 @@
 import datetime
 from kivy.metrics import dp
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
-from kivymd.effects.stiffscroll import StiffScrollEffect
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.spinner import MDSpinner
 from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFlatButton, MDIconButton
@@ -61,23 +62,33 @@ class TimebotTimecardsScreen(MDScreen):
 
     def show_weekdays(self):
         self.weekdays_box.clear_widgets()
+        spinner = MDSpinner(size_hint=(None, None), size=(dp(46), dp(46)), pos_hint={'center_x': .5, 'center_y': .5}, active=True)
+        self.weekdays_box.add_widget(spinner)
+        Clock.schedule_once(self.show_weekdays_once)
+
+    def show_weekdays_once(self, event=None):
         days = Service(Day).get({'begin_date': self.timecard.begin_date})
         days_rows = days if isinstance(days, list) else [days]
+        widgets = []
         for day in days_rows:
-            self.add_weekday(day)
+            widgets += self.get_weekday(day)
+        self.weekdays_box.clear_widgets()
+        for widget in widgets:
+            self.weekdays_box.add_widget(widget)
 
-    def add_weekday(self, day):
+    def get_weekday(self, day):
+        widgets = []
         weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
         weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
-        weekday_box.add_widget(weekday_label)
+        widgets.append(weekday_label)
         entries = Service(Entry).get({'dayid': day.dayid})
         if entries:
             dict_entries = Utils.data_to_dict('entry', [entry.as_dict() for entry in entries])
             for entry in dict_entries:
-                self.add_entry(entry, weekday_box)
-        self.weekdays_box.add_widget(weekday_box)
+                widgets += self.get_entry(entry, weekday_box)
+        return widgets
 
-    def add_entry(self, entry, weekday_box):
+    def get_entry(self, entry, weekday_box):
         entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_edit)
@@ -88,7 +99,7 @@ class TimebotTimecardsScreen(MDScreen):
             entry_row_box.add_widget(entry_label)
         entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_delete)
-        weekday_box.add_widget(entry_row_box)
+        return [entry_row_box]
 
     def edit_task(self, instance):
         parent_labels = [c.text for c in instance.parent.parent.children if isinstance(c, MDLabel)]
