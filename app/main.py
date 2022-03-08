@@ -15,10 +15,10 @@ from timecard import Timecard
 from day import Day
 from entry import Entry
 from api import API
-from kivy.config import Config
-Config.set('graphics', 'width', '370')
-Config.set('graphics', 'height', '760')
-Config.write()
+# from kivy.config import Config
+# Config.set('graphics', 'width', '370')
+# Config.set('graphics', 'height', '760')
+# Config.write()
 
 os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
 
@@ -39,7 +39,7 @@ class MDTimebot(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        Window.size = (370, 760)
+        # Window.size = (370, 760)
         self.title = "Timebot"
         self.icon = f"{os.environ['TIMEBOT_ROOT']}/assets/images/logo.png"
         self.services()
