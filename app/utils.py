@@ -32,12 +32,23 @@ class Utils:
             },
             'entry': {
                 'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
-                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 60},
+                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 50},
+                'total': {'name': 'total', 'display': 'Total', 'type': 'CALCULATED', 'dp': 50, 'calc': Utils.entry_total},
                 'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 60},
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 130, 'ref': 'project(code)', 'trigger': 'CASCADE'}
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 100, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }
         return {'db_name': 'app.db', 'tables': tables}
+
+    @staticmethod
+    def entry_total(entry):
+        is_dict = isinstance(entry, dict)
+        begin = entry.get('begin') if is_dict else entry.begin
+        end = entry.get('end') if is_dict else entry.end
+        diff: datetime.timedelta = end - begin
+        minutes = int(diff.total_seconds() / 60)
+        time_str = f'{int(minutes / 60)}:{str(minutes % 60).rjust(2, "0")}'
+        return time_str
 
     @staticmethod
     def schema_dict_to_tuple(table_name):
@@ -47,6 +58,16 @@ class Utils:
             if 'display' in column:
                 columns.append((column['display'], column['dp'], column['name']))
         return columns
+
+    @staticmethod
+    def obj_format_time(t: str):
+        obj_time = None
+        if t:
+            time_str = t
+            hour = time_str[0:2]
+            minute = time_str[-2:]
+            obj_time = datetime.datetime.time(int(hour), int(minute))
+        return obj_time
 
     @staticmethod
     def db_format_time(t: datetime.datetime.time):
@@ -62,9 +83,16 @@ class Utils:
         rows = []
         columns = [name for name, value in table.items() if 'display' in value]
         for row_data in data:
-            tuple_data = ([row_data[name] for name in columns])
+            tuple_data = ([Utils.get_data_from_schema(name, table, row_data) for name in columns])
             rows.append(tuple_data)
         return rows
+
+    @staticmethod
+    def get_data_from_schema(column: str, table: dict, row_data: dict):
+        column_definition = table.get(column)
+        calc = column_definition.get('calc')
+        result = calc(row_data) if calc else row_data.get(column)
+        return result
 
     @staticmethod
     def data_to_list(table_name: str, data: list):
@@ -72,7 +100,7 @@ class Utils:
         rows = []
         columns = [name for name, value in table.items() if 'display' in value]
         for row_data in data:
-            list_data = [row_data[name] for name in columns]
+            list_data = [Utils.get_data_from_schema(name, table, row_data) for name in columns]
             rows.append(list_data)
         return rows
 

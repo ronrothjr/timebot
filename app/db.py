@@ -22,6 +22,7 @@ class Column:
         self.name: str = field.get('name')
         self.type: str = field.get('type')
         self.id: bool = field.get('id', False)
+        self.calc: str = field.get('calc', None)
         self.ref: str = field.get('ref', '')
         self.trigger: str = field.get('trigger', '')
 
@@ -44,7 +45,8 @@ class Table:
         if not id_field:
             new_fields[f'{self.name}id'] = {'name': f'{self.name}id', 'type': 'INTEGER', 'id': True, 'dp': 10}
         for name, f in fields.items():
-            new_fields[name] = f
+            if f.get('type ')in ['TEXT', 'INTEGER']:
+                new_fields[name] = f
         if not 'create_timestamp' in fields:
             new_fields['create_timestamp'] ={'name': 'create_timestamp', 'type': 'TEXT'}
         if not 'last_update_timestamp' in fields:
@@ -54,7 +56,8 @@ class Table:
     def get_model(self) -> dict:
         model = {}
         for name, props in self.fields.items():
-            model[name] = Column(props)
+            if props['type'] in ['TEXT', 'INTEGER']:
+                model[name] = Column(props)
         return model
 
     def get_create_sql(self) -> str:

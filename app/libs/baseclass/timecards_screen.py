@@ -16,6 +16,10 @@ from entry import Entry
 from utils import Utils
 
 
+class TimebotTimecardEditTaskDialog(MDBoxLayout):
+    pass
+
+
 class TimebotTimecardsScreen(MDScreen):
     def on_enter(self):
         self.clear_widgets()
@@ -57,7 +61,7 @@ class TimebotTimecardsScreen(MDScreen):
                     print(entry_rowdata)
                     for entry_row in entry_rowdata:
                         for entry_column in entry_row:
-                            entry_column_value = entry_column if entry_column else '(In progress)'
+                            entry_column_value = entry_column if entry_column else '(active)'
                             entry_label = MDLabel(adaptive_height=True, text=entry_column_value, font_style="Body2")
                             entry_row_box.add_widget(entry_label)
                     weekday_box.add_widget(entry_row_box)
@@ -67,3 +71,41 @@ class TimebotTimecardsScreen(MDScreen):
         self.scroller.add_widget(view)
 
         self.add_widget(self.scroller)
+
+    def edit_task(self, instance):
+        labels = [c.text for c in instance.parent.children]
+        app = App.get_running_app()
+        edit_dialog = TimebotTimecardEditTaskDialog()
+        self.custom_dialog = MDDialog(
+            title="Edit Task",
+            type="custom",
+            content_cls=edit_dialog,
+            buttons=[
+                MDFlatButton(
+                    text="CANCEL",
+                    text_color=app.theme_cls.primary_color,
+                    on_release=self.cancel_dialog
+                ),
+                MDFlatButton(
+                    text="SAVE", text_color=app.theme_cls.primary_color,
+                    on_release=self.save_task
+                ),
+            ],
+        )
+        self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
+        self.custom_dialog.open()
+        self.original_values = list(reversed(labels[1:4]))
+        self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
+        self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
+        self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
+
+    def save_task(self, *args):
+        begin = self.custom_dialog.content_cls.ids.begin.text
+        end = self.custom_dialog.content_cls.ids.end.text
+        code = self.custom_dialog.content_cls.ids.code.text
+        error = API.update_task(self.original_values, begin, end, code)
+        if error:
+            self.custom_dialog.content_cls.ids.error.text = error
+        else:
+            self.custom_dialog.dismiss(force=True)
+            self.show_today()

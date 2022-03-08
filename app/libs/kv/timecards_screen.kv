@@ -2,3 +2,35 @@
 
 
 <TimebotTimecardsScreen>
+
+<TimebotTimecardEditTaskDialog>
+    orientation: "vertical"
+    spacing: "12dp"
+    size_hint_y: None
+    height: "230dp"
+
+    MDLabel:
+        id: error
+        text: ""
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 0, 0, 1
+
+    MDLabel:
+        id: weekday
+        text: ""
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 1, 1, 1
+
+    MDTextField:
+        id: begin
+        hint_text: "Begin Time"
+
+    MDTextField:
+        id: end
+        hint_text: "End Time"
+
+    MDTextField:
+        id: code
+        hint_text: "Project Code"

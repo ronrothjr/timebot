@@ -18,22 +18,10 @@ class Entry:
         self.code = entry.get('code', default_code)
 
     def set_begin_time(self, entry: dict):
-        if entry.get('begin'):
-            begin_str = entry.get('begin')
-            hour = begin_str[0:2]
-            minute = begin_str[-2:]
-            self.begin = time(int(hour), int(minute)) if entry.get('begin') else None
-        else:
-            self.begin = None
+        self.begin = Utils.obj_format_time(entry.get('begin'))
 
     def set_end_time(self, entry: dict):
-        if entry.get('end'):
-            end_str = entry.get('end')
-            hour = end_str[0:2]
-            minute = end_str[-2:]
-            self.end = time(int(hour), int(minute)) if entry.get('end') else None
-        else:
-            self.end = None
+        self.end = Utils.obj_format_time(entry.get('end'))
 
     def as_dict(self):
         items = {'entryid': self.entryid, 'dayid': self.dayid, 'begin': Utils.db_format_time(self.begin), 'end': Utils.db_format_time(self.end), 'code': self.code}
