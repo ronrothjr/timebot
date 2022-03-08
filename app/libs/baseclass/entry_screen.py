@@ -50,6 +50,9 @@ class TimebotEntryScreen(MDScreen):
         self.view.add_widget(self.list_view)
         self.scroller.add_widget(self.view)
         self.add_widget(self.scroller)
+        if hasattr(self, 'show_event'):
+            Clock.unschedule(self.show_event)
+        self.show_event = Clock.schedule_interval(self.show_today, 60)
 
     def show_project_grid(self):
         self.project_grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
@@ -63,7 +66,7 @@ class TimebotEntryScreen(MDScreen):
             self.project_grid.add_widget(project_card)
         self.view.add_widget(self.project_grid)
 
-    def show_today(self):
+    def show_today(self, event=None):
         self.list_view.clear_widgets()
         today, begin_date, weekday = Utils.get_begin_date()
         day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
@@ -158,10 +161,10 @@ class TimebotEntryScreen(MDScreen):
         )
         self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
         self.custom_dialog.open()
-        self.original_values = list(reversed(labels[1:4]))
+        self.original_values = list(reversed(labels[1:5]))
         self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
         self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
-        self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
+        self.custom_dialog.content_cls.ids.code.text = self.original_values[3]
 
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[0].text)

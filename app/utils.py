@@ -43,15 +43,12 @@ class Utils:
     @staticmethod
     def entry_total(entry):
         begin = entry.get('begin')
-        end = entry.get('end')
-        if end:
-            time_1 = datetime.datetime.strptime(f'{begin[0:2]}:{begin[-2:]}:00',"%H:%M:%S")
-            time_2 = datetime.datetime.strptime(f'{end[0:2]}:{end[-2:]}:00',"%H:%M:%S")
-            diff: datetime.timedelta = time_2 - time_1
-            minutes = int(diff.total_seconds() / 60)
-            time_str = f'{int(minutes / 60)}:{str(minutes % 60).rjust(2, "0")}'
-        else:
-            time_str = ''
+        end = entry.get('end') if entry.get('end') else Utils.db_format_time(datetime.datetime.now().time())
+        time_1 = datetime.datetime.strptime(f'{begin[0:2]}:{begin[-2:]}:00',"%H:%M:%S")
+        time_2 = datetime.datetime.strptime(f'{end[0:2]}:{end[-2:]}:00',"%H:%M:%S")
+        diff: datetime.timedelta = time_2 - time_1
+        minutes = int(diff.total_seconds() / 60)
+        time_str = f'{int(minutes / 60)}:{str(minutes % 60).rjust(2, "0")}'
         return time_str
 
     @staticmethod
