@@ -72,7 +72,7 @@ class TimebotTimecardsScreen(MDScreen):
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6")
         weekday_box.add_widget(weekday_label)
         weekday_entries = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None))
-        weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(None, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+        weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
         weekday_box.add_widget(weekday_entries)
         self.view.add_widget(weekday_box)
         return weekday_entries
