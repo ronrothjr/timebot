@@ -45,7 +45,7 @@ class Table:
         if not id_field:
             new_fields[f'{self.name}id'] = {'name': f'{self.name}id', 'type': 'INTEGER', 'id': True, 'dp': 10}
         for name, f in fields.items():
-            if f.get('type ')in ['TEXT', 'INTEGER']:
+            if f.get('type')in ['TEXT', 'INTEGER']:
                 new_fields[name] = f
         if not 'create_timestamp' in fields:
             new_fields['create_timestamp'] ={'name': 'create_timestamp', 'type': 'TEXT'}

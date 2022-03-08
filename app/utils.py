@@ -33,21 +33,25 @@ class Utils:
             'entry': {
                 'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
                 'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 50},
+                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 55},
                 'total': {'name': 'total', 'display': 'Total', 'type': 'CALCULATED', 'dp': 50, 'calc': Utils.entry_total},
-                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 60},
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 100, 'ref': 'project(code)', 'trigger': 'CASCADE'}
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 90, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }
         return {'db_name': 'app.db', 'tables': tables}
 
     @staticmethod
     def entry_total(entry):
-        is_dict = isinstance(entry, dict)
-        begin = entry.get('begin') if is_dict else entry.begin
-        end = entry.get('end') if is_dict else entry.end
-        diff: datetime.timedelta = end - begin
-        minutes = int(diff.total_seconds() / 60)
-        time_str = f'{int(minutes / 60)}:{str(minutes % 60).rjust(2, "0")}'
+        begin = entry.get('begin')
+        end = entry.get('end')
+        if end:
+            time_1 = datetime.datetime.strptime(f'{begin[0:2]}:{begin[-2:]}:00',"%H:%M:%S")
+            time_2 = datetime.datetime.strptime(f'{end[0:2]}:{end[-2:]}:00',"%H:%M:%S")
+            diff: datetime.timedelta = time_2 - time_1
+            minutes = int(diff.total_seconds() / 60)
+            time_str = f'{int(minutes / 60)}:{str(minutes % 60).rjust(2, "0")}'
+        else:
+            time_str = ''
         return time_str
 
     @staticmethod
@@ -64,13 +68,13 @@ class Utils:
         obj_time = None
         if t:
             time_str = t
-            hour = time_str[0:2]
-            minute = time_str[-2:]
-            obj_time = datetime.datetime.time(int(hour), int(minute))
+            hour = int(time_str[0:2])
+            minute = int(time_str[-2:])
+            obj_time = datetime.time(hour, minute)
         return obj_time
 
     @staticmethod
-    def db_format_time(t: datetime.datetime.time):
+    def db_format_time(t: datetime.time):
         if t:
             hour = str(t.hour).rjust(2, '0')
             minute = str(t.minute).rjust(2, '0')
@@ -102,6 +106,18 @@ class Utils:
         for row_data in data:
             list_data = [Utils.get_data_from_schema(name, table, row_data) for name in columns]
             rows.append(list_data)
+        return rows
+
+    @staticmethod
+    def data_to_dict(table_name: str, data: list):
+        table = Utils.get_schema()['tables'][table_name]
+        rows = []
+        columns = [name for name, value in table.items() if 'display' in value]
+        for row_data in data:
+            dict_data = {}
+            for name in columns:
+                dict_data[name] = Utils.get_data_from_schema(name, table, row_data)
+            rows.append(dict_data)
         return rows
 
     @staticmethod

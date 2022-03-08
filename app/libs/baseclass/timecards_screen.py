@@ -1,11 +1,14 @@
 import datetime
 from kivy.metrics import dp
+from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
 from kivymd.effects.stiffscroll import StiffScrollEffect
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDFlatButton, MDIconButton
+from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from pyparsing import col
 from api import API
@@ -25,7 +28,6 @@ class TimebotTimecardsScreen(MDScreen):
         self.clear_widgets()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
-        # self.scroller.effect_cls = StiffScrollEffect
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
 
@@ -57,6 +59,8 @@ class TimebotTimecardsScreen(MDScreen):
                 entry_rows = entries if isinstance(entries, list) else [entries]
                 for entry in entry_rows:
                     entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+                    entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
+                    entry_row_box.add_widget(entry_edit)
                     entry_rowdata = Utils.data_to_tuple('entry', [entry.as_dict()])
                     print(entry_rowdata)
                     for entry_row in entry_rowdata:

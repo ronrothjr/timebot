@@ -97,7 +97,8 @@ class TimebotEntryScreen(MDScreen):
 
     def add_task_grid(self, day, entry_rows):
         self.add_weekday_header(day)
-        for entry in entry_rows:
+        dict_entry_rows = Utils.data_to_dict('entry', [entry.as_dict() for entry in entry_rows])
+        for entry in dict_entry_rows:
             self.add_entry_row(entry)
 
     def add_weekday_header(self, day):
@@ -117,9 +118,8 @@ class TimebotEntryScreen(MDScreen):
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
-        entry_rowdata = entry.as_dict()
         for entry_column in entry_column_data:
-            entry_column_value = entry_rowdata[entry_column[2]] if entry_rowdata[entry_column[2]] else '(active)'
+            entry_column_value = entry[entry_column[2]] if entry[entry_column[2]] else '(active)'
             entry_label = MDLabel(text=entry_column_value, size_hint=(None, None), width=dp(entry_column[1]), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
             entry_row_box.add_widget(entry_label)
         entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint={"center_x": .5, "center_y": .5})
