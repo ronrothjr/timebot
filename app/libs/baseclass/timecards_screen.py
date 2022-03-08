@@ -113,11 +113,11 @@ class TimebotTimecardsScreen(MDScreen):
         )
         self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
         self.custom_dialog.open()
-        self.original_values = list(reversed(labels[1:5]))
-        self.custom_dialog.content_cls.ids.weekday.text = f'Weekday: {parent_labels[0]}'
+        self.original_values = [labels[4], labels[3], labels[1], parent_labels[0]]
+        self.custom_dialog.content_cls.ids.weekday.text = f'Weekday: {self.original_values[3]}'
         self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
         self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
-        self.custom_dialog.content_cls.ids.code.text = self.original_values[3]
+        self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
 
     def cancel_dialog(self, *args):
         self.custom_dialog.dismiss(force=True)

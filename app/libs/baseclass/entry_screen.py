@@ -179,10 +179,10 @@ class TimebotEntryScreen(MDScreen):
         )
         self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
         self.custom_dialog.open()
-        self.original_values = list(reversed(labels[1:5]))
+        self.original_values = [labels[4], labels[3], labels[1]]
         self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
         self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
-        self.custom_dialog.content_cls.ids.code.text = self.original_values[3]
+        self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
 
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[0].text)
@@ -204,7 +204,7 @@ class TimebotEntryScreen(MDScreen):
 
     def confirm_delete_entry(self, instance):
         labels = [c.text for c in instance.parent.children]
-        self.remove_me = list(reversed(labels[1:4]))
+        self.remove_me = [labels[4], labels[3], labels[1]]
         app = App.get_running_app()
         confirm_dialog = TimebotConfirmDeleteTaskDialog()
         self.custom_dialog = MDDialog(
@@ -224,9 +224,9 @@ class TimebotEntryScreen(MDScreen):
             ],
         )
         self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
-        self.custom_dialog.content_cls.ids.begin.text = f'Begin: {labels[3]}'
-        self.custom_dialog.content_cls.ids.end.text = f'End: {labels[2]}'
-        self.custom_dialog.content_cls.ids.code.text = f'Code: {labels[1]}'
+        self.custom_dialog.content_cls.ids.begin.text = f'Begin: {self.remove_me[0]}'
+        self.custom_dialog.content_cls.ids.end.text = f'End: {self.remove_me[1]}'
+        self.custom_dialog.content_cls.ids.code.text = f'Code: {self.remove_me[2]}'
         self.custom_dialog.open()
 
     def delete_entry(self, instance):
