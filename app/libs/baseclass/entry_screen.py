@@ -123,7 +123,7 @@ class TimebotEntryScreen(MDScreen):
             self.add_entry_row(entry)
 
     def add_weekday_header(self, day):
-        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="320dp", padding=0, spacing=0)
+        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="330dp", padding=0, spacing=0)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
         entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
