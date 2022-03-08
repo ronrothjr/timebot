@@ -93,7 +93,7 @@ class TimebotTimecardsScreen(MDScreen):
             for entry in dict_entries:
                 self.add_entry(entry, weekday_box)
         else:
-            weekday_box.add_widget(MDLabel(adaptive_height=True, text='No tasks entered', size_hint=(None, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+            weekday_box.add_widget(MDLabel(adaptive_height=True, text='No tasks entered', size_hint=(None, None), width="200dp", height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
 
     def add_entry(self, entry, weekday_box):
         entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
