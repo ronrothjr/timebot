@@ -24,6 +24,11 @@ from api import API
 class TimebotAddProjectDialog(MDBoxLayout):
     pass
 
+
+class TimebotConfirmDeleteProjectDialog(MDBoxLayout):
+    pass
+
+
 class TimebotProjectsScreen(MDScreen):
     custom_dialog = None
 
@@ -55,14 +60,13 @@ class TimebotProjectsScreen(MDScreen):
             project_layout.add_widget(project_icon_add)
         else:
             project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
-            project_icon_close = MDIconButton(icon='close', pos_hint={"center_x": .95, "center_y": .9}, on_release=self.released)
+            project_icon_close = MDIconButton(icon='close', pos_hint={"center_x": .95, "center_y": .9}, on_release=self.confirm_delete_project)
             project_icon_star = MDIconButton(icon='star' if project.show else 'star-outline', pos_hint={"center_x": .95, "center_y": .1}, on_release=self.released)
             project_layout.add_widget(project_label)
             project_layout.add_widget(project_icon_close)
             project_layout.add_widget(project_icon_star)
         project_card.add_widget(project_layout)
         self.view.add_widget(project_card)
-
 
     def released(self, instance):
         if instance.icon == 'plus':
@@ -85,9 +89,9 @@ class TimebotProjectsScreen(MDScreen):
             )
             self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
             self.custom_dialog.open()
-        elif instance.icon == 'star':
+        else:
             print(instance.icon, instance.parent.children[2].text)
-            API.remove_or_toggle_project_code(instance.icon, instance.parent.children[2].text)
+            API.toggle_project_code(instance.icon, instance.parent.children[2].text)
             self.show_projects()
 
     def cancel_dialog(self, *args):
@@ -98,6 +102,36 @@ class TimebotProjectsScreen(MDScreen):
         project = Service(Project)
         project.add({'code': code, 'show': 1})
         self.custom_dialog.dismiss(force=True)
+        self.show_projects()
+
+    def confirm_delete_project(self, instance):
+        print(instance.icon, )
+        self.remove_me = instance.parent.children[2].text
+        app = App.get_running_app()
+        confirm_dialog = TimebotConfirmDeleteProjectDialog()
+        self.custom_dialog = MDDialog(
+            title="Delete Project",
+            type="custom",
+            content_cls=confirm_dialog,
+            buttons=[
+                MDFlatButton(
+                    text="CANCEL",
+                    text_color=app.theme_cls.primary_color,
+                    on_release=self.cancel_dialog
+                ),
+                MDFlatButton(
+                    text="OK", text_color=app.theme_cls.primary_color,
+                    on_release=self.delete_project
+                ),
+            ],
+        )
+        self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
+        self.custom_dialog.content_cls.ids.code.text = f'Project: {self.remove_me}'
+        self.custom_dialog.open()
+
+    def delete_project(self, instance):
+        self.custom_dialog.dismiss(force=True)
+        API.remove_project_code(self.remove_me)
         self.show_projects()
 
 class MD3Card(MDCard, RoundedRectangularElevationBehavior):

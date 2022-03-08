@@ -54,14 +54,17 @@ class API:
                     entry.add(new_entry)
 
     @staticmethod
-    def remove_or_toggle_project_code(icon: str, code: str):
+    def toggle_project_code(icon: str, code: str):
         schema = Utils.get_schema()
         project = Service(Project, Sqlite3DB, schema)
         project_obj = project.get(code)
-        if icon == 'close':
-            project.remove(code)
-        else:
-            project.update(project_obj, {'show': 0 if icon == 'star' else 1})
+        project.update(project_obj, {'show': 0 if icon == 'star' else 1})
+
+    @staticmethod
+    def remove_project_code(code: str):
+        schema = Utils.get_schema()
+        project = Service(Project, Sqlite3DB, schema)
+        project.remove(code)
 
     @staticmethod
     def get_today():
