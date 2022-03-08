@@ -123,7 +123,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.custom_dialog.dismiss(force=True)
 
     def save_task(self, *args):
-        weekday = self.custom_dialog.content_cls.ids.weekday.text
+        weekday = self.original_values[3]
         begin = self.custom_dialog.content_cls.ids.begin.text
         end = self.custom_dialog.content_cls.ids.end.text
         code = self.custom_dialog.content_cls.ids.code.text
