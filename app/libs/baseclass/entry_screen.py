@@ -1,4 +1,5 @@
-from functools import partial
+
+import datetime
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
 from typing import List
@@ -85,18 +86,35 @@ class TimebotEntryScreen(MDScreen):
         self.list_view.add_widget(empty_card)
 
     def show_weekday(self, day, entries):
+        self.day = day
         self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="330dp", spacing="5dp", pos_hint={"center_x": .5})
-        heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None))
-        weekday_label = MDLabel(adaptive_height=True, text=day.weekday, size_hint_x=None, width="130dp", font_style="H6")
-        timecard: Timecard = API.get_current_timecard()
-        heading_box.add_widget(weekday_label)
-        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week of: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
-        heading_box.add_widget(timecard_label)
-        self.weekday_box.add_widget(heading_box)
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="320dp", padding="0dp", spacing="0dp")
+        self.show_heading()
+        self.weekday_box.add_widget(self.heading_box)
         entry_rows = entries if isinstance(entries, list) else [entries]
         self.add_task_grid(day, entry_rows)
         self.add_last_task_button()
         self.list_view.add_widget(self.weekday_box)
+
+    def show_heading(self):
+        self.heading_box.clear_widgets()
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width="80dp", font_style="H6")
+        timecard: Timecard = API.get_current_timecard()
+        self.heading_box.add_widget(weekday_label)
+        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="50dp", padding="0dp", spacing="0dp")
+        self.show_time()
+        self.heading_box.add_widget(self.time_box)
+        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week of: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
+        self.heading_box.add_widget(timecard_label)
+        if hasattr(self, 'show_time_interval'):
+            Clock.unschedule(self.show_time_interval)
+        self.show_time_interval = Clock.schedule_interval(self.show_time, 1)
+
+    def show_time(self, event=None):
+        self.time_box.clear_widgets()
+        current_time = datetime.datetime.now().strftime("%H:%M:%S")
+        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="50dp", font_style="Caption")
+        self.time_box.add_widget(current_time_label)
 
     def add_task_grid(self, day, entry_rows):
         self.add_weekday_header(day)
