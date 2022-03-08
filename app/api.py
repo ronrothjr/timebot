@@ -67,11 +67,11 @@ class API:
         project.remove(code)
 
     @staticmethod
-    def get_today():
+    def get_today(task_weekday=None):
         today, now, begin_date, weekday, schema = API.get_now()
         day = Service(Day, Sqlite3DB, schema)
         entry = Service(Entry, Sqlite3DB, schema)
-        day_obj: Day = day.get({'begin_date': begin_date, 'weekday': weekday})[0]
+        day_obj: Day = day.get({'begin_date': begin_date, 'weekday': task_weekday if task_weekday else weekday})[0]
         entries = entry.get({'dayid': day_obj.dayid})
         return now, entry, day_obj, entries
 
@@ -124,8 +124,8 @@ class API:
                 last = entry_obj
         return last
 
-    def update_task(original, begin, end, code):
-        print(begin, end, code)
+    def update_task(original, begin: str, end: str, code: str, weekday=None):
+        print(begin, end, code, weekday)
         has_valid_time_lengths = len(begin) == 3 or len(begin) == 4
         if not has_valid_time_lengths:
             return f'invalid length for begin: {begin}'
@@ -157,7 +157,7 @@ class API:
         has_valid_project_code = project_obj
         if not has_valid_project_code:
             return f'invalid project code: {code}'
-        now, entry, day_obj, entries = API.get_today()
+        now, entry, day_obj, entries = API.get_today(weekday)
         previous_task = None
         task_to_update = None
         next_task = None
@@ -190,9 +190,9 @@ class API:
             entry.update(task_to_update, {'begin': begin, 'end': None if end == '' else end, 'code': code})
 
     @staticmethod
-    def remove_task(begin: str, end: str, code: str):
+    def remove_task(begin: str, end: str, code: str, weekday: str=None):
         print(begin, end, code)
-        now, entry, day_obj, entries = API.get_today()
+        now, entry, day_obj, entries = API.get_today(weekday)
         for entry_obj in entries:
             entry_dict = entry_obj.as_dict()
             if entry_dict['begin'] == begin:
