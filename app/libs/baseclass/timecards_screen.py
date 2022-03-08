@@ -1,4 +1,4 @@
-import datetime
+from functools import partial
 from kivy.metrics import dp
 from kivy.app import App
 from kivy.clock import Clock
@@ -62,33 +62,40 @@ class TimebotTimecardsScreen(MDScreen):
 
     def show_weekdays(self):
         self.weekdays_box.clear_widgets()
-        spinner = MDSpinner(size_hint=(None, None), size=(dp(46), dp(46)), pos_hint={'center_x': .5, 'center_y': .5}, active=True)
-        self.weekdays_box.add_widget(spinner)
-        Clock.schedule_once(self.show_weekdays_once)
+        self.weekdays = {}
+        for weekday in Utils.weekdays:
+            self.weekdays[weekday] = self.add_weekday(weekday)
+        self.fill_weekdays()
 
-    def show_weekdays_once(self, event=None):
+    def add_weekday(self, weekday):
+        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
+        weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6")
+        weekday_box.add_widget(weekday_label)
+        weekday_entries = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None))
+        weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(None, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+        weekday_box.add_widget(weekday_entries)
+        self.view.add_widget(weekday_box)
+        return weekday_entries
+
+    def fill_weekdays(self, weekday:str=None):
         days = Service(Day).get({'begin_date': self.timecard.begin_date})
         days_rows = days if isinstance(days, list) else [days]
-        widgets = []
         for day in days_rows:
-            widgets += self.get_weekday(day)
-        self.weekdays_box.clear_widgets()
-        for widget in widgets:
-            self.weekdays_box.add_widget(widget)
+            if not weekday or (weekday and day.weekday == weekday):
+                Clock.schedule_once(partial(self.fill_weekday, day))
 
-    def get_weekday(self, day):
-        widgets = []
-        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
-        weekday_label = MDLabel(adaptive_height=True, text=day.weekday, font_style="H6")
-        widgets.append(weekday_label)
+    def fill_weekday(self, day, event):
+        weekday_box = self.weekdays[day.weekday]
+        weekday_box.clear_widgets()
         entries = Service(Entry).get({'dayid': day.dayid})
         if entries:
             dict_entries = Utils.data_to_dict('entry', [entry.as_dict() for entry in entries])
             for entry in dict_entries:
-                widgets += self.get_entry(entry, weekday_box)
-        return widgets
+                self.add_entry(entry, weekday_box)
+        else:
+            weekday_box.add_widget(MDLabel(adaptive_height=True, text='No tasks entered', size_hint=(None, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
 
-    def get_entry(self, entry, weekday_box):
+    def add_entry(self, entry, weekday_box):
         entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_edit)
@@ -99,10 +106,10 @@ class TimebotTimecardsScreen(MDScreen):
             entry_row_box.add_widget(entry_label)
         entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_delete)
-        return [entry_row_box]
+        weekday_box.add_widget(entry_row_box)
 
     def edit_task(self, instance):
-        parent_labels = [c.text for c in instance.parent.parent.children if isinstance(c, MDLabel)]
+        parent_labels = [c.text for c in instance.parent.parent.parent.children if isinstance(c, MDLabel)]
         labels = [c.text for c in instance.parent.children]
         app = App.get_running_app()
         edit_dialog = TimebotTimecardEditTaskDialog()
@@ -143,10 +150,10 @@ class TimebotTimecardsScreen(MDScreen):
             self.custom_dialog.content_cls.ids.error.text = error
         else:
             self.custom_dialog.dismiss(force=True)
-            self.show_weekdays()
+            self.fill_weekdays(weekday)
 
     def confirm_delete_entry(self, instance):
-        parent_labels = [c.text for c in instance.parent.parent.children if isinstance(c, MDLabel)]
+        parent_labels = [c.text for c in instance.parent.parent.parent.children if isinstance(c, MDLabel)]
         labels = [c.text for c in instance.parent.children]
         self.remove_me = [labels[4], labels[3], labels[1], parent_labels[0]]
         app = App.get_running_app()
@@ -177,4 +184,4 @@ class TimebotTimecardsScreen(MDScreen):
     def delete_entry(self, instance):
         self.custom_dialog.dismiss(force=True)
         API.remove_task(*self.remove_me)
-        self.show_weekdays()
+        self.fill_weekdays(self.remove_me[3])
