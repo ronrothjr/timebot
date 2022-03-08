@@ -20,9 +20,9 @@ class TestUntils(unittest.TestCase):
         new_timecard = Timecard(begin_date, timecard_data)
         timecard_dict = new_timecard.as_dict()
         column_tuple = Utils.schema_dict_to_tuple('timecard')
-        self.assertEqual(column_tuple, [('Begin', 30), ('End', 30)])
+        self.assertEqual(column_tuple, [('Begin', 30, 'begin_date'), ('End', 30, 'end_date')])
         data_tuple = Utils.data_to_tuple('timecard', [timecard_dict])
-        self.assertEqual(data_tuple, [('2022-02-27', '2022-03-05')])
+        self.assertEqual(data_tuple[0][0], begin_date)
 
 
 if __name__ == '__main__':
