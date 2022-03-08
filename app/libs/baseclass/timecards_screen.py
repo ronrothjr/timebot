@@ -40,8 +40,8 @@ class TimebotTimecardsScreen(MDScreen):
 
         entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
         entry_column_data = Utils.schema_dict_to_tuple('entry')
-        for entry_column in entry_column_data:
-            entry_label = MDLabel(adaptive_height=True, text=entry_column[0], font_style="Body1")
+        for column in entry_column_data:
+            entry_label = MDLabel(adaptive_height=True, text=column[0], font_style="Body1")
             entry_column_box.add_widget(entry_label)
         heading_box.add_widget(entry_column_box)
         view.add_widget(heading_box)
@@ -56,18 +56,16 @@ class TimebotTimecardsScreen(MDScreen):
 
             entries = Service(Entry).get({'dayid': day.dayid})
             if entries:
-                entry_rows = entries if isinstance(entries, list) else [entries]
-                for entry in entry_rows:
-                    entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.8, None), pos_hint={"center_x": .5, "center_y": .5})
+                dict_entries = Utils.data_to_dict('entry', [entry.as_dict() for entry in entries])
+                for entry in dict_entries:
+                    entry_row_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0.9, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
                     entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
                     entry_row_box.add_widget(entry_edit)
-                    entry_rowdata = Utils.data_to_tuple('entry', [entry.as_dict()])
-                    print(entry_rowdata)
-                    for entry_row in entry_rowdata:
-                        for entry_column in entry_row:
-                            entry_column_value = entry_column if entry_column else '(active)'
-                            entry_label = MDLabel(adaptive_height=True, text=entry_column_value, font_style="Body2")
-                            entry_row_box.add_widget(entry_label)
+                    entry_column_data = Utils.schema_dict_to_tuple('entry')
+                    for column in entry_column_data:
+                        entry_column_value = entry[column[2]] if entry[column[2]] else '(active)'
+                        entry_label = MDLabel(adaptive_height=True, text=entry_column_value, size_hint=(None, None), width=dp(column[1]), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
+                        entry_row_box.add_widget(entry_label)
                     weekday_box.add_widget(entry_row_box)
 
             view.add_widget(weekday_box)
