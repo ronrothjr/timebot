@@ -33,9 +33,9 @@ class Utils:
             'entry': {
                 'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
                 'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 50},
-                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 55},
-                'total': {'name': 'total', 'display': 'Total', 'type': 'CALCULATED', 'dp': 50, 'calc': Utils.entry_total},
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 70, 'ref': 'project(code)', 'trigger': 'CASCADE'}
+                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 45},
+                'total': {'name': 'total', 'display': 'Total', 'type': 'CALCULATED', 'dp': 45, 'calc': Utils.entry_total},
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 75, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }
         return {'db_name': 'app.db', 'tables': tables}
