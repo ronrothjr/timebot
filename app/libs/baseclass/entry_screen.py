@@ -127,12 +127,12 @@ class TimebotEntryScreen(MDScreen):
 
     def show_heading(self):
         self.heading_box.clear_widgets()
-        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="40dp", font_style="H6")
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="50dp", font_style="H6")
         timecard: Timecard = API.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
-        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="80dp", padding="0dp", spacing="0dp")
+        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="90dp", padding="0dp", spacing="0dp")
         current_time = datetime.datetime.now().strftime("%H:%M:%S")
-        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="80dp", font_style="H6")
+        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="90dp", font_style="H6")
         self.time_label = current_time_label
         self.time_box.add_widget(current_time_label)
         self.heading_box.add_widget(self.time_box)
