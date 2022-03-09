@@ -107,7 +107,7 @@ class TimebotEntryScreen(MDScreen):
     def add_today(self):
         today, begin_date, weekday = Utils.get_begin_date()
         self.day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
-        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width="360dp", spacing="5dp", pos_hint=self.top_center)
+        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width="340dp", spacing="5dp", pos_hint=self.top_center)
         self.add_heading()
         self.add_column_headers()
         self.add_task_grid()
@@ -137,7 +137,7 @@ class TimebotEntryScreen(MDScreen):
         self.weekday_box.add_widget(self.heading_box)
 
     def add_column_headers(self):
-        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="320dp", padding=0, spacing=0, pos_hint=self.top_center)
+        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="340dp", padding=0, spacing=0, pos_hint=self.top_center)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
         self.entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
@@ -152,7 +152,7 @@ class TimebotEntryScreen(MDScreen):
         self.time_label.text = datetime.datetime.now().strftime("%H:%M:%S")
 
     def add_task_grid(self):
-        self.task_scroller = ScrollView(bar_width = 10, size_hint = (None, 1), width="320dp", pos_hint = self.top_center)
+        self.task_scroller = ScrollView(bar_width = 0, size_hint = (None, 1), width="340dp", pos_hint = self.top_center)
         self.task_view = MDList(spacing=dp(6), pos_hint=self.top_center)
         self.task_scroller.add_widget(self.task_view)
         self.weekday_box.add_widget(self.task_scroller)
