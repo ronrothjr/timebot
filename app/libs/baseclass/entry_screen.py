@@ -36,27 +36,44 @@ class TimebotEditTaskDialog(MDBoxLayout):
 class TimebotConfirmDeleteTaskDialog(MDBoxLayout):
     pass
 
+class Reorienter(MDBoxLayout):
+
+    def __init__(self, **kw):
+        super(Reorienter, self).__init__(**kw)
+        self.size = (0.9, 1)
+        self.pos_hint = {"center_x": .5, "top": 1}
+        self.spacing = dp(10)
+        self.reorient()
+
+    def on_size(self, *args):
+        self.reorient()
+
+    def reorient(self):
+        if self.width > self.height:
+            self.orientation = 'horizontal'
+        else:
+            self.orientation = 'vertical'
+
+
 class TimebotEntryScreen(MDScreen):
 
     def on_enter(self):
         self.clear_widgets()
+        self.reorienter = Reorienter()
+        self.show_project_grid()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
         self.scroller.size_hint = (0.9, 1)
-        self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
-        self.view = MDList(spacing=dp(10))
-        self.show_project_grid()
-        self.list_view = MDList(spacing=dp(10))
+        self.scroller.pos_hint = {"center_x": .5, "top": 1}
         self.show_today()
-        self.view.add_widget(self.list_view)
-        self.scroller.add_widget(self.view)
-        self.add_widget(self.scroller)
+        self.reorienter.add_widget(self.scroller)
+        self.add_widget(self.reorienter)
         if hasattr(self, 'show_event'):
             Clock.unschedule(self.show_event)
         self.show_event = Clock.schedule_interval(self.show_today, 60)
 
     def show_project_grid(self):
-        self.project_grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+        self.project_grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "top": 1})
         projects: List[Project] = Service(Project).get({'show': 1})
         for project in projects:
             project_card = MD3Card(padding=16, radius=[15,], size_hint=(1, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1), on_release=self.released)
@@ -65,10 +82,11 @@ class TimebotEntryScreen(MDScreen):
             project_layout.add_widget(project_label)
             project_card.add_widget(project_layout)
             self.project_grid.add_widget(project_card)
-        self.view.add_widget(self.project_grid)
+        self.reorienter.add_widget(self.project_grid)
 
     def show_today(self, event=None):
-        self.list_view.clear_widgets()
+        self.scroller.clear_widgets()
+        self.list_view = MDList(spacing=dp(10), pos_hint={"center_x": .5, "top": 1})
         today, begin_date, weekday = Utils.get_begin_date()
         day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
         entries = Service(Entry).get({'dayid': day.dayid})
@@ -76,6 +94,7 @@ class TimebotEntryScreen(MDScreen):
             self.show_empty_card()
         else:
             self.show_weekday(day, entries)
+        self.scroller.add_widget(self.list_view)
 
     def show_empty_card(self):
         empty_card = MD3Card(padding=16, radius=[15,], size_hint=(.98, None), size=('120dp', "80dp"), md_bg_color=gch('606060'), line_color=(1, 1, 1, 1))
@@ -87,7 +106,7 @@ class TimebotEntryScreen(MDScreen):
 
     def show_weekday(self, day, entries):
         self.day = day
-        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="340dp", spacing="5dp", pos_hint={"center_x": .5})
+        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="340dp", spacing="5dp", pos_hint={"center_x": .5, "top": 1})
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
         self.show_heading()
         self.weekday_box.add_widget(self.heading_box)
@@ -98,7 +117,7 @@ class TimebotEntryScreen(MDScreen):
 
     def show_heading(self):
         self.heading_box.clear_widgets()
-        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width="80dp", font_style="H6")
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="80dp", font_style="H6")
         timecard: Timecard = API.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
         self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="60dp", padding="0dp", spacing="0dp")
