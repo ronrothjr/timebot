@@ -78,7 +78,7 @@ class TimebotEntryScreen(MDScreen):
     def reorient(self, reorienter):
         if reorienter.orientation == 'vertical':
             self.project_scroller.size_hint_y = None
-            self.project_scroller.height = '240dp'
+            self.project_scroller.height = '230dp'
         else:
             self.project_scroller.size_hint_y = 1
 
