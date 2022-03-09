@@ -221,9 +221,9 @@ class TimebotEntryScreen(MDScreen):
         self.last_task_box.add_widget(widget_spacer)
 
     def scroll_to_last(self):
-        if hasattr(self, 'task_scroller') and hasattr(self, 'task_view'):
-            print(self.task_scroller.viewport_size[1], self.task_scroller.size[1], self.task_view.height > self.task_scroller.height)
-            if self.task_view.children and self.task_scroller.height != 100 and self.task_view.height > self.task_scroller.height:
+        if hasattr(self, 'task_scroller') and hasattr(self, 'task_view') and self.task_view.children:
+            vbar = self.task_scroller.vbar if self.task_scroller.height != 100 else 1
+            if vbar < 1:
                 self.task_scroller.scroll_to(self.task_view.children[0])
 
     def edit_task(self, instance):
