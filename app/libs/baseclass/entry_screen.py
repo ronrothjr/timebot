@@ -53,6 +53,8 @@ class Reorienter(MDBoxLayout):
             self.orientation = 'horizontal'
         else:
             self.orientation = 'vertical'
+        if hasattr(self, 'callback'):
+            self.callback(self)
 
 
 class TimebotEntryScreen(MDScreen):
@@ -67,10 +69,18 @@ class TimebotEntryScreen(MDScreen):
             self.reorienter.reorient()
             self.add_project_grid()
             self.add_today()
+            self.reorienter.callback = self.reorient
+            self.reorienter.reorient()
         else:
             self.show_project_grid()
             self.show_today()
 
+    def reorient(self, reorienter):
+        if reorienter.orientation == 'vertical':
+            self.project_scroller.size_hint_y = None
+            self.project_scroller.height = '240dp'
+        else:
+            self.project_scroller.size_hint_y = 1
 
     def add_project_grid(self):
         self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, 1), pos_hint = self.top_center)
