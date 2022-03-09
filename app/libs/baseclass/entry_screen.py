@@ -1,4 +1,4 @@
-
+from functools import partial
 import datetime
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
@@ -120,8 +120,12 @@ class TimebotEntryScreen(MDScreen):
         if hasattr(self, 'show_event'):
             Clock.unschedule(self.show_event)
         self.show_event = Clock.schedule_interval(self.check_active, 1)
-        Window.maximize()
-        Window.restore()
+        rotation = Window.rotation
+        def rotate(rotation, *args):
+            print(rotation)
+            Window.rotation = rotation
+        Clock.schedule_once(partial(rotate, 90), .15)
+        Clock.schedule_once(partial(rotate, rotation), .30)
 
     def check_active(self, *args):
         if hasattr(self, 'task_view') and self.task_view.children:
