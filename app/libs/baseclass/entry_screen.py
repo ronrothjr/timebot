@@ -73,7 +73,7 @@ class TimebotEntryScreen(MDScreen):
             self.reorienter.reorient()
         else:
             self.show_project_grid()
-            self.add_today()
+            self.fill_task_grid()
 
     def reorient(self, reorienter):
         if reorienter.orientation == 'vertical':
