@@ -106,10 +106,15 @@ class API:
         last = API.get_last_entry()
         last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
         last_end_str = Utils.db_format_time(last.end) if last and last.end else ''
-        if code != '' and last and last.end and last_end_str < now_str:
+        has_break = last_end_str and last_begin_str != now_str
+        has_break_code = code != '' and last_end_str and last_end_str < now_str
+        is_new_task = code != '' and not last
+        if has_break_code:
             new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': 'DRG-000099'}
             entry.add(new_entry)
-        if code != '' and not last or (last.code != code and last_begin_str != now_str):
+        is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
+        is_same_after_break = has_break and code == last.code
+        if is_new_task or is_code_changed or is_same_after_break:
             new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': now_str, 'end': None, 'code': code}
             entry.add(new_entry)
 

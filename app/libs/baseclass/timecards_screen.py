@@ -52,7 +52,11 @@ class TimebotTimecardsScreen(MDScreen):
         heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
         timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", font_style="Body2")
         heading_box.add_widget(timecard_label)
-        entry_column_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(0, None), height="30dp", width="330dp", padding=0, spacing=0)
+        self.add_column_headers(heading_box)
+        self.view.add_widget(heading_box)
+
+    def add_column_headers(self, heading_box):
+        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
         entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
@@ -62,7 +66,6 @@ class TimebotTimecardsScreen(MDScreen):
         entry_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
         entry_column_box.add_widget(entry_delete)
         heading_box.add_widget(entry_column_box)
-        self.view.add_widget(heading_box)
 
     def show_weekdays(self):
         self.weekdays_box.clear_widgets()
@@ -71,24 +74,27 @@ class TimebotTimecardsScreen(MDScreen):
         self.loaders = {}
         for weekday in Utils.weekdays:
             self.weekdays[weekday] = self.add_weekday(weekday)
-        self.fill_weekdays()
+        self.fill_weekdays() # weekday)
 
     def add_weekday(self, weekday):
-        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(0.9, None))
-        weekday_heading = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None))
+        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(.9, None))
+        weekday_heading = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(.9, None))
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6")
         weekday_heading.add_widget(weekday_label)
         loading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None))
         self.loaders[weekday] = loading_box
         weekday_heading.add_widget(loading_box)
-        expanding_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height='20dp')
+        expanding_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height='20dp', width='20dp')
         expand = 'arrow-collapse-vertical' if self.today[2] == weekday else 'arrow-expand-vertical'
         expanding_box.add_widget(MDIconButton(icon=expand, on_release=self.expand_weekday, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5}))
         self.expanders[weekday] = expanding_box
-        weekday_heading.add_widget(expanding_box)
+        # weekday_heading.add_widget(expanding_box)
         weekday_box.add_widget(weekday_heading)
         weekday_entries = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None))
-        weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+        if True: # self.today[2] == weekday:
+            weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+        else:
+            weekday_entries.add_widget(MDLabel(text='', size_hint=(None, None), height=0))
         weekday_box.add_widget(weekday_entries)
         self.view.add_widget(weekday_box)
         return weekday_entries
