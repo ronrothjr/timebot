@@ -1,6 +1,5 @@
 
 import datetime
-from attr import has
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
 from typing import List
