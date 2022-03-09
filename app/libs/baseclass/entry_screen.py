@@ -107,7 +107,7 @@ class TimebotEntryScreen(MDScreen):
     def add_today(self):
         today, begin_date, weekday = Utils.get_begin_date()
         self.day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
-        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width="340dp", spacing="5dp", pos_hint=self.top_center)
+        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width="360dp", spacing="5dp", pos_hint=self.top_center)
         self.add_heading()
         self.add_column_headers()
         self.add_task_grid()
@@ -120,7 +120,7 @@ class TimebotEntryScreen(MDScreen):
         self.show_event = Clock.schedule_interval(self.fill_task_grid, 60)
 
     def add_heading(self):
-        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp", pos_hint=self.top_center)
         weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="50dp", font_style="H6")
         timecard: Timecard = API.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
@@ -159,7 +159,7 @@ class TimebotEntryScreen(MDScreen):
         self.weekday_box.add_widget(self.task_scroller)
 
     def add_last_task_button(self):
-        self.last_task_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
+        self.last_task_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp", pos_hint=self.top_center)
         self.weekday_box.add_widget(self.last_task_box)
 
     def fill_task_grid(self, *args):
@@ -186,7 +186,7 @@ class TimebotEntryScreen(MDScreen):
         self.task_view.add_widget(empty_card)
 
     def add_entry_row(self, entry):
-        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="40dp", width="320dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp")
+        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="40dp", width="320dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp", pos_hint=self.top_center)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
