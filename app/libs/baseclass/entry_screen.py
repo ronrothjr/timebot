@@ -114,7 +114,6 @@ class TimebotEntryScreen(MDScreen):
         self.add_last_task_button()
         self.reorienter.add_widget(self.weekday_box)
         self.fill_task_grid()
-        # self.resize_task_scroller()
         if hasattr(self, 'show_event'):
             Clock.unschedule(self.show_event)
         self.show_event = Clock.schedule_interval(self.fill_task_grid, 60)
@@ -154,7 +153,7 @@ class TimebotEntryScreen(MDScreen):
 
     def add_task_grid(self):
         self.task_scroller = ScrollView(bar_width = 5, size_hint = (1, 1), pos_hint = self.top_center)
-        self.task_view = MDList(spacing=dp(10), pos_hint=self.top_center)
+        self.task_view = MDList(spacing=dp(6), pos_hint=self.top_center)
         self.task_scroller.add_widget(self.task_view)
         self.weekday_box.add_widget(self.task_scroller)
 
@@ -209,10 +208,6 @@ class TimebotEntryScreen(MDScreen):
         self.last_task_box.add_widget(end_task_button)
         widget_spacer = Widget(size_hint_y=None, height="20dp")
         self.last_task_box.add_widget(widget_spacer)
-
-    def resize_task_scroller(self):
-        self.task_scroller.size_hint_y = None
-        self.task_scroller.height = self.weekday_box.height - self.heading_box.height - self.entry_column_box.height - self.last_task_box.height
 
     def edit_task(self, instance):
         labels = [c.text for c in instance.parent.children]
