@@ -63,7 +63,7 @@ class TimebotEntryScreen(MDScreen):
         self.top_center = {"center_x": .5, "top": 1}
         self.center_center = {"center_x": .5, "center_y": .5}
         self.today_width = "360dp"
-        self.task_width = "340dp"
+        self.task_width = "330dp"
         if not hasattr(self, 'reorienter'):
             self.clear_widgets()
             self.reorienter = Reorienter()

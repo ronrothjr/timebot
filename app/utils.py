@@ -32,9 +32,9 @@ class Utils:
             },
             'entry': {
                 'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
-                'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 50},
-                'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 45},
-                'total': {'name': 'total', 'display': 'Total', 'type': 'CALCULATED', 'dp': 45, 'calc': Utils.entry_total},
+                'begin': {'name': 'begin', 'display': 'In', 'type': 'TEXT', 'dp': 40},
+                'end': {'name': 'end', 'display': 'Out', 'type': 'TEXT', 'dp': 55},
+                'total': {'name': 'total', 'display': 'Sum', 'type': 'CALCULATED', 'dp': 40, 'calc': Utils.entry_total},
                 'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 80, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }
