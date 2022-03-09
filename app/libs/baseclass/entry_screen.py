@@ -123,7 +123,7 @@ class TimebotEntryScreen(MDScreen):
         weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="50dp", font_style="H6")
         timecard: Timecard = API.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
-        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="90dp", padding="0dp", spacing="0dp")
+        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="90dp", padding="0dp", spacing="0dp", pos_hint=self.top_center)
         current_time = datetime.datetime.now().strftime("%H:%M:%S")
         current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="90dp", font_style="H6")
         self.time_label = current_time_label
@@ -137,7 +137,7 @@ class TimebotEntryScreen(MDScreen):
         self.weekday_box.add_widget(self.heading_box)
 
     def add_column_headers(self):
-        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="330dp", padding=0, spacing=0)
+        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="330dp", padding=0, spacing=0, pos_hint=self.top_center)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
         self.entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
@@ -152,7 +152,7 @@ class TimebotEntryScreen(MDScreen):
         self.time_label.text = datetime.datetime.now().strftime("%H:%M:%S")
 
     def add_task_grid(self):
-        self.task_scroller = ScrollView(bar_width = 5, size_hint = (1, 1), pos_hint = self.top_center)
+        self.task_scroller = ScrollView(bar_width = 10, size_hint = (None, 1), width="330dp", pos_hint = self.top_center)
         self.task_view = MDList(spacing=dp(6), pos_hint=self.top_center)
         self.task_scroller.add_widget(self.task_view)
         self.weekday_box.add_widget(self.task_scroller)
