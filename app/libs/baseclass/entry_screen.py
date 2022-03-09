@@ -1,5 +1,6 @@
 
 import datetime
+from attr import has
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
 from typing import List
@@ -120,6 +121,8 @@ class TimebotEntryScreen(MDScreen):
         if hasattr(self, 'show_event'):
             Clock.unschedule(self.show_event)
         self.show_event = Clock.schedule_interval(self.check_active, 1)
+        Window.maximize()
+        Window.restore()
 
     def check_active(self, *args):
         if hasattr(self, 'task_view') and self.task_view.children:
@@ -222,10 +225,11 @@ class TimebotEntryScreen(MDScreen):
 
     def scroll_to_last(self):
         is_scrollable = hasattr(self, 'task_scroller') and hasattr(self, 'task_view')
-        is_horizontal = is_scrollable and self.reorienter.orientation == 'horizontal'
-        if is_horizontal and self.task_view.children:
-            vbar = self.task_scroller.vbar[1] if self.task_scroller.height != 100 else 1
-            if vbar < 1:
+        has_entries = hasattr(self, 'weekday_box') and hasattr(self, 'entries') and self.entries
+        if is_scrollable and has_entries and self.task_view.children:
+            available = self.weekday_box.height - self.heading_box.height - self.entry_column_box.height - self.last_task_box.height
+            print(self.task_scroller.scroll_y, self.weekday_box.height, self.heading_box.height, self.entry_column_box.height, self.last_task_box.height, self.task_view.height, available)
+            if self.task_view.height > available and self.task_scroller.height != 100:
                 self.task_scroller.scroll_to(self.task_view.children[0])
 
     def edit_task(self, instance):
