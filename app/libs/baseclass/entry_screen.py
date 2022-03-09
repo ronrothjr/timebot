@@ -131,7 +131,7 @@ class TimebotEntryScreen(MDScreen):
         self.time_label = current_time_label
         self.time_box.add_widget(current_time_label)
         self.heading_box.add_widget(self.time_box)
-        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week of: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
+        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
         self.heading_box.add_widget(timecard_label)
         if hasattr(self, 'show_time_interval'):
             Clock.unschedule(self.show_time_interval)
