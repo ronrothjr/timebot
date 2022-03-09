@@ -73,6 +73,7 @@ class TimebotEntryScreen(MDScreen):
             self.add_today()
             self.reorienter.callback = self.reorient
             self.reorienter.reorient()
+            self.rotate()
         else:
             self.show_project_grid()
             self.fill_task_grid()
@@ -84,6 +85,14 @@ class TimebotEntryScreen(MDScreen):
         else:
             self.project_scroller.size_hint_y = 1
         self.scroll_to_last()
+
+    def rotate(self):
+        rotation = Window.rotation
+        def rotate(rotation, *args):
+            print(rotation)
+            Window.rotation = rotation
+        Clock.schedule_once(partial(rotate, 90), .5)
+        Clock.schedule_once(partial(rotate, rotation), 1)
 
     def add_project_grid(self):
         self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, 1), pos_hint = self.top_center)
@@ -120,12 +129,6 @@ class TimebotEntryScreen(MDScreen):
         if hasattr(self, 'show_event'):
             Clock.unschedule(self.show_event)
         self.show_event = Clock.schedule_interval(self.check_active, 1)
-        rotation = Window.rotation
-        def rotate(rotation, *args):
-            print(rotation)
-            Window.rotation = rotation
-        Clock.schedule_once(partial(rotate, 90), .15)
-        Clock.schedule_once(partial(rotate, rotation), .30)
 
     def check_active(self, *args):
         if hasattr(self, 'task_view') and self.task_view.children:
