@@ -30,6 +30,7 @@ class TimebotTimecardConfirmDeleteTaskDialog(MDBoxLayout):
 
 class TimebotTimecardsScreen(MDScreen):
     def on_enter(self):
+        self.today = Utils.get_begin_date()
         if not hasattr(self, 'scroller'):
             self.clear_widgets()
             self.scroller = ScrollView()
@@ -45,8 +46,7 @@ class TimebotTimecardsScreen(MDScreen):
             self.scroller.add_widget(self.view)
             self.add_widget(self.scroller)
         else:
-            today, begin_date, weekday = Utils.get_begin_date()
-            self.fill_weekdays(weekday)
+            self.fill_weekdays(self.today[2])
 
     def add_heading(self):
         heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
@@ -67,6 +67,7 @@ class TimebotTimecardsScreen(MDScreen):
     def show_weekdays(self):
         self.weekdays_box.clear_widgets()
         self.weekdays = {}
+        self.expanders = {}
         self.loaders = {}
         for weekday in Utils.weekdays:
             self.weekdays[weekday] = self.add_weekday(weekday)
@@ -80,12 +81,31 @@ class TimebotTimecardsScreen(MDScreen):
         loading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None))
         self.loaders[weekday] = loading_box
         weekday_heading.add_widget(loading_box)
+        expanding_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height='20dp')
+        expand = 'arrow-collapse-vertical' if self.today[2] == weekday else 'arrow-expand-vertical'
+        expanding_box.add_widget(MDIconButton(icon=expand, on_release=self.expand_weekday, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5}))
+        self.expanders[weekday] = expanding_box
+        weekday_heading.add_widget(expanding_box)
         weekday_box.add_widget(weekday_heading)
         weekday_entries = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None))
         weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
         weekday_box.add_widget(weekday_entries)
         self.view.add_widget(weekday_box)
         return weekday_entries
+
+    def expand_weekday(self, instance):
+        weekday = instance.parent.parent.children[2].text
+        is_collapse = instance.icon == 'arrow-collapse-vertical'
+        expand = 'arrow-expand-vertical' if is_collapse else 'arrow-collapse-vertical'
+        box = self.weekdays[weekday]
+        print(weekday, is_collapse, box.adaptive_height, box.size_hint_y, box.height, box.opacity, box.disabled)
+        values = (False, None, 0, 0, True) if is_collapse else (True, None, box.height, 1, False)
+        (box.adaptive_height, box.size_hint_y, box.height, box.opacity, box.disabled) = values
+        expander = self.expanders[weekday]
+        expander.clear_widgets()
+        expand_weekday = MDIconButton(icon=expand, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5})
+        expand_weekday.on_release = self.expand_weekday
+        expander.add_widget(expand_weekday)
 
     def fill_weekdays(self, weekday:str=None):
         days = Service(Day).get({'begin_date': self.timecard.begin_date})
