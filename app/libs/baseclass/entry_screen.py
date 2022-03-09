@@ -73,7 +73,7 @@ class TimebotEntryScreen(MDScreen):
             self.reorienter.reorient()
         else:
             self.show_project_grid()
-            self.show_today()
+            self.add_today()
 
     def reorient(self, reorienter):
         if reorienter.orientation == 'vertical':
@@ -105,46 +105,22 @@ class TimebotEntryScreen(MDScreen):
             self.project_grid.add_widget(project_card)
 
     def add_today(self):
-        self.today_scroller = ScrollView(bar_width = 0, size_hint = (0.9, 1), pos_hint = self.top_center)
-        self.list_view = MDList(spacing=dp(10), pos_hint=self.top_center)
-        self.today_scroller.add_widget(self.list_view)
-        self.reorienter.add_widget(self.today_scroller)
-        self.show_today()
+        today, begin_date, weekday = Utils.get_begin_date()
+        self.day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
+        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width="340dp", spacing="5dp", pos_hint=self.top_center)
+        self.add_heading()
+        self.add_column_headers()
+        self.add_task_grid()
+        self.add_last_task_button()
+        self.reorienter.add_widget(self.weekday_box)
+        self.fill_task_grid()
+        # self.resize_task_scroller()
         if hasattr(self, 'show_event'):
             Clock.unschedule(self.show_event)
-        self.show_event = Clock.schedule_interval(self.show_today, 60)
+        self.show_event = Clock.schedule_interval(self.fill_task_grid, 60)
 
-    def show_today(self, event=None):
-        self.list_view.clear_widgets()
-        today, begin_date, weekday = Utils.get_begin_date()
-        day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
-        entries = Service(Entry).get({'dayid': day.dayid})
-        if not entries:
-            self.show_empty_card()
-        else:
-            self.show_weekday(day, entries)
-
-    def show_empty_card(self):
-        empty_card = MD3Card(padding=16, radius=[15,], size_hint=(.98, None), size=('120dp', "80dp"), md_bg_color=gch('606060'), line_color=(1, 1, 1, 1))
-        empty_layout = MDRelativeLayout(size=empty_card.size, pos_hint=self.center_center)
-        empty_label = MDLabel(text="You have no tasks for today", adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint=self.center_center)
-        empty_layout.add_widget(empty_label)
-        empty_card.add_widget(empty_layout)
-        self.list_view.add_widget(empty_card)
-
-    def show_weekday(self, day, entries):
-        self.day = day
-        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="340dp", spacing="5dp", pos_hint=self.top_center)
+    def add_heading(self):
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
-        self.show_heading()
-        self.weekday_box.add_widget(self.heading_box)
-        entry_rows = entries if isinstance(entries, list) else [entries]
-        self.add_task_grid(day, entry_rows)
-        self.add_last_task_button()
-        self.list_view.add_widget(self.weekday_box)
-
-    def show_heading(self):
-        self.heading_box.clear_widgets()
         weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="50dp", font_style="H6")
         timecard: Timecard = API.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
@@ -159,28 +135,55 @@ class TimebotEntryScreen(MDScreen):
         if hasattr(self, 'show_time_interval'):
             Clock.unschedule(self.show_time_interval)
         self.show_time_interval = Clock.schedule_interval(self.show_time, 0.1)
+        self.weekday_box.add_widget(self.heading_box)
 
-    def show_time(self, event=None):
-        current_time = datetime.datetime.now().strftime("%H:%M:%S")
-        self.time_label.text = current_time
-
-    def add_task_grid(self, day, entry_rows):
-        self.add_weekday_header(day)
-        dict_entry_rows = Utils.data_to_dict('entry', [entry.as_dict() for entry in entry_rows])
-        for entry in dict_entry_rows:
-            self.add_entry_row(entry)
-
-    def add_weekday_header(self, day):
-        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="330dp", padding=0, spacing=0)
+    def add_column_headers(self):
+        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="330dp", padding=0, spacing=0)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
-        entry_column_box.add_widget(entry_edit)
+        self.entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for entry_column in entry_column_data:
             entry_label = MDLabel(text=entry_column[0], size_hint=(None, None), width=dp(entry_column[1]), pos_hint=self.center_center, font_style="Body1")
-            entry_column_box.add_widget(entry_label)
+            self.entry_column_box.add_widget(entry_label)
         entry_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
-        entry_column_box.add_widget(entry_delete)
-        self.weekday_box.add_widget(entry_column_box)
+        self.entry_column_box.add_widget(entry_delete)
+        self.weekday_box.add_widget(self.entry_column_box)
+
+    def show_time(self, *args):
+        self.time_label.text = datetime.datetime.now().strftime("%H:%M:%S")
+
+    def add_task_grid(self):
+        self.task_scroller = ScrollView(bar_width = 0, size_hint = (1, 1), pos_hint = self.top_center)
+        self.task_view = MDList(spacing=dp(10), pos_hint=self.top_center)
+        self.task_scroller.add_widget(self.task_view)
+        self.weekday_box.add_widget(self.task_scroller)
+
+    def add_last_task_button(self):
+        self.last_task_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
+        self.weekday_box.add_widget(self.last_task_box)
+
+    def fill_task_grid(self, *args):
+        self.task_view.clear_widgets()
+        self.last_task_box.clear_widgets()
+        self.entries = Service(Entry).get({'dayid': self.day.dayid})
+        if self.entries:
+            self.show_task_grid()
+            self.show_last_task_button()
+        else:
+            self.show_empty_card()
+
+    def show_task_grid(self):
+        dict_entry_rows = Utils.data_to_dict('entry', [entry.as_dict() for entry in self.entries])
+        for entry in dict_entry_rows:
+            self.add_entry_row(entry)
+
+    def show_empty_card(self):
+        empty_card = MD3Card(padding=16, radius=[15,], size_hint=(.98, None), size=('120dp', "80dp"), md_bg_color=gch('606060'), line_color=(1, 1, 1, 1))
+        empty_layout = MDRelativeLayout(size=empty_card.size, pos_hint=self.center_center)
+        empty_label = MDLabel(text="You have no tasks for today", adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint=self.center_center)
+        empty_layout.add_widget(empty_label)
+        empty_card.add_widget(empty_layout)
+        self.task_view.add_widget(empty_card)
 
     def add_entry_row(self, entry):
         entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="40dp", width="320dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp")
@@ -193,17 +196,23 @@ class TimebotEntryScreen(MDScreen):
             entry_row_box.add_widget(entry_label)
         entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_delete)
-        self.weekday_box.add_widget(entry_row_box)
+        self.task_view.add_widget(entry_row_box)
 
-    def add_last_task_button(self):
+    def show_last_task_button(self):
         last_entry = API.get_last_entry()
         widget_spacer = Widget(size_hint_y=None, height="10dp")
-        self.weekday_box.add_widget(widget_spacer)
+        self.last_task_box.add_widget(widget_spacer)
         end_task = last_entry and not last_entry.end
         button_text = 'End Current' if end_task else 'Resume Last'
         button_action = self.end_task if end_task else self.continue_task
         end_task_button = MDRoundFlatButton(text=f"{button_text} Task", on_release=button_action, pos_hint=self.center_center, line_color=gch('ffffff'))
-        self.weekday_box.add_widget(end_task_button)
+        self.last_task_box.add_widget(end_task_button)
+        widget_spacer = Widget(size_hint_y=None, height="20dp")
+        self.last_task_box.add_widget(widget_spacer)
+
+    def resize_task_scroller(self):
+        self.task_scroller.size_hint_y = None
+        self.task_scroller.height = self.weekday_box.height - self.heading_box.height - self.entry_column_box.height - self.last_task_box.height
 
     def edit_task(self, instance):
         labels = [c.text for c in instance.parent.children]
@@ -234,7 +243,7 @@ class TimebotEntryScreen(MDScreen):
 
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[0].text)
-        self.show_today()
+        self.fill_task_grid()
 
     def cancel_dialog(self, *args):
         self.custom_dialog.dismiss(force=True)
@@ -248,7 +257,7 @@ class TimebotEntryScreen(MDScreen):
             self.custom_dialog.content_cls.ids.error.text = error
         else:
             self.custom_dialog.dismiss(force=True)
-            self.show_today()
+            self.fill_task_grid()
 
     def confirm_delete_entry(self, instance):
         labels = [c.text for c in instance.parent.children]
@@ -280,15 +289,15 @@ class TimebotEntryScreen(MDScreen):
     def delete_entry(self, instance):
         self.custom_dialog.dismiss(force=True)
         API.remove_task(*self.remove_me)
-        self.show_today()
+        self.fill_task_grid()
 
     def end_task(self, instance):
         API.switch_or_start_task()
-        self.show_today()
+        self.fill_task_grid()
 
     def continue_task(self, instance):
         API.resume_task()
-        self.show_today()
+        self.fill_task_grid()
 
 
 class MD3Card(MDCard, RoundedRectangularElevationBehavior):
