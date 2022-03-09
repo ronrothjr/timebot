@@ -68,6 +68,7 @@ class TimebotEntryScreen(MDScreen):
         self.show_today()
         self.reorienter.add_widget(self.scroller)
         self.add_widget(self.reorienter)
+        self.reorienter.reorient()
         if hasattr(self, 'show_event'):
             Clock.unschedule(self.show_event)
         self.show_event = Clock.schedule_interval(self.show_today, 60)
