@@ -154,7 +154,7 @@ class TimebotEntryScreen(MDScreen):
         self.time_label.text = datetime.datetime.now().strftime("%H:%M:%S")
 
     def add_task_grid(self):
-        self.task_scroller = ScrollView(bar_width = 0, size_hint = (None, 1), width=self.task_width, pos_hint = self.top_center)
+        self.task_scroller = ScrollView(bar_width = 6, size_hint = (None, 1), width=self.task_width, pos_hint = self.top_center)
         self.task_view = MDList(spacing=dp(6), pos_hint=self.top_center)
         self.task_scroller.add_widget(self.task_view)
         self.weekday_box.add_widget(self.task_scroller)
