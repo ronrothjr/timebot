@@ -222,7 +222,7 @@ class TimebotEntryScreen(MDScreen):
 
     def scroll_to_last(self):
         if hasattr(self, 'task_scroller') and hasattr(self, 'task_view') and self.task_view.children:
-            vbar = self.task_scroller.vbar if self.task_scroller.height != 100 else 1
+            vbar = self.task_scroller.vbar[1] if self.task_scroller.height != 100 else 1
             if vbar < 1:
                 self.task_scroller.scroll_to(self.task_view.children[0])
 
