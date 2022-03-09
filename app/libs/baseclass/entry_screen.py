@@ -137,7 +137,7 @@ class TimebotEntryScreen(MDScreen):
         self.weekday_box.add_widget(self.heading_box)
 
     def add_column_headers(self):
-        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="330dp", padding=0, spacing=0, pos_hint=self.top_center)
+        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="320dp", padding=0, spacing=0, pos_hint=self.top_center)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
         self.entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
@@ -152,7 +152,7 @@ class TimebotEntryScreen(MDScreen):
         self.time_label.text = datetime.datetime.now().strftime("%H:%M:%S")
 
     def add_task_grid(self):
-        self.task_scroller = ScrollView(bar_width = 10, size_hint = (None, 1), width="330dp", pos_hint = self.top_center)
+        self.task_scroller = ScrollView(bar_width = 10, size_hint = (None, 1), width="320dp", pos_hint = self.top_center)
         self.task_view = MDList(spacing=dp(6), pos_hint=self.top_center)
         self.task_scroller.add_widget(self.task_view)
         self.weekday_box.add_widget(self.task_scroller)

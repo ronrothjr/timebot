@@ -35,7 +35,7 @@ class Utils:
                 'begin': {'name': 'begin', 'display': 'Begin', 'type': 'TEXT', 'dp': 50},
                 'end': {'name': 'end', 'display': 'End', 'type': 'TEXT', 'dp': 55},
                 'total': {'name': 'total', 'display': 'Total', 'type': 'CALCULATED', 'dp': 50, 'calc': Utils.entry_total},
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 80, 'ref': 'project(code)', 'trigger': 'CASCADE'}
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 75, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             }
         }
         return {'db_name': 'app.db', 'tables': tables}
