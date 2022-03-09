@@ -138,13 +138,13 @@ class TimebotEntryScreen(MDScreen):
 
     def add_column_headers(self):
         self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width="340dp", padding=0, spacing=0, pos_hint=self.top_center)
-        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
+        entry_edit = MDIconButton(icon="pencil", size_hint_x=None, width="20dp", user_font_size="14sp", pos_hint=self.center_center)
         self.entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for entry_column in entry_column_data:
             entry_label = MDLabel(text=entry_column[0], size_hint=(None, None), width=dp(entry_column[1]), pos_hint=self.center_center, font_style="Body1")
             self.entry_column_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
+        entry_delete = MDIconButton(icon="close", size_hint_x=None, width="20dp", user_font_size="14sp", pos_hint=self.center_center)
         self.entry_column_box.add_widget(entry_delete)
         self.weekday_box.add_widget(self.entry_column_box)
 
@@ -186,14 +186,14 @@ class TimebotEntryScreen(MDScreen):
 
     def add_entry_row(self, entry):
         entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="30dp", width="320dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp", pos_hint=self.top_center)
-        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
+        entry_edit = MDIconButton(icon="pencil", size_hint_x=None, width="20dp",user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for entry_column in entry_column_data:
             entry_column_value = entry[entry_column[2]] if entry[entry_column[2]] else '(active)'
             entry_label = MDLabel(text=entry_column_value, size_hint=(None, None), width=dp(entry_column[1]), pos_hint=self.center_center, font_style="Body2")
             entry_row_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint=self.center_center)
+        entry_delete = MDIconButton(icon="close", size_hint_x=None, width="20dp", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_delete)
         self.task_view.add_widget(entry_row_box)
 
