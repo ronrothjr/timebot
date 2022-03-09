@@ -186,7 +186,7 @@ class TimebotEntryScreen(MDScreen):
         self.task_view.add_widget(empty_card)
 
     def add_entry_row(self, entry):
-        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="40dp", width="320dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp", pos_hint=self.top_center)
+        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="30dp", width="320dp", padding=0, spacing=0, line_color=gch('ffffff'), radius="10dp", pos_hint=self.top_center)
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
