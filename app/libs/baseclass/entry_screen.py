@@ -58,23 +58,25 @@ class Reorienter(MDBoxLayout):
 class TimebotEntryScreen(MDScreen):
 
     def on_enter(self):
-        self.clear_widgets()
-        self.reorienter = Reorienter()
+        if not hasattr(self, 'reorienter'):
+            self.clear_widgets()
+            self.reorienter = Reorienter()
+            self.add_widget(self.reorienter)
+            self.reorienter.reorient()
+            self.add_project_grid()
+            self.add_today()
+        else:
+            self.show_project_grid()
+            self.show_today()
+
+
+    def add_project_grid(self):
+        self.project_grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "top": 1})
+        self.reorienter.add_widget(self.project_grid)
         self.show_project_grid()
-        self.scroller = ScrollView()
-        self.scroller.bar_width = 0
-        self.scroller.size_hint = (0.9, 1)
-        self.scroller.pos_hint = {"center_x": .5, "top": 1}
-        self.show_today()
-        self.reorienter.add_widget(self.scroller)
-        self.add_widget(self.reorienter)
-        self.reorienter.reorient()
-        if hasattr(self, 'show_event'):
-            Clock.unschedule(self.show_event)
-        self.show_event = Clock.schedule_interval(self.show_today, 60)
 
     def show_project_grid(self):
-        self.project_grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "top": 1})
+        self.project_grid.clear_widgets()
         projects: List[Project] = Service(Project).get({'show': 1})
         for project in projects:
             project_card = MD3Card(padding=16, radius=[15,], size_hint=(1, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1), on_release=self.released)
@@ -83,7 +85,14 @@ class TimebotEntryScreen(MDScreen):
             project_layout.add_widget(project_label)
             project_card.add_widget(project_layout)
             self.project_grid.add_widget(project_card)
-        self.reorienter.add_widget(self.project_grid)
+
+    def add_today(self):
+        self.scroller = ScrollView(bar_width = 0, size_hint = (0.9, 1), pos_hint = {"center_x": .5, "top": 1})
+        self.show_today()
+        self.reorienter.add_widget(self.scroller)
+        if hasattr(self, 'show_event'):
+            Clock.unschedule(self.show_event)
+        self.show_event = Clock.schedule_interval(self.show_today, 60)
 
     def show_today(self, event=None):
         self.scroller.clear_widgets()
@@ -118,23 +127,24 @@ class TimebotEntryScreen(MDScreen):
 
     def show_heading(self):
         self.heading_box.clear_widgets()
-        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="80dp", font_style="H6")
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="40dp", font_style="H6")
         timecard: Timecard = API.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
-        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="60dp", padding="0dp", spacing="0dp")
-        self.show_time()
+        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="80dp", padding="0dp", spacing="0dp")
+        current_time = datetime.datetime.now().strftime("%H:%M:%S")
+        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="80dp", font_style="H6")
+        self.time_label = current_time_label
+        self.time_box.add_widget(current_time_label)
         self.heading_box.add_widget(self.time_box)
         timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week of: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
         self.heading_box.add_widget(timecard_label)
         if hasattr(self, 'show_time_interval'):
             Clock.unschedule(self.show_time_interval)
-        self.show_time_interval = Clock.schedule_interval(self.show_time, 1)
+        self.show_time_interval = Clock.schedule_interval(self.show_time, 0.1)
 
     def show_time(self, event=None):
-        self.time_box.clear_widgets()
         current_time = datetime.datetime.now().strftime("%H:%M:%S")
-        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="60dp", font_style="Caption")
-        self.time_box.add_widget(current_time_label)
+        self.time_label.text = current_time
 
     def add_task_grid(self, day, entry_rows):
         self.add_weekday_header(day)
