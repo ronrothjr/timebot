@@ -83,9 +83,7 @@ class TimebotEntryScreen(MDScreen):
             self.project_scroller.height = '230dp'
         else:
             self.project_scroller.size_hint_y = 1
-        if hasattr(self, 'task_scroller') and hasattr(self, 'task_view'):
-            if self.task_view.children:
-                self.task_scroller.scroll_to(self.task_view.children[0])
+        self.scroll_to_last()
 
     def add_project_grid(self):
         self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, 1), pos_hint = self.top_center)
@@ -222,6 +220,12 @@ class TimebotEntryScreen(MDScreen):
         widget_spacer = Widget(size_hint_y=None, height="20dp")
         self.last_task_box.add_widget(widget_spacer)
 
+    def scroll_to_last(self):
+        if hasattr(self, 'task_scroller') and hasattr(self, 'task_view'):
+            print(self.task_scroller.viewport_size[1], self.task_scroller.size[1], self.task_view.height > self.task_scroller.height)
+            if self.task_view.children and self.task_scroller.height != 100 and self.task_view.height > self.task_scroller.height:
+                self.task_scroller.scroll_to(self.task_view.children[0])
+
     def edit_task(self, instance):
         labels = [c.text for c in instance.parent.children]
         app = App.get_running_app()
@@ -251,8 +255,8 @@ class TimebotEntryScreen(MDScreen):
 
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[0].text)
-        self.task_scroller.scroll_to(self.task_view.children[0])
         self.fill_task_grid()
+        self.scroll_to_last()
 
     def cancel_dialog(self, *args):
         self.custom_dialog.dismiss(force=True)
