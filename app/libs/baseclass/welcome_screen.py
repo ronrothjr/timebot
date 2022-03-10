@@ -15,7 +15,7 @@ class TimebotWelcomeScreen(MDScreen):
     def on_enter(self):
         self.tap = 0
         items = self.parent.parent.children[1].children[0].children
-        self.nav_items = [items[3], items[2], items[1], items[0]]
+        self.nav_items = [items[3], items[2], items[1], items[0], items[4]]
         self.help_text = [
             {
                 'title': 'This is the Entry screen',
@@ -36,16 +36,21 @@ class TimebotWelcomeScreen(MDScreen):
                 'title': 'This is the Settings screen',
                 'desc': 'You have various ways to control the actions of Timebot, like setting which Project Code to automatically add to blank timesheets',
                 'pos': 'left_bottom'
+            },
+            {
+                'title': 'This is the Welcome screen',
+                'desc': 'Updates to the application and other data will show here in this screen',
+                'pos': 'right_bottom'
             }
         ]
-        self.card_view = MDGridLayout(cols=1, size_hint=(None, None), width='280dp', height="160dp", pos_hint={"center_x": .5, "center_y": .20})
+        self.card_view = MDGridLayout(cols=1, size_hint=(None, None), width='300dp', height="160dp", pos_hint={"center_x": .5, "center_y": .20})
         self.add_widget(self.card_view)
         self.next()
 
     def next(self, *args):
         if len(args) > 0 and args[0].state == 'open':
             self.card_view.clear_widgets()
-            Clock.schedule_once(self.show_next, 1)
+            Clock.schedule_once(self.show_next, .5)
         else:
             self.card_view.clear_widgets()
             Clock.schedule_once(self.show_next, 1)
@@ -69,9 +74,9 @@ class TimebotWelcomeScreen(MDScreen):
 
     def place_card(self, card_text):
         self.card_view.clear_widgets()
-        desc_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), width='280dp', height="120dp", md_bg_color=App.get_running_app().theme_cls.primary_color)
-        card_layout = MDRelativeLayout(size_hint=(None, None), width='280dp', height="120dp", pos_hint={"center_x": .5, "center_y": .5})
-        card_label = MDLabel(text=card_text, adaptive_width=True, font_style="Subtitle1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+        desc_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), width='300dp', height="160dp", md_bg_color=App.get_running_app().theme_cls.primary_color)
+        card_layout = MDRelativeLayout(size_hint=(None, None), width='280dp', height="160dp", pos_hint={"center_x": .5, "center_y": .5})
+        card_label = MDLabel(text=card_text, adaptive_height=True, font_style="Subtitle1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         card_layout.add_widget(card_label)
         desc_card.add_widget(card_layout)
         self.card_view.add_widget(desc_card)
