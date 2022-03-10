@@ -36,6 +36,13 @@ class Utils:
                 'end': {'name': 'end', 'display': 'Out', 'type': 'TEXT', 'dp': 55},
                 'total': {'name': 'total', 'display': 'Sum', 'type': 'CALCULATED', 'dp': 40, 'calc': Utils.entry_total},
                 'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 80, 'ref': 'project(code)', 'trigger': 'CASCADE'}
+            },
+            'setting': {
+                'key': {'name': 'key', 'display': 'Key', 'type': 'TEXT', 'id': True, 'dp': 80},
+                'value': {'name': 'value', 'display': 'Value', 'type': 'TEXT', 'dp': 80},
+                'active': {'name': 'active', 'display': 'Active', 'type': 'INTEGER', 'dp': 40},
+                'editable': {'name': 'editable', 'display': 'Edit', 'type': 'INTEGER', 'dp': 40},
+                'visible': {'name': 'visible', 'display': 'View', 'type': 'INTEGER', 'dp': 40}
             }
         }
         return {'db_name': 'app.db', 'tables': tables}

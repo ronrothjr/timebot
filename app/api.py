@@ -2,6 +2,7 @@ import datetime, os
 from service import Service
 from db import Sqlite3DB
 from entry import Entry
+from setting import Setting
 from project import Project
 from timecard import Timecard
 from day import Day
@@ -18,8 +19,29 @@ class API:
         return today, now, begin_date, weekday, schema
 
     @staticmethod
+    def add_settings():
+        today, now, begin_date, weekday, schema = API.get_now()
+        setting = Service(Setting, Sqlite3DB, schema)
+        settings = setting.get('default project code')
+        if not settings:
+            setting.add({'key': 'default project code', 'value': 'DRG-000099', 'active': 1, 'editable': 1, 'visible': 1})
+        settings = setting.get('cascade delete')
+        if not settings:
+            setting.add({'key': 'cascade delete', 'value': 'False', 'active': 1, 'editable': 1, 'visible': 1})
+        settings = setting.get('version tour')
+        if not settings:
+            setting.add({'key': 'version tour', 'value': 'None', 'active': 1, 'editable': 0, 'visible': 0})
+
+    @staticmethod
+    def get_setting(key: str) -> str:
+        today, now, begin_date, weekday, schema = API.get_now()
+        setting = Service(Setting, Sqlite3DB, schema)
+        return setting.get(key)
+
+    @staticmethod
     def add_current_timecard():
         today, now, begin_date, weekday, schema = API.get_now()
+        setting = Service(Setting, Sqlite3DB, schema)
         project = Service(Project, Sqlite3DB, schema)
         timecard = Service(Timecard, Sqlite3DB, schema)
         day = Service(Day, Sqlite3DB, schema)
@@ -33,11 +55,12 @@ class API:
             project.add({'code': 'DRG-000099', 'show': 0})
         timecards = timecard.get({'begin_date': begin_date})
         if not timecards:
+            code = API.get_setting('default project code')
             timecard_data = {
                 'days': {
                     'Monday': {
                         'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'entries': {
-                            0: {'dayid': 0, 'entryid': 0, 'begin': '0900', 'end': '1600', 'code': os.environ["DEFAULT_PROJECT_CODE"]}
+                            0: {'dayid': 0, 'entryid': 0, 'begin': '0900', 'end': '1600', 'code': code if code else os.environ["DEFAULT_PROJECT_CODE"]}
                         }
                     }
                 }
