@@ -1,4 +1,5 @@
 import datetime, os
+from threading import stack_size
 from service import Service
 from db import Sqlite3DB
 from entry import Entry
@@ -33,28 +34,46 @@ class API:
             setting.add({'key': 'default_project_code', 'value': 'DRG-000099', 'options': '', 'title': 'Default Project Code', 'type': 'string', 'desc': 'The default code to assign new tasks in a timecard', 'section': 'Timecards'})
         settings = setting.get('cascade_delete')
         if not settings:
-            setting.add({'key': 'cascade_delete', 'value': 'false', 'options': '', 'title': 'Cascade Delete', 'type': 'bool', 'desc': 'Allow child tasks to be deleted when a project code or timecard is removed', 'section': 'Timecards'})
+            setting.add({'key': 'cascade_delete', 'value': '0', 'options': '', 'title': 'Cascade Delete', 'type': 'bool', 'desc': 'Allow child tasks to be deleted when a project code or timecard is removed', 'section': 'Timecards'})
         settings = setting.get('version_tour')
         if not settings:
             setting.add({'key': 'version_tour', 'value': '1.1.0', 'options': '1.1.0,1.0.0,0.0.2,0.0.1,0.0.0', 'title': 'Version Tour', 'type': 'options', 'desc': 'Change to take the tour of changes for a specific release', 'section': 'About'})
+        API.save_config()
+        API.save_my_config()
+
+    @staticmethod
+    def save_config():
+        today, now, begin_date, weekday, schema = API.get_now()
+        setting = Service(Setting, Sqlite3DB, schema)
         settings = [s.as_dict() for s in setting.get()]
         config_records = Utils.data_to_dict(table_name='setting', data=settings, exclude_undefined=True)
         for record in config_records:
             if record.get('options'):
                 record['options'] = record['options'].split(',')
-        API.data().save_records('config', config_records)
+
+    @staticmethod
+    def save_my_config():
+        today, now, begin_date, weekday, schema = API.get_now()
+        setting = Service(Setting, Sqlite3DB, schema)
+        settings = [s.as_dict() for s in setting.get()]
         defaults = {}
         for s in settings:
             defaults[s['section']] = defaults[s['section']] if s['section'] in defaults else {}
             defaults[s['section']][s['key']] = s['value']
         API.data().save_records('my_config', defaults)
-        
 
     @staticmethod
     def get_setting(key: str) -> str:
         today, now, begin_date, weekday, schema = API.get_now()
         setting = Service(Setting, Sqlite3DB, schema)
         return setting.get(key)
+
+    @staticmethod
+    def set_setting(key: str, value: str) -> str:
+        today, now, begin_date, weekday, schema = API.get_now()
+        setting = Service(Setting, Sqlite3DB, schema)
+        setting_obj = setting.get(key)
+        setting.update(setting_obj, {'value': value})
 
     @staticmethod
     def add_current_timecard():

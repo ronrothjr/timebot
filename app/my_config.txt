@@ -1,9 +1,9 @@
 {
     "Timecards": {
         "default_project_code": "DRG-000099",
-        "cascade_delete": "false"
+        "cascade_delete": "0"
     },
     "About": {
-        "version_tour": "1.1.0"
+        "version_tour": "1.0.0"
     }
 }
