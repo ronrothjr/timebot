@@ -77,12 +77,7 @@ class TimebotProjectsScreen(MDScreen):
                 content_cls=TimebotAddProjectDialog(),
                 buttons=[
                     MDFlatButton(
-                        text="CANCEL",
-                        text_color=app.theme_cls.primary_color,
-                        on_release=self.cancel_dialog
-                    ),
-                    MDFlatButton(
-                        text="OK", text_color=app.theme_cls.primary_color,
+                        text="ADD", text_color=app.theme_cls.primary_color,
                         on_release=self.add_project
                     ),
                 ],
@@ -115,12 +110,7 @@ class TimebotProjectsScreen(MDScreen):
             content_cls=confirm_dialog,
             buttons=[
                 MDFlatButton(
-                    text="CANCEL",
-                    text_color=app.theme_cls.primary_color,
-                    on_release=self.cancel_dialog
-                ),
-                MDFlatButton(
-                    text="OK", text_color=app.theme_cls.primary_color,
+                    text="DELETE", text_color=app.theme_cls.primary_color,
                     on_release=self.delete_project
                 ),
             ],

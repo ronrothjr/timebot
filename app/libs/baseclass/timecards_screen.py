@@ -159,11 +159,6 @@ class TimebotTimecardsScreen(MDScreen):
             content_cls=edit_dialog,
             buttons=[
                 MDFlatButton(
-                    text="CANCEL",
-                    text_color=app.theme_cls.primary_color,
-                    on_release=self.cancel_dialog
-                ),
-                MDFlatButton(
                     text="SAVE", text_color=app.theme_cls.primary_color,
                     on_release=self.save_task
                 ),
@@ -204,12 +199,7 @@ class TimebotTimecardsScreen(MDScreen):
             content_cls=confirm_dialog,
             buttons=[
                 MDFlatButton(
-                    text="CANCEL",
-                    text_color=app.theme_cls.primary_color,
-                    on_release=self.cancel_dialog
-                ),
-                MDFlatButton(
-                    text="OK", text_color=app.theme_cls.primary_color,
+                    text="DELETE", text_color=app.theme_cls.primary_color,
                     on_release=self.delete_entry
                 ),
             ],
