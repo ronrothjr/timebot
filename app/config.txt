@@ -1,0 +1,33 @@
+[
+    {
+        "key": "default_project_code",
+        "title": "Default Project Code",
+        "type": "string",
+        "value": "DRG-000099",
+        "desc": "The default code to assign new tasks in a timecard",
+        "section": "Timecards"
+    },
+    {
+        "key": "cascade_delete",
+        "title": "Cascade Delete",
+        "type": "bool",
+        "value": "false",
+        "desc": "Allow child tasks to be deleted when a project code or timecard is removed",
+        "section": "Timecards"
+    },
+    {
+        "key": "version_tour",
+        "title": "Version Tour",
+        "type": "options",
+        "value": "1.1.0",
+        "options": [
+            "1.1.0",
+            "1.0.0",
+            "0.0.2",
+            "0.0.1",
+            "0.0.0"
+        ],
+        "desc": "Change to take the tour of changes for a specific release",
+        "section": "About"
+    }
+]

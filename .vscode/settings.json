@@ -8,5 +8,14 @@
     ],
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true,
-    "materialkv.pythonFile": "main.py"
+    "materialkv.pythonFile": "main.py",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "app.db",
+            "database": "${workspaceFolder:timebot}/app/app.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
 }

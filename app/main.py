@@ -47,12 +47,13 @@ class MDTimebot(MDApp):
         self.utils = Utils
 
     def services(self):
-        self.service = Service(Setting)
+        self.setting = Service(Setting)
         self.project = Service(Project)
         self.timecard = Service(Timecard)
         self.day = Service(Day)
         self.entry = Service(Entry)
         API.add_settings()
+        os.environ["DEFAULT_PROJECT_CODE"] = API.get_setting('default_project_code').value
         API.add_current_timecard()
 
     def callback(self, instance):

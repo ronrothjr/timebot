@@ -73,7 +73,7 @@ class TimebotEntryScreen(MDScreen):
             self.add_today()
             self.reorienter.callback = self.reorient
             self.reorienter.reorient()
-            self.rotate()
+            # self.rotate()
         else:
             self.show_project_grid()
             self.fill_task_grid()

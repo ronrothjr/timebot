@@ -39,10 +39,12 @@ class Utils:
             },
             'setting': {
                 'key': {'name': 'key', 'display': 'Key', 'type': 'TEXT', 'id': True, 'dp': 80},
+                'title': {'name': 'title', 'display': 'Title', 'type': 'TEXT', 'dp': 80},
+                'type': {'name': 'type', 'display': 'Type', 'type': 'TEXT', 'dp': 40},
                 'value': {'name': 'value', 'display': 'Value', 'type': 'TEXT', 'dp': 80},
-                'active': {'name': 'active', 'display': 'Active', 'type': 'INTEGER', 'dp': 40},
-                'editable': {'name': 'editable', 'display': 'Edit', 'type': 'INTEGER', 'dp': 40},
-                'visible': {'name': 'visible', 'display': 'View', 'type': 'INTEGER', 'dp': 40}
+                'options': {'name': 'options', 'display': 'Options', 'type': 'TEXT', 'dp': 80},
+                'desc': {'name': 'desc', 'display': 'Desc', 'type': 'TEXT', 'dp': 300},
+                'section': {'name': 'section', 'display': 'Section', 'type': 'TEXT', 'dp': 80},
             }
         }
         return {'db_name': 'app.db', 'tables': tables}
@@ -113,14 +115,16 @@ class Utils:
         return rows
 
     @staticmethod
-    def data_to_dict(table_name: str, data: list):
+    def data_to_dict(table_name: str, data: list, exclude_undefined: bool=False):
         table = Utils.get_schema()['tables'][table_name]
         rows = []
         columns = [name for name, value in table.items() if 'display' in value]
         for row_data in data:
             dict_data = {}
             for name in columns:
-                dict_data[name] = Utils.get_data_from_schema(name, table, row_data)
+                value = Utils.get_data_from_schema(name, table, row_data)
+                if not exclude_undefined or exclude_undefined and str(value) not in ['', 'None']:
+                    dict_data[name] = value
             rows.append(dict_data)
         return rows
 

@@ -7,6 +7,8 @@ from project import Project
 from timecard import Timecard
 from day import Day
 from utils import Utils
+from data import Data
+from files import Files
 
 
 class API:
@@ -19,18 +21,34 @@ class API:
         return today, now, begin_date, weekday, schema
 
     @staticmethod
+    def data():
+        return Data(Files())
+
+    @staticmethod
     def add_settings():
         today, now, begin_date, weekday, schema = API.get_now()
         setting = Service(Setting, Sqlite3DB, schema)
-        settings = setting.get('default project code')
+        settings = setting.get('default_project_code')
         if not settings:
-            setting.add({'key': 'default project code', 'value': 'DRG-000099', 'active': 1, 'editable': 1, 'visible': 1})
-        settings = setting.get('cascade delete')
+            setting.add({'key': 'default_project_code', 'value': 'DRG-000099', 'options': '', 'title': 'Default Project Code', 'type': 'string', 'desc': 'The default code to assign new tasks in a timecard', 'section': 'Timecards'})
+        settings = setting.get('cascade_delete')
         if not settings:
-            setting.add({'key': 'cascade delete', 'value': 'False', 'active': 1, 'editable': 1, 'visible': 1})
-        settings = setting.get('version tour')
+            setting.add({'key': 'cascade_delete', 'value': 'false', 'options': '', 'title': 'Cascade Delete', 'type': 'bool', 'desc': 'Allow child tasks to be deleted when a project code or timecard is removed', 'section': 'Timecards'})
+        settings = setting.get('version_tour')
         if not settings:
-            setting.add({'key': 'version tour', 'value': 'None', 'active': 1, 'editable': 0, 'visible': 0})
+            setting.add({'key': 'version_tour', 'value': '1.1.0', 'options': '1.1.0,1.0.0,0.0.2,0.0.1,0.0.0', 'title': 'Version Tour', 'type': 'options', 'desc': 'Change to take the tour of changes for a specific release', 'section': 'About'})
+        settings = [s.as_dict() for s in setting.get()]
+        config_records = Utils.data_to_dict(table_name='setting', data=settings, exclude_undefined=True)
+        for record in config_records:
+            if record.get('options'):
+                record['options'] = record['options'].split(',')
+        API.data().save_records('config', config_records)
+        defaults = {}
+        for s in settings:
+            defaults[s['section']] = defaults[s['section']] if s['section'] in defaults else {}
+            defaults[s['section']][s['key']] = s['value']
+        API.data().save_records('my_config', defaults)
+        
 
     @staticmethod
     def get_setting(key: str) -> str:
@@ -53,20 +71,23 @@ class API:
             project.add({'code': 'DRG-403005', 'show': 1})
             project.add({'code': 'DRG-413005', 'show': 1})
             project.add({'code': 'DRG-000099', 'show': 0})
+            project.add({'code': 'DRG-413009', 'show': 0})
         timecards = timecard.get({'begin_date': begin_date})
         if not timecards:
-            code = API.get_setting('default project code')
+            code = API.get_setting('default_project_code')
+            print(code.as_dict())
             timecard_data = {
                 'days': {
                     'Monday': {
                         'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'entries': {
-                            0: {'dayid': 0, 'entryid': 0, 'begin': '0900', 'end': '1600', 'code': code if code else os.environ["DEFAULT_PROJECT_CODE"]}
+                            0: {'dayid': 0, 'entryid': 0, 'begin': '0800', 'end': '1600', 'code': code.value if code else os.environ["DEFAULT_PROJECT_CODE"]}
                         }
                     }
                 }
             }
             new_timecard = Timecard(begin_date, timecard_data)
             data = new_timecard.as_dict()
+            print(data)
             timecard.add(data)
             for weekday, day_obj in data.get('days').items():
                 entries = day_obj.get('entries', {})
@@ -74,6 +95,7 @@ class API:
                 for new_entry in entries.values():
                     new_entry['entryid'] = 0
                     new_entry['dayid'] = new_day.dayid
+                    print(new_entry)
                     entry.add(new_entry)
 
     @staticmethod
@@ -152,6 +174,7 @@ class API:
                 last = entry_obj
         return last
 
+    @staticmethod
     def update_task(original, begin: str, end: str, code: str, weekday=None):
         print(begin, end, code, weekday)
         has_valid_time_lengths = len(begin) == 3 or len(begin) == 4
