@@ -5,3 +5,4 @@ kivy_venv
 *.spec
 *.db
 *.pyc
+*.pyo

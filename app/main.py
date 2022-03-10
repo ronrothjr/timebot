@@ -41,6 +41,7 @@ class MDTimebot(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Window.size = (370, 760)
+        Window.softinput_mode = 'below_target'
         self.title = "Timebot"
         self.icon = f"{os.environ['TIMEBOT_ROOT']}/assets/images/logo.png"
         self.services()
