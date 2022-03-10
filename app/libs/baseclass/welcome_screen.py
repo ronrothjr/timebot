@@ -38,7 +38,7 @@ class TimebotWelcomeScreen(MDScreen):
                 'pos': 'left_bottom'
             }
         ]
-        self.card_view = MDGridLayout(cols=1, size_hint=(None, None), width='280dp', height="160dp", pos_hint={"center_x": .5, "center_y": .25})
+        self.card_view = MDGridLayout(cols=1, size_hint=(None, None), width='280dp', height="160dp", pos_hint={"center_x": .5, "center_y": .20})
         self.add_widget(self.card_view)
         self.next()
 
@@ -69,8 +69,8 @@ class TimebotWelcomeScreen(MDScreen):
 
     def place_card(self, card_text):
         self.card_view.clear_widgets()
-        desc_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), width='280dp', height="100dp", md_bg_color=App.get_running_app().theme_cls.primary_color)
-        card_layout = MDRelativeLayout(size_hint=(None, None), width='240dp', height="100dp", pos_hint={"center_x": .5, "center_y": .5})
+        desc_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), width='280dp', height="120dp", md_bg_color=App.get_running_app().theme_cls.primary_color)
+        card_layout = MDRelativeLayout(size_hint=(None, None), width='240dp', height="120dp", pos_hint={"center_x": .5, "center_y": .5})
         card_label = MDLabel(text=card_text, adaptive_width=True, font_style="Subtitle1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         card_layout.add_widget(card_label)
         desc_card.add_widget(card_layout)
