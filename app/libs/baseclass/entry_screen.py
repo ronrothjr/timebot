@@ -207,7 +207,7 @@ class TimebotEntryScreen(MDScreen):
         self.task_view.add_widget(empty_card)
 
     def add_entry_row(self, entry):
-        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="50dp", width=self.task_width, spacing=0, padding=0, md_bg_color=gch('242424'), radius=[20, 7, 20, 7])
+        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="50dp", width=self.task_width, spacing=0, padding=0, md_bg_color=gch('242424'), radius=["20dp", "7dp", "20dp", "7dp"])
         entry_edit = MDIconButton(icon="pencil", size_hint_x=None, width="15dp",user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
@@ -248,7 +248,7 @@ class TimebotEntryScreen(MDScreen):
             title="Edit Task",
             type="custom",
             content_cls=edit_dialog,
-            radius=[20, 7, 20, 7],
+            radius=["20dp", "7dp", "20dp", "7dp"],
             buttons=[
                 MDFlatButton(
                     text="SAVE", text_color=app.theme_cls.primary_color,
@@ -291,7 +291,7 @@ class TimebotEntryScreen(MDScreen):
             title="Delete Task",
             type="custom",
             content_cls=confirm_dialog,
-            radius=[20, 7, 20, 7],
+            radius=["20dp", "7dp", "20dp", "7dp"],
             buttons=[
                 MDFlatButton(
                     text="DELETE", text_color=app.theme_cls.primary_color,

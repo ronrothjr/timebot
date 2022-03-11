@@ -76,7 +76,7 @@ class TimebotProjectsScreen(MDScreen):
             self.custom_dialog = MDDialog(
                 title="Add Project Code:",
                 type="custom",
-                radius=[20, 7, 20, 7],
+                radius=["20dp", "7dp", "20dp", "7dp"],
                 content_cls=TimebotAddProjectDialog(),
                 buttons=[
                     MDFlatButton(
@@ -117,7 +117,7 @@ class TimebotProjectsScreen(MDScreen):
             title="Delete Project",
             type="custom",
             content_cls=confirm_dialog,
-            radius=[20, 7, 20, 7],
+            radius=["20dp", "7dp", "20dp", "7dp"],
             buttons=[
                 MDFlatButton(
                     text=button_text, text_color=app.theme_cls.primary_color,
