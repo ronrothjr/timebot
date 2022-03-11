@@ -281,7 +281,7 @@ class API:
                     print('updating previous task')
                     entry.update(previous_task, {'end': begin})
             if end and next_task and Utils.db_format_time(next_task.begin) != end:
-                if Utils.db_format_time(next_task.end) >= end:
+                if Utils.db_format_time(next_task.end) <= end:
                     print('deleting next task')
                     end = Utils.db_format_time(previous_task.end)
                     entry.remove(next_task.entryid)
