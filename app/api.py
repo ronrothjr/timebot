@@ -132,6 +132,7 @@ class API:
 
     @staticmethod
     def get_today(task_weekday=None):
+        print(task_weekday)
         today, now, begin_date, weekday, schema = API.get_now()
         day = Service(Day, Sqlite3DB, schema)
         entry = Service(Entry, Sqlite3DB, schema)
@@ -146,9 +147,37 @@ class API:
         return timecard
 
     @staticmethod
-    def switch_or_start_task(code: str=''):
-        now, entry, day_obj, entries = API.get_today()
+    def switch_or_start_task(code: str='', weekday: str=None):
+        t, n, b, w, s = API.get_now()
+        is_today = weekday is None or w == weekday
+        now, entry, day_obj, entries = API.get_today(weekday)
         now_str = Utils.db_format_time(now)
+        print([e.as_dict() for e in entries])
+        print(day_obj.weekday)
+        if is_today:
+            API.update_or_remove_tasks(entries, entry, code, now_str)
+        entries = entry.get({'dayid': day_obj.dayid})
+        last = API.get_last_entry(weekday)
+        last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
+        last_end_str = Utils.db_format_time(last.end) if last and last.end else ''
+        has_break = last_end_str and last_begin_str != now_str
+        has_break_code = code != '' and last_end_str and last_end_str < now_str
+        is_new_task = code != '' and not last
+        if is_today and has_break_code:
+            new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': 'DRG-000099'}
+            entry.add(new_entry)
+        is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
+        is_same_after_break = has_break and code == last.code
+        if not is_today:
+            if last.end:
+                new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': Utils.db_format_time(last.end), 'end': None, 'code': code}
+                entry.add(new_entry)
+        elif is_new_task or is_code_changed or is_same_after_break:
+            new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': now_str, 'end': None, 'code': code}
+            entry.add(new_entry)
+
+    @staticmethod
+    def update_or_remove_tasks(entries, entry, code, now_str):
         for entry_obj in entries:
             in_progress = entry_obj.end is None
             code_change = code != '' and entry_obj.code != code
@@ -166,25 +195,10 @@ class API:
             in_progress = entry_obj.end is None
             begin_str = Utils.db_format_time(entry_obj.begin)
             end_str = Utils.db_format_time(entry_obj.end) if not in_progress else ''
-        entries = entry.get({'dayid': day_obj.dayid})
-        last = API.get_last_entry()
-        last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
-        last_end_str = Utils.db_format_time(last.end) if last and last.end else ''
-        has_break = last_end_str and last_begin_str != now_str
-        has_break_code = code != '' and last_end_str and last_end_str < now_str
-        is_new_task = code != '' and not last
-        if has_break_code:
-            new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': 'DRG-000099'}
-            entry.add(new_entry)
-        is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
-        is_same_after_break = has_break and code == last.code
-        if is_new_task or is_code_changed or is_same_after_break:
-            new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': now_str, 'end': None, 'code': code}
-            entry.add(new_entry)
 
     @staticmethod
-    def get_last_entry():
-        now, entry, day_obj, entries = API.get_today()
+    def get_last_entry(weekday: str=None):
+        now, entry, day_obj, entries = API.get_today(weekday)
         last = None
         for entry_obj in entries:
             begin_str = Utils.db_format_time(entry_obj.begin)

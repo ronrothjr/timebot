@@ -84,12 +84,14 @@ class TimebotTimecardsScreen(MDScreen):
 
     def add_weekday(self, weekday):
         weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(.9, None))
-        weekday_heading = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(.9, None))
+        weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(.9, None), height="40dp")
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6")
         weekday_heading.add_widget(weekday_label)
         loading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None))
         self.loaders[weekday] = loading_box
         weekday_heading.add_widget(loading_box)
+        add_task = MDIconButton(icon='plus', on_release=self.add_task, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5})
+        weekday_heading.add_widget(add_task)
         expanding_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height='20dp', width='20dp')
         expand = 'arrow-collapse-vertical' if self.today[2] == weekday else 'arrow-expand-vertical'
         expanding_box.add_widget(MDIconButton(icon=expand, on_release=self.expand_weekday, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5}))
@@ -104,6 +106,12 @@ class TimebotTimecardsScreen(MDScreen):
         weekday_box.add_widget(weekday_entries)
         self.view.add_widget(weekday_box)
         return weekday_entries
+
+    def add_task(self, instance):
+        code = API.get_setting('default_project_code').value
+        weekday: str = instance.parent.children[2].text
+        API.switch_or_start_task(code=code, weekday=weekday)
+        self.fill_weekdays(weekday)
 
     def expand_weekday(self, instance):
         weekday = instance.parent.parent.children[2].text
