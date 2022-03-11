@@ -102,9 +102,6 @@ class TimebotTimecardsScreen(MDScreen):
         totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width="80dp", height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
         self.totals[weekday] = totals_label
         weekday_heading.add_widget(totals_label)
-        loading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None))
-        self.loaders[weekday] = loading_box
-        weekday_heading.add_widget(loading_box)
         expanding_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height='20dp', width='20dp')
         if self.today[2] != weekday:
             expanding_box.add_widget(MDIconButton(icon='arrow-expand-vertical', on_release=self.expand_weekday, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5}))
@@ -142,8 +139,6 @@ class TimebotTimecardsScreen(MDScreen):
             total = self.totals[day.weekday]
             total.text = f'Total: {API.get_total(day.weekday)}'
             if not weekday or (weekday and day.weekday == weekday):
-                loader = self.loaders[weekday if weekday else day.weekday]
-                loader.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
                 Clock.schedule_once(partial(self.fill_weekday, day))
 
     def fill_weekday(self, day, event):
@@ -156,8 +151,6 @@ class TimebotTimecardsScreen(MDScreen):
                 self.add_entry(entry, weekday_box)
         else:
             weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
-        loader = self.loaders[day.weekday]
-        loader.clear_widgets()
 
     def add_entry(self, entry, weekday_box):
         entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
