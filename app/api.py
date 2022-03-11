@@ -252,7 +252,7 @@ class API:
                 return f'int value failed for end: {end}'
             has_valid_time_values = has_valid_time_values and int(end[0:2]) >= 0 and int(end[0:2]) < 24 and int(end[-2:]) >= 0 and int(end[-2:]) < 60 and begin < end
         if not has_valid_time_values:
-            return f'invalid time value for {begin} or {end}'
+            return f'invalid value for {begin} or {end}'
         schema = Utils.get_schema()
         project = Service(Project, Sqlite3DB, schema)
         project_obj = project.get(code)
