@@ -84,8 +84,8 @@ class TimebotTimecardsScreen(MDScreen):
         self.fill_weekdays(weekday)
 
     def add_weekday(self, weekday):
-        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(.9, None))
-        weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(.9, None), height="30dp")
+        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None))
+        weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width="260dp", height="30dp")
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6")
         weekday_heading.add_widget(weekday_label)
         add_task = MDIconButton(icon='plus', on_release=self.add_task, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5})
@@ -141,7 +141,7 @@ class TimebotTimecardsScreen(MDScreen):
             for entry in dict_entries:
                 self.add_entry(entry, weekday_box)
         else:
-            weekday_box.add_widget(MDLabel(adaptive_height=True, text='No tasks entered', size_hint=(None, None), width="200dp", height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+            weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(None, None), width="200dp", halign='center', height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
         loader = self.loaders[day.weekday]
         loader.clear_widgets()
 
