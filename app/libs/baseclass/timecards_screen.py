@@ -33,6 +33,14 @@ class TimebotTimecardsScreen(MDScreen):
     def __init__(self, **kw):
         super(TimebotTimecardsScreen, self).__init__(**kw)
         self.custom_dialog = None
+        self.top_center = {"center_x": .5, "top": 1}
+        self.center_center = {"center_x": .5, "center_y": .5}
+        self.today_width = "360dp"
+        self.task_width = "340dp"
+        self.weekday_width = "300dp"
+        self.heading_height = "35dp"
+        self.header_height = "30dp"
+        self.task_height = "50dp"
         Clock.schedule_once(self.load_timesheet, 2)
 
     def load_timesheet(self, *args):
@@ -40,12 +48,12 @@ class TimebotTimecardsScreen(MDScreen):
         self.today = Utils.get_begin_date()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
-        self.scroller.size_hint = (0.9, 1)
-        self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
+        self.scroller.size_hint = (0.8, 1)
+        self.scroller.pos_hint = self.center_center
         self.view = MDList(spacing=dp(10))
         self.timecard: Timecard = API.get_current_timecard()
         self.add_heading()
-        self.weekdays_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None))
+        self.weekdays_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None), pos_hint=self.top_center)
         self.show_weekdays()
         self.view.add_widget(self.weekdays_box)
         self.scroller.add_widget(self.view)
@@ -60,9 +68,9 @@ class TimebotTimecardsScreen(MDScreen):
         self.heading_info_box.children[0].text = f'Total: {API.get_total()}'
 
     def add_heading(self):
-        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
-        self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width="340dp", height="35dp", padding="0dp", spacing="0dp")
-        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width="240dp", font_style="Body2")
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding="0dp", spacing="0dp", pos_hint=self.top_center)
+        self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding="0dp", spacing="0dp", pos_hint=self.top_center)
+        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width="220dp", font_style="Body2")
         self.heading_info_box.add_widget(timecard_label)
         hours_label = MDLabel(adaptive_height=True, text=f'Total: {API.get_total()}', size_hint=(None, None), width="80dp", font_style="Body2")
         self.heading_info_box.add_widget(hours_label)
@@ -71,14 +79,14 @@ class TimebotTimecardsScreen(MDScreen):
         self.view.add_widget(self.heading_box)
 
     def add_column_headers(self, heading_box):
-        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
-        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
+        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center)
+        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
         entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for column in entry_column_data:
             entry_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(None, None), width=dp(column[1]), font_style="Body1")
             entry_column_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={"center_x": .5, "center_y": .5})
+        entry_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
         entry_column_box.add_widget(entry_delete)
         heading_box.add_widget(entry_column_box)
 
@@ -93,24 +101,24 @@ class TimebotTimecardsScreen(MDScreen):
         self.fill_weekdays(weekday)
 
     def add_weekday(self, weekday):
-        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="300dp")
-        weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width="300dp", height="30dp")
+        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.weekday_width, pos_hint=self.top_center)
+        weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.weekday_width, height=self.header_height, pos_hint=self.top_center)
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6", size_hint=(None, None), width="120dp")
         weekday_heading.add_widget(weekday_label)
-        add_task = MDIconButton(icon='plus', on_release=self.add_task, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5})
+        add_task = MDIconButton(icon='plus', on_release=self.add_task, user_font_size="20sp", pos_hint=self.center_center)
         weekday_heading.add_widget(add_task)
-        totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width="80dp", height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
+        totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width="80dp", height=self.header_height, pos_hint=self.center_center, font_style="Body2")
         self.totals[weekday] = totals_label
         weekday_heading.add_widget(totals_label)
         expanding_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height='20dp', width='20dp')
         if self.today[2] != weekday:
-            expanding_box.add_widget(MDIconButton(icon='arrow-expand-vertical', on_release=self.expand_weekday, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5}))
+            expanding_box.add_widget(MDIconButton(icon='arrow-expand-vertical', on_release=self.expand_weekday, user_font_size="20sp", pos_hint=self.center_center))
         self.expanders[weekday] = expanding_box
         weekday_heading.add_widget(expanding_box)
         weekday_box.add_widget(weekday_heading)
-        weekday_entries = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None))
+        weekday_entries = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None), pos_hint=self.top_center)
         if self.today[2] == weekday:
-            weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+            weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
         else:
             weekday_entries.add_widget(MDLabel(text='', size_hint=(1, None), height=10))
         weekday_box.add_widget(weekday_entries)
@@ -150,18 +158,18 @@ class TimebotTimecardsScreen(MDScreen):
             for entry in dict_entries:
                 self.add_entry(entry, weekday_box)
         else:
-            weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+            weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
 
     def add_entry(self, entry, weekday_box):
-        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="50dp", pos_hint={"center_x": .5, "center_y": .5})
-        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
+        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
+        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for column in entry_column_data:
             entry_column_value = entry[column[2]] if entry[column[2]] else '(active)'
-            entry_label = MDLabel(adaptive_height=True, text=entry_column_value, size_hint=(None, None), width=dp(column[1]), pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
+            entry_label = MDLabel(adaptive_height=True, text=entry_column_value, size_hint=(None, None), width=dp(column[1]), pos_hint=self.center_center, font_style="Body2")
             entry_row_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint={"center_x": .5, "center_y": .5})
+        entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_delete)
         weekday_box.add_widget(entry_row_box)
 
