@@ -55,3 +55,12 @@ class Timecard:
             else:
                 entries_dict = {} if weekday in ['Sunday', 'Saturday'] else self.default_entry()
             self.add_day(weekday, entries_dict)
+
+    def get_entries_dict(self):
+        entries = []
+        for day in self.days.values():
+            print(day.as_dict())
+            for e in day.entries.values():
+                print(e.as_dict())
+                entries.append(e)
+        return entries

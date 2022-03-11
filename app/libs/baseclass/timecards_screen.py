@@ -54,13 +54,21 @@ class TimebotTimecardsScreen(MDScreen):
     def on_enter(self):
         self.today = Utils.get_begin_date()
         self.fill_weekdays(self.today[2])
+        self.set_hours()
+
+    def set_hours(self):
+        self.heading_info_box.children[0].text = f'Total: {API.get_total()}'
 
     def add_heading(self):
-        heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
-        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", font_style="Body2")
-        heading_box.add_widget(timecard_label)
-        self.add_column_headers(heading_box)
-        self.view.add_widget(heading_box)
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")
+        self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width="340dp", height="35dp", padding="0dp", spacing="0dp")
+        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width="240dp", font_style="Body2")
+        self.heading_info_box.add_widget(timecard_label)
+        hours_label = MDLabel(adaptive_height=True, text=f'Total: {API.get_total()}', size_hint=(None, None), width="80dp", font_style="Body2")
+        self.heading_info_box.add_widget(hours_label)
+        self.heading_box.add_widget(self.heading_info_box)
+        self.add_column_headers(self.heading_box)
+        self.view.add_widget(self.heading_box)
 
     def add_column_headers(self, heading_box):
         entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
@@ -78,6 +86,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.weekdays_box.clear_widgets()
         self.weekdays = {}
         self.expanders = {}
+        self.totals = {}
         self.loaders = {}
         for weekday in Utils.weekdays:
             self.weekdays[weekday] = self.add_weekday(weekday)
@@ -86,10 +95,13 @@ class TimebotTimecardsScreen(MDScreen):
     def add_weekday(self, weekday):
         weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="300dp")
         weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width="300dp", height="30dp")
-        weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6")
+        weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6", size_hint=(None, None), width="120dp")
         weekday_heading.add_widget(weekday_label)
         add_task = MDIconButton(icon='plus', on_release=self.add_task, user_font_size="20sp", pos_hint={"center_x": .5, "center_y": .5})
         weekday_heading.add_widget(add_task)
+        totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width="80dp", height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2")
+        self.totals[weekday] = totals_label
+        weekday_heading.add_widget(totals_label)
         loading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None))
         self.loaders[weekday] = loading_box
         weekday_heading.add_widget(loading_box)
@@ -127,6 +139,8 @@ class TimebotTimecardsScreen(MDScreen):
         days = Service(Day).get({'begin_date': self.timecard.begin_date})
         days_rows = days if isinstance(days, list) else [days]
         for day in days_rows:
+            total = self.totals[day.weekday]
+            total.text = f'Total: {API.get_total(day.weekday)}'
             if not weekday or (weekday and day.weekday == weekday):
                 loader = self.loaders[weekday if weekday else day.weekday]
                 loader.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))

@@ -141,6 +141,29 @@ class API:
         return now, entry, day_obj, entries
 
     @staticmethod
+    def get_total(task_weekday: str=None):
+        total = 0
+        entries = []
+        if task_weekday:
+            now, entry, day_obj, day_entries = API.get_today(task_weekday)
+            entries += [e.as_dict() for e in day_entries]
+        else:
+            for weekday in Utils.weekdays:
+                now, entry, day_obj, day_entries = API.get_today(weekday)
+                entries += [e.as_dict() for e in day_entries]
+        tasks = Utils.data_to_dict(table_name='entry', data=entries)
+        for task in tasks:
+            hour_total = int(task['total'].split(':')[0]) * 60
+            if hour_total > 0:
+                total += hour_total
+                total += int(task['total'].split(':')[1])
+        total_str = f'{str(int(total/60))}:{str(total%60).rjust(2,"0")}'
+        print(f'total: {total_str}')
+        return total_str
+
+
+
+    @staticmethod
     def get_current_timecard():
         today, now, begin_date, weekday, schema = API.get_now()
         timecard: Timecard = Service(Timecard).get(begin_date)
