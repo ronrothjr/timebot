@@ -24,7 +24,7 @@ class TimebotWelcomeScreen(MDScreen):
             },
             {
                 'title': 'This is the Projects screen',
-                'desc': 'Here you can manage you list of projects available on the Entry screen',
+                'desc': 'Here you can manage your list of projects available on the Entry screen',
                 'pos': 'left_bottom'
             },
             {
