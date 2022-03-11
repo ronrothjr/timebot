@@ -152,9 +152,8 @@ class API:
                 entries += [e.as_dict() for e in day_entries]
         tasks = Utils.data_to_dict(table_name='entry', data=entries)
         for task in tasks:
-            hour_total = int(task['total'].split(':')[0]) * 60
-            if hour_total > 0 and task['code'] != 'DRG-000099':
-                total += hour_total
+            if '-' not in task['total'] and task['code'] != 'DRG-000099':
+                total += int(task['total'].split(':')[0]) * 60
                 total += int(task['total'].split(':')[1])
         total_str = f'{str(int(total/60))}:{str(total%60).rjust(2,"0")}'
         return total_str
