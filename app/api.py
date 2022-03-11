@@ -132,7 +132,6 @@ class API:
 
     @staticmethod
     def get_today(task_weekday=None):
-        print(task_weekday)
         today, now, begin_date, weekday, schema = API.get_now()
         day = Service(Day, Sqlite3DB, schema)
         entry = Service(Entry, Sqlite3DB, schema)
@@ -158,10 +157,7 @@ class API:
                 total += hour_total
                 total += int(task['total'].split(':')[1])
         total_str = f'{str(int(total/60))}:{str(total%60).rjust(2,"0")}'
-        print(f'total: {total_str}')
         return total_str
-
-
 
     @staticmethod
     def get_current_timecard():
