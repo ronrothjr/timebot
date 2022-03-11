@@ -248,6 +248,7 @@ class TimebotEntryScreen(MDScreen):
             title="Edit Task",
             type="custom",
             content_cls=edit_dialog,
+            radius=[20, 7, 20, 7],
             buttons=[
                 MDFlatButton(
                     text="SAVE", text_color=app.theme_cls.primary_color,
@@ -290,6 +291,7 @@ class TimebotEntryScreen(MDScreen):
             title="Delete Task",
             type="custom",
             content_cls=confirm_dialog,
+            radius=[20, 7, 20, 7],
             buttons=[
                 MDFlatButton(
                     text="DELETE", text_color=app.theme_cls.primary_color,

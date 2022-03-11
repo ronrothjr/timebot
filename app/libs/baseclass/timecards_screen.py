@@ -32,6 +32,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def __init__(self, **kw):
         super(TimebotTimecardsScreen, self).__init__(**kw)
+        self.custom_dialog = None
         Clock.schedule_once(self.load_timesheet, 2)
 
     def load_timesheet(self, *args):
@@ -171,6 +172,7 @@ class TimebotTimecardsScreen(MDScreen):
             title="Edit Task",
             type="custom",
             content_cls=edit_dialog,
+            radius=[20, 7, 20, 7],
             buttons=[
                 MDFlatButton(
                     text="SAVE", text_color=app.theme_cls.primary_color,
@@ -211,6 +213,7 @@ class TimebotTimecardsScreen(MDScreen):
             title="Delete Task",
             type="custom",
             content_cls=confirm_dialog,
+            radius=[20, 7, 20, 7],
             buttons=[
                 MDFlatButton(
                     text="DELETE", text_color=app.theme_cls.primary_color,
