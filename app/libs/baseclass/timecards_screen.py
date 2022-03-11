@@ -49,7 +49,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
         self.scroller.size_hint = (0.8, 1)
-        self.scroller.pos_hint = self.center_center
+        self.scroller.pos_hint = self.top_center
         self.view = MDList(spacing=dp(10))
         self.timecard: Timecard = API.get_current_timecard()
         self.add_heading()
