@@ -29,24 +29,30 @@ class TimebotTimecardConfirmDeleteTaskDialog(MDBoxLayout):
 
 
 class TimebotTimecardsScreen(MDScreen):
+
+    def __init__(self, **kw):
+        super(TimebotTimecardsScreen, self).__init__(**kw)
+        Clock.schedule_once(self.load_timesheet, 2)
+
+    def load_timesheet(self, *args):
+        self.clear_widgets()
+        self.today = Utils.get_begin_date()
+        self.scroller = ScrollView()
+        self.scroller.bar_width = 0
+        self.scroller.size_hint = (0.9, 1)
+        self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
+        self.view = MDList(spacing=dp(10))
+        self.timecard: Timecard = API.get_current_timecard()
+        self.add_heading()
+        self.weekdays_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None))
+        self.show_weekdays()
+        self.view.add_widget(self.weekdays_box)
+        self.scroller.add_widget(self.view)
+        self.add_widget(self.scroller)
+
     def on_enter(self):
         self.today = Utils.get_begin_date()
-        if not hasattr(self, 'scroller'):
-            self.clear_widgets()
-            self.scroller = ScrollView()
-            self.scroller.bar_width = 0
-            self.scroller.size_hint = (0.9, 1)
-            self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
-            self.view = MDList(spacing=dp(10))
-            self.timecard: Timecard = API.get_current_timecard()
-            self.add_heading()
-            self.weekdays_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None))
-            self.show_weekdays()
-            self.view.add_widget(self.weekdays_box)
-            self.scroller.add_widget(self.view)
-            self.add_widget(self.scroller)
-        else:
-            self.fill_weekdays(self.today[2])
+        self.fill_weekdays(self.today[2])
 
     def add_heading(self):
         heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width="340dp", padding="0dp", spacing="0dp")

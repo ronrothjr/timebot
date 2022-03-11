@@ -59,22 +59,24 @@ class Reorienter(MDBoxLayout):
 
 class TimebotEntryScreen(MDScreen):
 
-    def on_enter(self):
+    def __init__(self, **kw):
+        super(TimebotEntryScreen, self).__init__(**kw)
         self.top_center = {"center_x": .5, "top": 1}
         self.center_center = {"center_x": .5, "center_y": .5}
         self.today_width = "360dp"
         self.task_width = "340dp"
-        if not hasattr(self, 'reorienter'):
-            self.clear_widgets()
-            self.reorienter = Reorienter()
-            self.add_widget(self.reorienter)
-            self.reorienter.reorient()
-            self.add_project_grid()
-            self.add_today()
-            self.reorienter.callback = self.reorient
-            self.reorienter.reorient()
-            # self.rotate()
-        else:
+        self.clear_widgets()
+        self.reorienter = Reorienter()
+        self.add_widget(self.reorienter)
+        self.reorienter.reorient()
+        self.add_project_grid()
+        self.add_today()
+        self.reorienter.callback = self.reorient
+        self.reorienter.reorient()
+        # self.rotate()
+
+    def on_enter(self):
+        if hasattr(self, 'reorienter'):
             self.show_project_grid()
             self.fill_task_grid()
 

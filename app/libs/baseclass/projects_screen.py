@@ -32,18 +32,19 @@ class TimebotConfirmDeleteProjectDialog(MDBoxLayout):
 class TimebotProjectsScreen(MDScreen):
     custom_dialog = None
 
-    def on_enter(self):
-        self.clear_widgets()
+    def __init__(self, **kw):
+        super(TimebotProjectsScreen, self).__init__(**kw)
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
-        # self.scroller.effect_cls = StiffScrollEffect
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
-
         self.view = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         self.show_projects()
         self.scroller.add_widget(self.view)
         self.add_widget(self.scroller)
+
+    def on_enter(self):
+        self.show_projects()
 
     def show_projects(self):
         self.view.clear_widgets()

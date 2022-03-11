@@ -12,10 +12,12 @@ from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
 
 class TimebotWelcomeScreen(MDScreen):
 
-    def on_enter(self):
+    def __init__(self, **kw):
+        super(TimebotWelcomeScreen, self).__init__(**kw)
+        Clock.schedule_once(self.on_init, 3)
+
+    def on_init(self, *args):
         self.tap = 0
-        items = self.parent.parent.children[1].children[0].children
-        self.nav_items = [items[3], items[2], items[1], items[0], items[4]]
         self.help_text = [
             {
                 'title': 'This is the Entry screen',
@@ -43,12 +45,16 @@ class TimebotWelcomeScreen(MDScreen):
                 'pos': 'right_bottom'
             }
         ]
+
+    def on_enter(self):
+        items = self.parent.parent.children[1].children[0].children
+        self.nav_items = [items[3], items[2], items[1], items[0], items[4]]
         self.card_view = MDGridLayout(cols=1, size_hint=(None, None), width='300dp', height="160dp", pos_hint={"center_x": .5, "center_y": .20})
         self.add_widget(self.card_view)
-        self.next()
+        Clock.schedule_once(self.next, 2)
 
     def next(self, *args):
-        if len(args) > 0 and args[0].state == 'open':
+        if isinstance(args, tuple) and len(args) > 0 and not isinstance(args[0], float) and args[0].state == 'open':
             self.card_view.clear_widgets()
             Clock.schedule_once(self.show_next, .5)
         else:
