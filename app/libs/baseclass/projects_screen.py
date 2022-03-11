@@ -18,6 +18,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
 from service import Service
 from project import Project
+from entry import Entry
 from api import API
 
 
@@ -104,6 +105,12 @@ class TimebotProjectsScreen(MDScreen):
         print(instance.icon, )
         self.remove_me = instance.parent.children[2].text
         app = App.get_running_app()
+        entry = Service(Entry)
+        tasks = entry.get({'code': self.remove_me})
+        cascade_delete = API.get_setting('cascade_delete').value == '1'
+        can_delete = not tasks or tasks and cascade_delete
+        button_text = "DELETE" if can_delete else "OK"
+        on_release = self.delete_project if can_delete else self.cancel_dialog
         confirm_dialog = TimebotConfirmDeleteProjectDialog()
         self.custom_dialog = MDDialog(
             title="Delete Project",
@@ -111,17 +118,22 @@ class TimebotProjectsScreen(MDScreen):
             content_cls=confirm_dialog,
             buttons=[
                 MDFlatButton(
-                    text="DELETE", text_color=app.theme_cls.primary_color,
-                    on_release=self.delete_project
+                    text=button_text, text_color=app.theme_cls.primary_color,
+                    on_release=on_release
                 ),
             ],
         )
         self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
-        self.custom_dialog.content_cls.ids.code.text = f'Project: {self.remove_me}'
+        if can_delete:
+            self.custom_dialog.content_cls.ids.code.text = f'Project: {self.remove_me}'
+        else:
+            self.custom_dialog.content_cls.ids.error.text = f'{self.remove_me} is used in {len(tasks)} task{"" if len(tasks) == 1 else "s"} and cannot be removed.'
+            self.custom_dialog.content_cls.ids.code.text = 'To allow deletion, modify the "Cascade Delete" setting.'
         self.custom_dialog.open()
 
     def delete_project(self, instance):
         self.custom_dialog.dismiss(force=True)
+        
         API.remove_project_code(self.remove_me)
         self.show_projects()
 
