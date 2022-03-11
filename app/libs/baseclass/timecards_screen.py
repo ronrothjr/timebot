@@ -141,7 +141,7 @@ class TimebotTimecardsScreen(MDScreen):
             for entry in dict_entries:
                 self.add_entry(entry, weekday_box)
         else:
-            weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(None, None), width="200dp", halign='center', height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
+            weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
         loader = self.loaders[day.weekday]
         loader.clear_widgets()
 
