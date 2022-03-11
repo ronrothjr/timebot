@@ -37,7 +37,7 @@ class API:
             setting.add({'key': 'cascade_delete', 'value': '0', 'options': '', 'title': 'Cascade Delete', 'type': 'bool', 'desc': 'Allow child tasks to be deleted when a project code or timecard is removed', 'section': 'Timecards'})
         settings = setting.get('version_tour')
         if not settings:
-            setting.add({'key': 'version_tour', 'value': '1.1.0', 'options': '1.1.0,1.0.0,0.0.2,0.0.1,0.0.0', 'title': 'Version Tour', 'type': 'options', 'desc': 'Change to take the tour of changes for a specific release', 'section': 'About'})
+            setting.add({'key': 'version_tour', 'value': '0.0.0', 'options': '1.1.0,1.0.0,0.0.2,0.0.1,0.0.0', 'title': 'Version Tour', 'type': 'options', 'desc': 'Change to take the tour of changes for a specific release', 'section': 'About'})
         API.save_config()
         API.save_my_config()
 
