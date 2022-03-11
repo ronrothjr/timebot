@@ -44,7 +44,7 @@
                     scr_manager.transition.direction = "right" \
                     if scr_manager.current in ["PROJECTS", "TIMECARDS", "SETTINGS"] \
                     else "left"
-                    scr_manager.current = "ENTRY"
+                    scr_manager.current = "TASKS"
 
             NavigationItem:
                 id: 'projects'
@@ -62,7 +62,7 @@
                 icon: "file-table-box-multiple"
                 on_release:
                     scr_manager.transition.direction = "left" \
-                    if scr_manager.current in ["WELCOME", "ENTRY", "PROJECTS"] \
+                    if scr_manager.current in ["WELCOME", "TASKS", "PROJECTS"] \
                     else "right"
                     scr_manager.current = "TIMECARDS"
 
@@ -81,7 +81,7 @@
                 name: "WELCOME"
 
             TimebotEntryScreen:
-                name: "ENTRY"
+                name: "TASKS"
 
             TimebotProjectsScreen:
                 name: "PROJECTS"
