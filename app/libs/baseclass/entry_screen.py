@@ -136,7 +136,7 @@ class TimebotEntryScreen(MDScreen):
         if hasattr(self, 'task_view') and self.task_view.children:
             task = self.task_view.children[0]
             labels = list(reversed([c for c in task.children if isinstance(c, MDLabel)]))
-            if labels[1].text == '(active)' and self.entries:
+            if labels and labels[1].text == '(active)' and self.entries:
                 last = Utils.data_to_dict('entry', [entry.as_dict() for entry in self.entries])[-1]
                 labels[2].text = last['total']
 

@@ -260,36 +260,48 @@ class API:
         if not has_valid_project_code:
             return f'invalid project code: {code}'
         now, entry, day_obj, entries = API.get_today(weekday)
-        previous_task = None
-        task_to_update = None
-        next_task = None
+        task_obj, task_dict, previous_task, previous_obj, next_task, next_obj = None, None, None, None, None, None
         for entry_obj in entries:
             entry_dict = entry_obj.as_dict()
-            if task_to_update:
-                next_task = entry_obj
             if entry_dict['begin'] == original[0]:
-                task_to_update = entry_obj
-            if not task_to_update:
-                previous_task = entry_obj
-        if task_to_update:
-            if previous_task and Utils.db_format_time(previous_task.end) != begin:
-                if Utils.db_format_time(previous_task.begin) >= begin:
+                task_obj = entry_obj
+                task_dict = entry_dict
+        if task_obj:
+            for entry_obj in entries:
+                entry_dict = entry_obj.as_dict()
+                if entry_dict['begin'] > task_dict['begin'] and (not next_task or next_task and entry_dict['begin'] < next_task['begin']):
+                    next_task = entry_dict
+                    next_obj = entry_obj
+                if entry_dict['begin'] < task_dict['begin'] and (not previous_task or previous_task and entry_dict['begin'] > previous_task['begin']):
+                    previous_task = entry_dict
+                    previous_obj = entry_obj
+        begin_before_begin = previous_task and begin < previous_task['begin']
+        if begin_before_begin:
+            return f'Cannot start before the previous task'
+        end_before_end = end and next_task and next_task['end'] and next_task['end'] <= end
+        if end_before_end:
+            return f'Cannot end after the next task'
+        if task_obj:
+            begin_before_prev_end = previous_task and previous_task['end'] != begin
+            if begin_before_prev_end:
+                begin_on_prev_begin = begin == previous_task['begin']
+                if begin_on_prev_begin:
                     print('deleting previous task')
-                    begin = Utils.db_format_time(previous_task.begin)
-                    entry.remove(previous_task.entryid)
+                    entry.remove(previous_obj.entryid)
                 else:
                     print('updating previous task')
-                    entry.update(previous_task, {'end': begin})
-            if end and next_task and Utils.db_format_time(next_task.begin) != end:
-                if next_task.end and Utils.db_format_time(next_task.end) <= end:
+                    entry.update(previous_obj, {'end': begin})
+            end_after_next_begin = next_task and end and next_task['begin'] != end
+            if end_after_next_begin:
+                end_on_next_end = next_task['end'] and end and end == next_task['end']
+                if end_on_next_end:
                     print('deleting next task')
-                    end = Utils.db_format_time(previous_task.end)
-                    entry.remove(next_task.entryid)
+                    entry.remove(next_obj.entryid)
                 else:
                     print('updating next task')
-                    entry.update(next_task, {'begin': end})
+                    entry.update(next_obj, {'begin': end})
             print('updating current task')
-            entry.update(task_to_update, {'begin': begin, 'end': None if end == '' else end, 'code': code})
+            entry.update(task_obj, {'begin': begin, 'end': None if end == '' else end, 'code': code})
 
     @staticmethod
     def remove_task(begin: str, end: str, code: str, weekday: str=None):
