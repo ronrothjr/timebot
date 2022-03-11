@@ -84,7 +84,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.fill_weekdays(weekday)
 
     def add_weekday(self, weekday):
-        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None))
+        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width="300dp")
         weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width="300dp", height="30dp")
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6")
         weekday_heading.add_widget(weekday_label)
