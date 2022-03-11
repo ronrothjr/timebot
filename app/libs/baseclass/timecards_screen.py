@@ -153,7 +153,7 @@ class TimebotTimecardsScreen(MDScreen):
             weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height="30dp", pos_hint={"center_x": .5, "center_y": .5}, font_style="Body2"))
 
     def add_entry(self, entry, weekday_box):
-        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="30dp", pos_hint={"center_x": .5, "center_y": .5})
+        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height="50dp", pos_hint={"center_x": .5, "center_y": .5})
         entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint={"center_x": .5, "center_y": .5})
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
