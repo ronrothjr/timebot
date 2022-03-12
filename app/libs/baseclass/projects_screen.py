@@ -55,7 +55,7 @@ class TimebotProjectsScreen(MDScreen):
         self.add_project_card(Project({'code': 'ADD', 'show': 0}))
     
     def add_project_card(self, project):
-        project_card = MD3Card(padding=16, radius=[dp(15),], size_hint=(.98, None), size=(dp(120), dp(80)), line_color=(1, 1, 1, 1))
+        project_card = MD3Card(padding=16, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(.98, None), size=(dp(120), dp(80)), line_color=(1, 1, 1, 1))
         project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
         if project.code == 'ADD':
             project_icon_add = MDIconButton(icon='plus', pos_hint={"center_x": .5, "center_y": .5}, on_release=self.released)

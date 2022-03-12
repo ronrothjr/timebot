@@ -111,7 +111,6 @@ class MDTimebot(MDApp):
         return self.sm
 
     def switch(self, dt):
-        print('switch')
         self.sm.current = "timebot root screen"
 
 

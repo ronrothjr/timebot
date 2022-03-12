@@ -39,7 +39,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.center_center = {"center_x": .5, "center_y": .5}
         self.today_width = dp(360)
         self.task_width = dp(360)
-        self.weekday_width = dp(330)
+        self.weekday_width = dp(340)
         self.heading_height = dp(35)
         self.header_height = dp(30)
         self.task_height = dp(50)

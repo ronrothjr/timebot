@@ -1,0 +1,55 @@
+#: import environ os.environ
+#: import dp kivy.metrics.dp
+
+<TimebotTasksScreen>
+    md_bg_color: 1, 1, 1, 0
+
+<TimebotEditTaskDialog>
+    orientation: "vertical"
+    spacing: dp(20)
+    size_hint_y: None
+    height: dp(200)
+
+    MDLabel:
+        id: error
+        text: ""
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 0, 0, 1
+
+    MDTextField:
+        id: begin
+        hint_text: "Begin Time"
+
+    MDTextField:
+        id: end
+        hint_text: "End Time"
+
+    MDTextField:
+        id: code
+        hint_text: "Project Code"
+
+<TimebotConfirmDeleteTaskDialog>
+    orientation: "vertical"
+    spacing: dp(12)
+    size_hint_y: None
+    height: dp(200)
+
+    MDLabel:
+        id: error
+        text: "Delete this task?"
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 0, 0, 1
+
+    MDLabel:
+        id: begin
+        text: "Begin Time"
+
+    MDLabel:
+        id: end
+        text: "End Time"
+
+    MDLabel:
+        id: code
+        text: "Project Code"

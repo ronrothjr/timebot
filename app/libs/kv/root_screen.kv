@@ -7,9 +7,10 @@
 #: import NavigationBar libs.baseclass.tabnavigation.NavigationBar
 
 #: import TimebotWelcomeScreen libs.baseclass.welcome_screen.TimebotWelcomeScreen
-#: import TimebotEntryScreen libs.baseclass.entry_screen.TimebotEntryScreen
+#: import TimebotTasksScreen libs.baseclass.tasks_screen.TimebotTasksScreen
 #: import TimebotProjectsScreen libs.baseclass.projects_screen.TimebotProjectsScreen
 #: import TimebotTimecardsScreen libs.baseclass.timecards_screen.TimebotTimecardsScreen
+#: import TimebotShareScreen libs.baseclass.share_screen.TimebotShareScreen
 #: import TimebotSettingsScreen libs.baseclass.settings_screen.TimebotSettingsScreen
 
 
@@ -42,7 +43,7 @@
                 icon: "clock-time-five-outline"
                 on_release:
                     scr_manager.transition.direction = "right" \
-                    if scr_manager.current in ["PROJECTS", "TIMECARDS", "SETTINGS"] \
+                    if scr_manager.current in ["PROJECTS", "TIMECARDS", "SHARE", "SETTINGS"] \
                     else "left"
                     scr_manager.current = "TASKS"
 
@@ -52,7 +53,7 @@
                 icon: "apps"
                 on_release:
                     scr_manager.transition.direction = "right" \
-                    if scr_manager.current in ["TIMECARDS", "SETTINGS"] \
+                    if scr_manager.current in ["TIMECARDS", "SHARE", "SETTINGS"] \
                     else "left"
                     scr_manager.current = "PROJECTS"
 
@@ -65,6 +66,16 @@
                     if scr_manager.current in ["WELCOME", "TASKS", "PROJECTS"] \
                     else "right"
                     scr_manager.current = "TIMECARDS"
+
+            NavigationItem:
+                id: 'share'
+                text: "SHARE"
+                icon: "share"
+                on_release:
+                    scr_manager.transition.direction = "left" \
+                    if scr_manager.current in ["WELCOME", "TASKS", "PROJECTS", "TIMECARDS"] \
+                    else "right"
+                    scr_manager.current = "SHARE"
 
             NavigationItem:
                 id: 'settings'
@@ -80,7 +91,7 @@
             TimebotWelcomeScreen:
                 name: "WELCOME"
 
-            TimebotEntryScreen:
+            TimebotTasksScreen:
                 name: "TASKS"
 
             TimebotProjectsScreen:
@@ -88,6 +99,9 @@
 
             TimebotTimecardsScreen:
                 name: "TIMECARDS"
+
+            TimebotShareScreen:
+                name: "'SHARE"
 
             TimebotSettingsScreen:
                 name: "SETTINGS"
