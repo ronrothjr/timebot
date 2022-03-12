@@ -7,7 +7,14 @@
     orientation: "vertical"
     spacing: dp(12)
     size_hint_y: None
-    height: dp(120)
+    height: dp(160)
+
+    MDLabel:
+        id: error
+        text: ""
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 0, 0, 1
 
     MDTextField:
         id: code

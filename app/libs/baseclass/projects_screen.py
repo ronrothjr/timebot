@@ -98,9 +98,12 @@ class TimebotProjectsScreen(MDScreen):
     def add_project(self, *args):
         code = self.custom_dialog.content_cls.ids.code.text
         project = Service(Project)
-        project.add({'code': code, 'show': 1})
-        self.custom_dialog.dismiss(force=True)
-        self.show_projects()
+        if len(code) == 0 or project.get(code):
+            self.custom_dialog.content_cls.ids.error.text = "Invalid project code"
+        else:
+            project.add({'code': code, 'show': 1})
+            self.custom_dialog.dismiss(force=True)
+            self.show_projects()
 
     def confirm_delete_project(self, instance):
         print(instance.icon, )
@@ -135,7 +138,6 @@ class TimebotProjectsScreen(MDScreen):
 
     def delete_project(self, instance):
         self.custom_dialog.dismiss(force=True)
-        
         API.remove_project_code(self.remove_me)
         self.show_projects()
 
