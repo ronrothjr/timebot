@@ -35,7 +35,7 @@ class TimebotTimecardsScreen(MDScreen):
         super(TimebotTimecardsScreen, self).__init__(**kw)
         self.custom_dialog = None
         self.top_center = {"center_x": .5, "top": 1}
-        self.mid_center = {"center_x": .5, "top": .75}
+        self.mid_center = {"center_x": .5, "top": .80}
         self.center_center = {"center_x": .5, "center_y": .5}
         self.today_width = dp(360)
         self.task_width = dp(360)
@@ -104,7 +104,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def add_weekday(self, weekday):
         weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.weekday_width, pos_hint=self.center_center, md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
-        weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=dp(320), height=self.header_height, pos_hint=self.top_center, padding=(dp(5), dp(5), dp(5), dp(5)))
+        weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.weekday_width, height=self.header_height, pos_hint=self.top_center, padding=(dp(5), dp(5), dp(5), dp(5)))
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6", size_hint=(None, None), width=dp(120), pos_hint=self.mid_center)
         weekday_heading.add_widget(weekday_label)
         add_task = MDIconButton(icon='plus', on_release=self.add_task, user_font_size="20sp", pos_hint=self.center_center)
