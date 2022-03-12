@@ -72,7 +72,7 @@ class TimebotTimecardsScreen(MDScreen):
     def add_heading(self):
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
         self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=0, spacing=0, pos_hint=self.top_center)
-        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(220), font_style="Body2")
+        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(200), font_style="Body2")
         self.heading_info_box.add_widget(timecard_label)
         hours_label = MDLabel(adaptive_height=True, text=f'Total: {API.get_total()}', size_hint=(None, None), width=dp(80), font_style="Body2")
         self.heading_info_box.add_widget(hours_label)
