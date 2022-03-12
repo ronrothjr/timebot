@@ -11,7 +11,7 @@ class TestUntils(unittest.TestCase):
         timecard_data = {
             'days': {
                 'Monday': {
-                    'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'entries': {
+                    'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'tasks': {
                         0: {'dayid': 0, 'entryid': 0, 'begin': '0900', 'end': '1600', 'code': os.environ["DEFAULT_PROJECT_CODE"]}
                     }
                 }

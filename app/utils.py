@@ -30,11 +30,12 @@ class Utils:
                 'begin_date': {'name': 'begin_date', 'type': 'TEXT', 'dp': 30, 'ref': 'timecard(begin_date)', 'trigger': 'CASCADE'},
                 'weekday': {'name': 'weekday', 'display': 'Weekday', 'type': 'TEXT', 'dp': 30}
             },
-            'entry': {
+            'task': {
+                'entryid': {'name': 'entryid', 'type': 'INTEGER', 'id': True},
                 'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
                 'begin': {'name': 'begin', 'display': 'In', 'type': 'TEXT', 'dp': 40},
                 'end': {'name': 'end', 'display': 'Out', 'type': 'TEXT', 'dp': 55},
-                'total': {'name': 'total', 'display': 'Sum', 'type': 'CALCULATED', 'dp': 40, 'calc': Utils.entry_total},
+                'total': {'name': 'total', 'display': 'Sum', 'type': 'CALCULATED', 'dp': 40, 'calc': Utils.task_total},
                 'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 80, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             },
             'setting': {
@@ -50,9 +51,9 @@ class Utils:
         return {'db_name': 'app.db', 'tables': tables}
 
     @staticmethod
-    def entry_total(entry):
-        begin = entry.get('begin')
-        end = entry.get('end') if entry.get('end') else Utils.db_format_time(datetime.datetime.now().time())
+    def task_total(task):
+        begin = task.get('begin')
+        end = task.get('end') if task.get('end') else Utils.db_format_time(datetime.datetime.now().time())
         time_1 = datetime.datetime.strptime(f'{begin[0:2]}:{begin[-2:]}:00',"%H:%M:%S")
         time_2 = datetime.datetime.strptime(f'{end[0:2]}:{end[-2:]}:00',"%H:%M:%S")
         diff: datetime.timedelta = time_2 - time_1

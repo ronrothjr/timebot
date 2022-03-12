@@ -1,7 +1,7 @@
 import unittest, os
 from service import Service
 from db import Sqlite3DB, DatabaseSchema
-from entry import Entry
+from task import Task
 from project import Project
 from timecard import Timecard
 from day import Day
@@ -19,7 +19,7 @@ class TestRepository(unittest.TestCase):
         self.project = Service(Project, Sqlite3DB, schema)
         self.timecard = Service(Timecard, Sqlite3DB, schema)
         self.day = Service(Day, Sqlite3DB, schema)
-        self.entry = Service(Entry, Sqlite3DB, schema)
+        self.task = Service(Task, Sqlite3DB, schema)
 
     def tearDown(self) -> None:
         self.remove_db()
@@ -43,12 +43,12 @@ class TestRepository(unittest.TestCase):
         self.project.add({'code': 'DRG-000099', 'show': 0})
         self.timecard.add('2022-02-20', {'days': {}})
         day = self.day.add('2022-02-20', 'Monday')
-        entry = self.entry.add(0, day.dayid, '0900', '1600', 'DRG-403009')
-        self.entry.update(entry, {'begin': '0830'})
-        entries = self.entry.get()
-        self.assertEqual(len(entries), 1, 'entries should have only 1')
-        entry = entries[0]
-        self.assertEqual(Utils.db_format_time(entry.end), '1600', '0830 entry should end at 4pm')
+        task = self.task.add(0, day.dayid, '0900', '1600', 'DRG-403009')
+        self.task.update(task, {'begin': '0830'})
+        tasks = self.task.get()
+        self.assertEqual(len(tasks), 1, 'tasks should have only 1')
+        task = tasks[0]
+        self.assertEqual(Utils.db_format_time(task.end), '1600', '0830 task should end at 4pm')
         self.day.update(day, {'weekday': 'Tuesday'})
         API.add_current_timecard()
         API.switch_or_start_task('DRG-403005')

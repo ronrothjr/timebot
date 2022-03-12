@@ -17,7 +17,7 @@ from api import API
 from service import Service
 from day import Day
 from timecard import Timecard
-from entry import Entry
+from task import Task
 from utils import Utils
 
 
@@ -81,16 +81,16 @@ class TimebotTimecardsScreen(MDScreen):
         self.view.add_widget(self.heading_box)
 
     def add_column_headers(self, heading_box):
-        entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center)
-        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
-        entry_column_box.add_widget(entry_edit)
-        entry_column_data = Utils.schema_dict_to_tuple('entry')
-        for column in entry_column_data:
-            entry_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(None, None), width=dp(column[1]), font_style="Body1")
-            entry_column_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
-        entry_column_box.add_widget(entry_delete)
-        heading_box.add_widget(entry_column_box)
+        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center)
+        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
+        task_column_box.add_widget(task_edit)
+        task_column_data = Utils.schema_dict_to_tuple('task')
+        for column in task_column_data:
+            task_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(None, None), width=dp(column[1]), font_style="Body1")
+            task_column_box.add_widget(task_label)
+        task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
+        task_column_box.add_widget(task_delete)
+        heading_box.add_widget(task_column_box)
 
     def show_weekdays(self):
         self.weekdays_box.clear_widgets()
@@ -107,7 +107,7 @@ class TimebotTimecardsScreen(MDScreen):
         weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.weekday_width, height=self.header_height, pos_hint=self.top_center, padding=(dp(5), dp(5), dp(5), dp(5)))
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6", size_hint=(None, None), width=dp(120), pos_hint=self.mid_center)
         weekday_heading.add_widget(weekday_label)
-        add_task = MDIconButton(icon='plus', on_release=self.add_task, user_font_size="20sp", pos_hint=self.center_center)
+        add_task = MDIconButton(icon='plus', on_release=self.add_new_task, user_font_size="20sp", pos_hint=self.center_center)
         weekday_heading.add_widget(add_task)
         totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width=dp(80), height=self.header_height, pos_hint=self.center_center, font_style="Body2")
         self.totals[weekday] = totals_label
@@ -118,16 +118,16 @@ class TimebotTimecardsScreen(MDScreen):
         self.expanders[weekday] = expanding_box
         weekday_heading.add_widget(expanding_box)
         weekday_box.add_widget(weekday_heading)
-        weekday_entries = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None), pos_hint=self.top_center)
+        weekday_tasks = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None), pos_hint=self.top_center)
         if self.today[2] == weekday:
-            weekday_entries.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
+            weekday_tasks.add_widget(MDLabel(adaptive_height=True, text='Loading...', size_hint=(.5, None), height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
         else:
-            weekday_entries.add_widget(MDLabel(text='', size_hint=(1, None), height=10))
-        weekday_box.add_widget(weekday_entries)
+            weekday_tasks.add_widget(MDLabel(text='', size_hint=(1, None), height=10))
+        weekday_box.add_widget(weekday_tasks)
         self.view.add_widget(weekday_box)
-        return weekday_entries
+        return weekday_tasks
 
-    def add_task(self, instance):
+    def add_new_task(self, instance):
         code = API.get_setting('default_project_code').value
         weekday: str = instance.parent.children[3].text
         API.switch_or_start_task(code=code, weekday=weekday)
@@ -154,26 +154,26 @@ class TimebotTimecardsScreen(MDScreen):
     def fill_weekday(self, day, event):
         weekday_box = self.weekdays[day.weekday]
         weekday_box.clear_widgets()
-        entries = Service(Entry).get({'dayid': day.dayid})
-        if entries:
-            dict_entries = Utils.data_to_dict('entry', [entry.as_dict() for entry in entries])
-            for entry in dict_entries:
-                self.add_entry(entry, weekday_box)
+        tasks = Service(Task).get({'dayid': day.dayid})
+        if tasks:
+            dict_tasks = Utils.data_to_dict('task', [task.as_dict() for task in tasks])
+            for task in dict_tasks:
+                self.add_task(task, weekday_box)
         else:
             weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
 
-    def add_entry(self, entry, weekday_box):
-        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
-        entry_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
-        entry_row_box.add_widget(entry_edit)
-        entry_column_data = Utils.schema_dict_to_tuple('entry')
-        for column in entry_column_data:
-            entry_column_value = entry[column[2]] if entry[column[2]] else '(active)'
-            entry_label = MDLabel(adaptive_height=True, text=entry_column_value, size_hint=(None, None), width=dp(column[1]), pos_hint=self.center_center, font_style="Body2")
-            entry_row_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint=self.center_center)
-        entry_row_box.add_widget(entry_delete)
-        weekday_box.add_widget(entry_row_box)
+    def add_task(self, task, weekday_box):
+        task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
+        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
+        task_row_box.add_widget(task_edit)
+        task_column_data = Utils.schema_dict_to_tuple('task')
+        for column in task_column_data:
+            task_column_value = task[column[2]] if task[column[2]] else '(active)'
+            task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(None, None), width=dp(column[1]), pos_hint=self.center_center, font_style="Body2")
+            task_row_box.add_widget(task_label)
+        task_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_task, pos_hint=self.center_center)
+        task_row_box.add_widget(task_delete)
+        weekday_box.add_widget(task_row_box)
 
     def edit_task(self, instance):
         parent_labels = [c.text for c in instance.parent.parent.parent.children[1].children if isinstance(c, MDLabel)]
@@ -215,7 +215,7 @@ class TimebotTimecardsScreen(MDScreen):
             self.custom_dialog.dismiss(force=True)
             self.fill_weekdays(weekday)
 
-    def confirm_delete_entry(self, instance):
+    def confirm_delete_task(self, instance):
         parent_labels = [c.text for c in instance.parent.parent.parent.children[1].children if isinstance(c, MDLabel)]
         labels = [c.text for c in instance.parent.children if c.text]
         self.remove_me = [labels[3], labels[2], labels[0], parent_labels[1]]
@@ -229,7 +229,7 @@ class TimebotTimecardsScreen(MDScreen):
             buttons=[
                 MDFlatButton(
                     text="DELETE", text_color=app.theme_cls.primary_color,
-                    on_release=self.delete_entry
+                    on_release=self.delete_task
                 ),
             ],
         )
@@ -240,7 +240,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.custom_dialog.content_cls.ids.code.text = f'Code: {self.remove_me[2]}'
         self.custom_dialog.open()
 
-    def delete_entry(self, instance):
+    def delete_task(self, instance):
         self.custom_dialog.dismiss(force=True)
         API.remove_task(*self.remove_me)
         self.fill_weekdays(self.remove_me[3])

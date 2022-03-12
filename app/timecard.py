@@ -21,7 +21,7 @@ class Timecard:
             if len(args) > 1:
                 self.add_days(args[1].get('days'))
 
-    def default_entry(self):
+    def default_task(self):
         return {0: {'begin': '0800', 'end': '1600', 'code': os.environ["DEFAULT_PROJECT_CODE"]}}
 
     def as_dict(self):
@@ -43,24 +43,22 @@ class Timecard:
     def set_begin_date(self, date_str: str):
         self.begin_date = self.get_date(date_str)
 
-    def add_day(self, weekday: str, entries: dict):
-        self.days[weekday] = Day(self.begin_date, weekday, entries)
+    def add_day(self, weekday: str, tasks: dict):
+        self.days[weekday] = Day(self.begin_date, weekday, tasks)
 
     def add_days(self, days: dict):
         for weekday in Utils.weekdays:
-            entries_dict = {}
+            tasks_dict = {}
             day = days.get(weekday)
             if day:
-                entries_dict = day.get('entries', {})
+                tasks_dict = day.get('tasks', {})
             else:
-                entries_dict = {} if weekday in ['Sunday', 'Saturday'] else self.default_entry()
-            self.add_day(weekday, entries_dict)
+                tasks_dict = {} if weekday in ['Sunday', 'Saturday'] else self.default_task()
+            self.add_day(weekday, tasks_dict)
 
-    def get_entries_dict(self):
-        entries = []
+    def get_tasks_dict(self):
+        tasks = []
         for day in self.days.values():
-            print(day.as_dict())
             for e in day.entries.values():
-                print(e.as_dict())
-                entries.append(e)
-        return entries
+                tasks.append(e)
+        return tasks

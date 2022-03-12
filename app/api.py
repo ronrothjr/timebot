@@ -2,7 +2,7 @@ import datetime, os
 from threading import stack_size
 from service import Service
 from db import Sqlite3DB
-from entry import Entry
+from task import Task
 from setting import Setting
 from project import Project
 from timecard import Timecard
@@ -82,7 +82,7 @@ class API:
         project = Service(Project, Sqlite3DB, schema)
         timecard = Service(Timecard, Sqlite3DB, schema)
         day = Service(Day, Sqlite3DB, schema)
-        entry = Service(Entry, Sqlite3DB, schema)
+        task = Service(Task, Sqlite3DB, schema)
         projects = project.get()
         if not projects:
             project.add({'code': 'DRG-403009', 'show': 1})
@@ -98,7 +98,7 @@ class API:
             timecard_data = {
                 'days': {
                     'Monday': {
-                        'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'entries': {
+                        'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'tasks': {
                             0: {'dayid': 0, 'entryid': 0, 'begin': '0800', 'end': '1600', 'code': code.value if code else os.environ["DEFAULT_PROJECT_CODE"]}
                         }
                     }
@@ -109,13 +109,13 @@ class API:
             print(data)
             timecard.add(data)
             for weekday, day_obj in data.get('days').items():
-                entries = day_obj.get('entries', {})
-                new_day = day.add(begin_date, weekday, entries)
-                for new_entry in entries.values():
-                    new_entry['entryid'] = 0
-                    new_entry['dayid'] = new_day.dayid
-                    print(new_entry)
-                    entry.add(new_entry)
+                tasks = day_obj.get('tasks', {})
+                new_day = day.add(begin_date, weekday, tasks)
+                for new_task in tasks.values():
+                    new_task['entryid'] = 0
+                    new_task['dayid'] = new_day.dayid
+                    print(new_task)
+                    task.add(new_task)
 
     @staticmethod
     def toggle_project_code(icon: str, code: str):
@@ -134,23 +134,23 @@ class API:
     def get_today(task_weekday=None):
         today, now, begin_date, weekday, schema = API.get_now()
         day = Service(Day, Sqlite3DB, schema)
-        entry = Service(Entry, Sqlite3DB, schema)
+        task = Service(Task, Sqlite3DB, schema)
         day_obj: Day = day.get({'begin_date': begin_date, 'weekday': task_weekday if task_weekday else weekday})[0]
-        entries = entry.get({'dayid': day_obj.dayid})
-        return now, entry, day_obj, entries
+        tasks = task.get({'dayid': day_obj.dayid})
+        return now, task, day_obj, tasks
 
     @staticmethod
     def get_total(task_weekday: str=None):
         total = 0
-        entries = []
+        tasks = []
         if task_weekday:
-            now, entry, day_obj, day_entries = API.get_today(task_weekday)
-            entries += [e.as_dict() for e in day_entries]
+            now, task, day_obj, day_tasks = API.get_today(task_weekday)
+            tasks += [e.as_dict() for e in day_tasks]
         else:
             for weekday in Utils.weekdays:
-                now, entry, day_obj, day_entries = API.get_today(weekday)
-                entries += [e.as_dict() for e in day_entries]
-        tasks = Utils.data_to_dict(table_name='entry', data=entries)
+                now, task, day_obj, day_tasks = API.get_today(weekday)
+                tasks += [e.as_dict() for e in day_tasks]
+        tasks = Utils.data_to_dict(table_name='task', data=tasks)
         for task in tasks:
             if '-' not in task['total'] and task['code'] != 'DRG-000099':
                 total += int(task['total'].split(':')[0]) * 60
@@ -168,61 +168,61 @@ class API:
     def switch_or_start_task(code: str='', weekday: str=None):
         t, n, b, w, s = API.get_now()
         is_today = weekday is None or w == weekday
-        now, entry, day_obj, entries = API.get_today(weekday)
+        now, task, day_obj, tasks = API.get_today(weekday)
         now_str = Utils.db_format_time(now)
-        print([e.as_dict() for e in entries])
+        print([e.as_dict() for e in tasks])
         print(day_obj.weekday)
         if is_today:
-            API.update_or_remove_tasks(entries, entry, code, now_str)
-        entries = entry.get({'dayid': day_obj.dayid})
-        last = API.get_last_entry(weekday)
+            API.update_or_remove_tasks(tasks, task, code, now_str)
+        tasks = task.get({'dayid': day_obj.dayid})
+        last = API.get_last_task(weekday)
         last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
         last_end_str = Utils.db_format_time(last.end) if last and last.end else ''
         has_break = last_end_str and last_begin_str != now_str
         has_break_code = code != '' and last_end_str and last_end_str < now_str
         is_new_task = code != '' and not last
         if is_today and has_break_code:
-            new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': 'DRG-000099'}
-            entry.add(new_entry)
+            new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': 'DRG-000099'}
+            task.add(new_task)
         is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
         is_same_after_break = has_break and code == last.code
         if not is_today:
             if last.end:
-                new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': Utils.db_format_time(last.end), 'end': None, 'code': code}
-                entry.add(new_entry)
+                new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': Utils.db_format_time(last.end), 'end': None, 'code': code}
+                task.add(new_task)
         elif is_new_task or is_code_changed or is_same_after_break:
-            new_entry = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': now_str, 'end': None, 'code': code}
-            entry.add(new_entry)
+            new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': now_str, 'end': None, 'code': code}
+            task.add(new_task)
 
     @staticmethod
-    def update_or_remove_tasks(entries, entry, code, now_str):
-        for entry_obj in entries:
-            in_progress = entry_obj.end is None
-            code_change = code != '' and entry_obj.code != code
-            begin_str = Utils.db_format_time(entry_obj.begin)
-            end_str = Utils.db_format_time(entry_obj.end) if not in_progress else ''
+    def update_or_remove_tasks(tasks, task, code, now_str):
+        for task_obj in tasks:
+            in_progress = task_obj.end is None
+            code_change = code != '' and task_obj.code != code
+            begin_str = Utils.db_format_time(task_obj.begin)
+            end_str = Utils.db_format_time(task_obj.end) if not in_progress else ''
             is_current = begin_str < now_str
             is_task_end_request = is_current and in_progress
             is_task_to_end = not in_progress and end_str > now_str
             is_current_code_change = is_current and code_change and is_task_to_end
             if is_task_end_request or is_current_code_change:
-                entry.update(entry_obj, {'end': now_str})
+                task.update(task_obj, {'end': now_str})
             is_future = begin_str > now_str
             if is_future:
-                entry.remove(entry_obj.entryid)
-            in_progress = entry_obj.end is None
-            begin_str = Utils.db_format_time(entry_obj.begin)
-            end_str = Utils.db_format_time(entry_obj.end) if not in_progress else ''
+                task.remove(task_obj.entryid)
+            in_progress = task_obj.end is None
+            begin_str = Utils.db_format_time(task_obj.begin)
+            end_str = Utils.db_format_time(task_obj.end) if not in_progress else ''
 
     @staticmethod
-    def get_last_entry(weekday: str=None):
-        now, entry, day_obj, entries = API.get_today(weekday)
+    def get_last_task(weekday: str=None):
+        now, task, day_obj, tasks = API.get_today(weekday)
         last = None
-        for entry_obj in entries:
-            begin_str = Utils.db_format_time(entry_obj.begin)
+        for task_obj in tasks:
+            begin_str = Utils.db_format_time(task_obj.begin)
             last_str = Utils.db_format_time(last.begin) if last else ''
             if not last or (last and begin_str > last_str):
-                last = entry_obj
+                last = task_obj
         return last
 
     @staticmethod
@@ -259,22 +259,22 @@ class API:
         has_valid_project_code = project_obj
         if not has_valid_project_code:
             return f'invalid project code: {code}'
-        now, entry, day_obj, entries = API.get_today(weekday)
+        now, task, day_obj, tasks = API.get_today(weekday)
         task_obj, task_dict, previous_task, previous_obj, next_task, next_obj = None, None, None, None, None, None
-        for entry_obj in entries:
-            entry_dict = entry_obj.as_dict()
-            if entry_dict['begin'] == original[0]:
-                task_obj = entry_obj
-                task_dict = entry_dict
+        for obj in tasks:
+            obj_dict = obj.as_dict()
+            if obj_dict['begin'] == original[0]:
+                task_obj = obj
+                task_dict = obj_dict
         if task_obj:
-            for entry_obj in entries:
-                entry_dict = entry_obj.as_dict()
-                if entry_dict['begin'] > task_dict['begin'] and (not next_task or next_task and entry_dict['begin'] < next_task['begin']):
-                    next_task = entry_dict
-                    next_obj = entry_obj
-                if entry_dict['begin'] < task_dict['begin'] and (not previous_task or previous_task and entry_dict['begin'] > previous_task['begin']):
-                    previous_task = entry_dict
-                    previous_obj = entry_obj
+            for obj in tasks:
+                obj_dict = obj.as_dict()
+                if obj_dict['begin'] > task_dict['begin'] and (not next_task or next_task and obj_dict['begin'] < next_task['begin']):
+                    next_task = obj_dict
+                    next_obj = obj
+                if obj_dict['begin'] < task_dict['begin'] and (not previous_task or previous_task and obj_dict['begin'] > previous_task['begin']):
+                    previous_task = obj_dict
+                    previous_obj = obj
         begin_before_begin = previous_task and begin < previous_task['begin']
         if begin_before_begin:
             return f'Cannot start before the previous task'
@@ -287,41 +287,41 @@ class API:
                 begin_on_prev_begin = begin == previous_task['begin']
                 if begin_on_prev_begin:
                     print('deleting previous task')
-                    entry.remove(previous_obj.entryid)
+                    task.remove(previous_obj.entryid)
                 else:
                     print('updating previous task')
-                    entry.update(previous_obj, {'end': begin})
+                    task.update(previous_obj, {'end': begin})
             end_after_next_begin = next_task and end and next_task['begin'] != end
             if end_after_next_begin:
                 end_on_next_end = next_task['end'] and end and end == next_task['end']
                 if end_on_next_end:
                     print('deleting next task')
-                    entry.remove(next_obj.entryid)
+                    task.remove(next_obj.entryid)
                 else:
                     print('updating next task')
-                    entry.update(next_obj, {'begin': end})
+                    task.update(next_obj, {'begin': end})
             print('updating current task')
-            entry.update(task_obj, {'begin': begin, 'end': None if end == '' else end, 'code': code})
+            task.update(task_obj, {'begin': begin, 'end': None if end == '' else end, 'code': code})
 
     @staticmethod
     def remove_task(begin: str, end: str, code: str, weekday: str=None):
         print(begin, end, code)
-        now, entry, day_obj, entries = API.get_today(weekday)
-        for entry_obj in entries:
-            entry_dict = entry_obj.as_dict()
-            if entry_dict['begin'] == begin:
-                entry.remove(entry_obj.entryid)
-        for entry_obj in entries:
-            entry_dict = entry_obj.as_dict()
-            if end and entry_dict['begin'] == end:
-                entry.update(entry_obj, {'begin': begin})
+        now, task, day_obj, tasks = API.get_today(weekday)
+        for task_obj in tasks:
+            task_dict = task_obj.as_dict()
+            if task_dict['begin'] == begin:
+                task.remove(task_obj.entryid)
+        for task_obj in tasks:
+            task_dict = task_obj.as_dict()
+            if end and task_dict['begin'] == end:
+                task.update(task_obj, {'begin': begin})
 
     @staticmethod
     def resume_task():
-        now, entry, day_obj, entries = API.get_today()
-        last = API.get_last_entry()
+        now, task, day_obj, tasks = API.get_today()
+        last = API.get_last_task()
         if last:
-            entry.update(last, {'end': None})
+            task.update(last, {'end': None})
 
 if __name__ == '__main__':
     os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"

@@ -12,17 +12,17 @@ class TestTimecard(unittest.TestCase):
         self.timecard = Timecard('2022-02-20', {
             'days': {
                 'Sunday': {
-                    'dayid': 1, 'weekday': 'Sunday', 'entries': {
+                    'dayid': 1, 'weekday': 'Sunday', 'tasks': {
                         1: {'dayid': 1, 'entryid': 1, 'begin': '0901', 'end': '1600'}
                     }
                 },
                 'Monday': {
-                    'dayid': 2, 'weekday': 'Monday', 'entries': {
+                    'dayid': 2, 'weekday': 'Monday', 'tasks': {
                         2: {'dayid': 2, 'entryid': 2, 'begin': '0902', 'end': '1602'}
                     }
                 },
                 'Tuesday': {
-                    'dayid': 3, 'weekday': 'Monday', 'entries': {
+                    'dayid': 3, 'weekday': 'Monday', 'tasks': {
                         3: {'dayid': 3, 'entryid': 3, 'begin': '0801', 'end': '1501'}
                     }
                 }
@@ -40,8 +40,8 @@ class TestTimecard(unittest.TestCase):
         self.assertTrue(callable(self.timecard.add_days))
 
     def test_can_add_days(self):
-        self.assertEqual(self.timecard.days.get('Sunday').entries.get(1).begin, time(9,1))
-        entry = self.timecard.days.get('Tuesday').entries.get(3)
+        self.assertEqual(self.timecard.days.get('Sunday').tasks.get(1).begin, time(9,1))
+        entry = self.timecard.days.get('Tuesday').tasks.get(3)
         self.assertEqual(entry.end, time(15,1))
         data = Utils.get_data(self.timecard)
         self.assertEqual(data['begin_date'], '2022-02-20')

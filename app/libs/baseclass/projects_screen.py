@@ -18,7 +18,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
 from service import Service
 from project import Project
-from entry import Entry
+from task import Task
 from api import API
 
 
@@ -106,8 +106,8 @@ class TimebotProjectsScreen(MDScreen):
         print(instance.icon, )
         self.remove_me = instance.parent.children[2].text
         app = App.get_running_app()
-        entry = Service(Entry)
-        tasks = entry.get({'code': self.remove_me})
+        task = Service(Task)
+        tasks = task.get({'code': self.remove_me})
         cascade_delete = API.get_setting('cascade_delete').value == '1'
         can_delete = not tasks or tasks and cascade_delete
         button_text = "DELETE" if can_delete else "OK"

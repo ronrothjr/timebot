@@ -14,7 +14,7 @@ from setting import Setting
 from project import Project
 from timecard import Timecard
 from day import Day
-from entry import Entry
+from task import Task
 from api import API
 # from kivy.config import Config
 # Config.set('graphics', 'width', '370')
@@ -52,7 +52,7 @@ class MDTimebot(MDApp):
         self.project = Service(Project)
         self.timecard = Service(Timecard)
         self.day = Service(Day)
-        self.entry = Service(Entry)
+        self.task = Service(Task)
         API.add_settings()
         os.environ["DEFAULT_PROJECT_CODE"] = API.get_setting('default_project_code').value
         API.add_current_timecard()
