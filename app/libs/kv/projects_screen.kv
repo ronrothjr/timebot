@@ -1,12 +1,13 @@
 #: import environ os.environ
+#: import dp kivy.metrics.dp
 
 <TimebotProjectsScreen>
 
 <TimebotAddProjectDialog>
     orientation: "vertical"
-    spacing: "12dp"
+    spacing: dp(12)
     size_hint_y: None
-    height: "120dp"
+    height: dp(120)
 
     MDTextField:
         id: code
@@ -14,9 +15,9 @@
 
 <TimebotConfirmDeleteProjectDialog>
     orientation: "vertical"
-    spacing: "12dp"
+    spacing: dp(12)
     size_hint_y: None
-    height: "200dp"
+    height: dp(200)
 
     MDLabel:
         id: error

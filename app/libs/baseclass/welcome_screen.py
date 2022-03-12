@@ -1,4 +1,5 @@
 from kivy.utils import get_color_from_hex as gch 
+from kivy.metrics import dp
 from kivy.app import App
 from kivy.clock import Clock
 from kivymd.uix.screen import MDScreen
@@ -61,7 +62,7 @@ class TimebotWelcomeScreen(MDScreen):
     def take_tour_0_0_0(self):
         items = self.parent.parent.children[1].children[0].children
         self.tap_items = [items[3], items[2], items[1], items[0], items[4]]
-        self.card_view = MDGridLayout(cols=1, size_hint=(None, None), width='300dp', height="160dp", pos_hint={"center_x": .5, "center_y": .20})
+        self.card_view = MDGridLayout(cols=1, size_hint=(None, None), width=dp(300), height=dp(160), pos_hint={"center_x": .5, "center_y": .20})
         self.add_widget(self.card_view)
         Clock.schedule_once(self.next_0_0_0, 2)
 
@@ -92,8 +93,8 @@ class TimebotWelcomeScreen(MDScreen):
 
     def place_card(self, card_text):
         self.card_view.clear_widgets()
-        desc_card = MD3Card(padding=16, radius=[15,], size_hint=(None, None), width='300dp', height="160dp", md_bg_color=App.get_running_app().theme_cls.primary_color)
-        card_layout = MDRelativeLayout(size_hint=(None, None), width='280dp', height="160dp", pos_hint={"center_x": .5, "center_y": .5})
+        desc_card = MD3Card(padding=dp(16), radius=[dp(15),], size_hint=(None, None), width=dp(300), height=dp(160), md_bg_color=App.get_running_app().theme_cls.primary_color)
+        card_layout = MDRelativeLayout(size_hint=(None, None), width=dp(280), height=dp(160), pos_hint={"center_x": .5, "center_y": .5})
         card_label = MDLabel(text=card_text, adaptive_height=True, font_style="Subtitle1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         card_layout.add_widget(card_label)
         desc_card.add_widget(card_layout)

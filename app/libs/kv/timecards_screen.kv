@@ -1,13 +1,14 @@
 #: import environ os.environ
+#: import dp kivy.metrics.dp
 
 
 <TimebotTimecardsScreen>
 
 <TimebotTimecardEditTaskDialog>
     orientation: "vertical"
-    spacing: "12dp"
+    spacing: dp(12)
     size_hint_y: None
-    height: "230dp"
+    height: dp(230)
 
     MDLabel:
         id: error
@@ -37,9 +38,9 @@
 
 <TimebotTimecardConfirmDeleteTaskDialog>
     orientation: "vertical"
-    spacing: "12dp"
+    spacing: dp(12)
     size_hint_y: None
-    height: "240dp"
+    height: dp(240)
 
     MDLabel:
         id: error

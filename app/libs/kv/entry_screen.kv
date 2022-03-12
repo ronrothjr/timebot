@@ -1,13 +1,14 @@
 #: import environ os.environ
+#: import dp kivy.metrics.dp
 
 <TimebotEntryScreen>
     md_bg_color: 1, 1, 1, 0
 
 <TimebotEditTaskDialog>
     orientation: "vertical"
-    spacing: "12dp"
+    spacing: dp(20)
     size_hint_y: None
-    height: "200dp"
+    height: dp(200)
 
     MDLabel:
         id: error
@@ -30,9 +31,9 @@
 
 <TimebotConfirmDeleteTaskDialog>
     orientation: "vertical"
-    spacing: "12dp"
+    spacing: dp(12)
     size_hint_y: None
-    height: "200dp"
+    height: dp(200)
 
     MDLabel:
         id: error

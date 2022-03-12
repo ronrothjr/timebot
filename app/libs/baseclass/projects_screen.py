@@ -39,7 +39,7 @@ class TimebotProjectsScreen(MDScreen):
         self.scroller.bar_width = 0
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
-        self.view = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+        self.view = MDGridLayout(cols=2, padding=dp(10), spacing=dp(20), adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         self.show_projects()
         self.scroller.add_widget(self.view)
         self.add_widget(self.scroller)
@@ -55,7 +55,7 @@ class TimebotProjectsScreen(MDScreen):
         self.add_project_card(Project({'code': 'ADD', 'show': 0}))
     
     def add_project_card(self, project):
-        project_card = MD3Card(padding=16, radius=[15,], size_hint=(.98, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1))
+        project_card = MD3Card(padding=16, radius=[dp(15),], size_hint=(.98, None), size=(dp(120), dp(80)), line_color=(1, 1, 1, 1))
         project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
         if project.code == 'ADD':
             project_icon_add = MDIconButton(icon='plus', pos_hint={"center_x": .5, "center_y": .5}, on_release=self.released)
@@ -76,7 +76,7 @@ class TimebotProjectsScreen(MDScreen):
             self.custom_dialog = MDDialog(
                 title="Add Project Code:",
                 type="custom",
-                radius=["20dp", "7dp", "20dp", "7dp"],
+                radius=[dp(20), dp(7), dp(20), dp(7)],
                 content_cls=TimebotAddProjectDialog(),
                 buttons=[
                     MDFlatButton(
@@ -117,7 +117,7 @@ class TimebotProjectsScreen(MDScreen):
             title="Delete Project",
             type="custom",
             content_cls=confirm_dialog,
-            radius=["20dp", "7dp", "20dp", "7dp"],
+            radius=[dp(20), dp(7), dp(20), dp(7)],
             buttons=[
                 MDFlatButton(
                     text=button_text, text_color=app.theme_cls.primary_color,

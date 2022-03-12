@@ -63,8 +63,8 @@ class TimebotEntryScreen(MDScreen):
         super(TimebotEntryScreen, self).__init__(**kw)
         self.top_center = {"center_x": .5, "top": 1}
         self.center_center = {"center_x": .5, "center_y": .5}
-        self.today_width = "360dp"
-        self.task_width = "340dp"
+        self.today_width = dp(360)
+        self.task_width = dp(340)
         self.clear_widgets()
         self.reorienter = Reorienter()
         self.add_widget(self.reorienter)
@@ -83,7 +83,7 @@ class TimebotEntryScreen(MDScreen):
     def reorient(self, reorienter):
         if reorienter.orientation == 'vertical':
             self.project_scroller.size_hint_y = None
-            self.project_scroller.height = '230dp'
+            self.project_scroller.height = dp(230)
         else:
             self.project_scroller.size_hint_y = 1
         self.scroll_to_last()
@@ -99,9 +99,9 @@ class TimebotEntryScreen(MDScreen):
     def add_project_grid(self):
         self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, 1), pos_hint = self.top_center)
         self.project_view = MDList(adaptive_height=True, spacing=dp(10), pos_hint=self.top_center)
-        project_label = MDLabel(size_hint=(1, None), height="20px", halign="center", text=f"Select a project to record a task", font_style="Body2", pos_hint={"center_x": .5})
+        project_label = MDLabel(size_hint=(1, None), height=dp(20), halign="center", text=f"Select a project to record a task", font_style="Body2", pos_hint={"center_x": .5})
         self.project_view.add_widget(project_label)
-        self.project_grid = MDGridLayout(cols=2, padding="10dp", spacing="20dp", adaptive_size=True, size_hint=(1, None), pos_hint=self.top_center)
+        self.project_grid = MDGridLayout(cols=2, padding=dp(10), spacing=dp(20), adaptive_size=True, size_hint=(1, None), pos_hint=self.top_center)
         self.project_view.add_widget(self.project_grid)
         self.project_scroller.add_widget(self.project_view)
         self.reorienter.add_widget(self.project_scroller)
@@ -111,7 +111,7 @@ class TimebotEntryScreen(MDScreen):
         self.project_grid.clear_widgets()
         projects: List[Project] = Service(Project).get({'show': 1})
         for project in projects:
-            project_card = MD3Card(padding=16, radius=[15,], size_hint=(1, None), size=('120dp', "80dp"), line_color=(1, 1, 1, 1), on_release=self.released)
+            project_card = MD3Card(padding=16, radius=[dp(15),], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1, 1, 1, 1), on_release=self.released)
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
             project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint=self.center_center)
             project_layout.add_widget(project_label)
@@ -121,7 +121,7 @@ class TimebotEntryScreen(MDScreen):
     def add_today(self):
         today, begin_date, weekday = Utils.get_begin_date()
         self.day = Service(Day).get({'begin_date': begin_date, 'weekday': weekday})[0]
-        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, spacing="5dp", pos_hint=self.top_center)
+        self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, spacing=dp(5), pos_hint=self.top_center)
         self.add_heading()
         self.add_column_headers()
         self.add_task_grid()
@@ -141,13 +141,13 @@ class TimebotEntryScreen(MDScreen):
                 labels[2].text = last['total']
 
     def add_heading(self):
-        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width=self.task_width, padding="0dp", spacing="0dp", pos_hint=self.top_center)
-        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width="50dp", font_style="H6")
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width=dp(50), font_style="H6")
         timecard: Timecard = API.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
-        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width="90dp", padding="0dp", spacing="0dp", pos_hint=self.top_center)
+        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width=dp(90), padding=0, spacing=0, pos_hint=self.top_center)
         current_time = datetime.datetime.now().strftime("%H:%M:%S")
-        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width="90dp", font_style="H6")
+        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width=dp(90), font_style="H6")
         self.time_label = current_time_label
         self.time_box.add_widget(current_time_label)
         self.heading_box.add_widget(self.time_box)
@@ -159,14 +159,14 @@ class TimebotEntryScreen(MDScreen):
         self.weekday_box.add_widget(self.heading_box)
 
     def add_column_headers(self):
-        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height="30dp", width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
-        entry_edit = MDIconButton(icon="pencil", size_hint_x=None, width="15dp", user_font_size="14sp", pos_hint=self.center_center)
+        self.entry_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height=dp(30), width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
+        entry_edit = MDIconButton(icon="pencil", size_hint_x=None, width=dp(15), user_font_size="14sp", pos_hint=self.center_center)
         self.entry_column_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for entry_column in entry_column_data:
             entry_label = MDLabel(text=entry_column[0], size_hint=(None, None), width=dp(entry_column[1]), pos_hint=self.center_center, font_style="Body1")
             self.entry_column_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", size_hint_x=None, width="15dp", user_font_size="14sp", pos_hint=self.center_center)
+        entry_delete = MDIconButton(icon="close", size_hint_x=None, width=dp(15), user_font_size="14sp", pos_hint=self.center_center)
         self.entry_column_box.add_widget(entry_delete)
         self.weekday_box.add_widget(self.entry_column_box)
 
@@ -180,7 +180,7 @@ class TimebotEntryScreen(MDScreen):
         self.weekday_box.add_widget(self.task_scroller)
 
     def add_last_task_button(self):
-        self.last_task_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding="0dp", spacing="0dp", pos_hint=self.top_center)
+        self.last_task_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
         self.weekday_box.add_widget(self.last_task_box)
 
     def fill_task_grid(self, *args):
@@ -199,7 +199,7 @@ class TimebotEntryScreen(MDScreen):
             self.add_entry_row(entry)
 
     def show_empty_card(self):
-        empty_card = MD3Card(padding=16, radius=[15,], size_hint=(.98, None), size=('120dp', "80dp"), md_bg_color=gch('606060'), line_color=(1, 1, 1, 1))
+        empty_card = MD3Card(padding=16, radius=[dp(15),], size_hint=(.98, None), size=(dp(120), dp(80)), md_bg_color=gch('606060'), line_color=(1, 1, 1, 1))
         empty_layout = MDRelativeLayout(size=empty_card.size, pos_hint=self.center_center)
         empty_label = MDLabel(text="You have no tasks for today", adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint=self.center_center)
         empty_layout.add_widget(empty_label)
@@ -207,28 +207,28 @@ class TimebotEntryScreen(MDScreen):
         self.task_view.add_widget(empty_card)
 
     def add_entry_row(self, entry):
-        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height="50dp", width=self.task_width, spacing=0, padding=0, md_bg_color=gch('242424'), radius=["20dp", "7dp", "20dp", "7dp"])
-        entry_edit = MDIconButton(icon="pencil", size_hint_x=None, width="15dp",user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
+        entry_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height=dp(50), width=self.task_width, spacing=0, padding=0, md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
+        entry_edit = MDIconButton(icon="pencil", size_hint_x=None, width=dp(15),user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_edit)
         entry_column_data = Utils.schema_dict_to_tuple('entry')
         for entry_column in entry_column_data:
             entry_column_value = entry[entry_column[2]] if entry[entry_column[2]] else '(active)'
             entry_label = MDLabel(text=entry_column_value, size_hint=(None, None), width=dp(entry_column[1]), pos_hint=self.center_center, font_style="Body2")
             entry_row_box.add_widget(entry_label)
-        entry_delete = MDIconButton(icon="close", size_hint_x=None, width="15dp", user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint=self.center_center)
+        entry_delete = MDIconButton(icon="close", size_hint_x=None, width=dp(15), user_font_size="14sp", on_release=self.confirm_delete_entry, pos_hint=self.center_center)
         entry_row_box.add_widget(entry_delete)
         self.task_view.add_widget(entry_row_box)
 
     def show_last_task_button(self):
         last_entry = API.get_last_entry()
-        widget_spacer = Widget(size_hint_y=None, height="10dp")
+        widget_spacer = Widget(size_hint_y=None, height=dp(10))
         self.last_task_box.add_widget(widget_spacer)
         end_task = last_entry and not last_entry.end
         button_text = 'End Current' if end_task else 'Resume Last'
         button_action = self.end_task if end_task else self.continue_task
         end_task_button = MDRoundFlatButton(text=f"{button_text} Task", on_release=button_action, pos_hint=self.center_center, line_color=gch('ffffff'))
         self.last_task_box.add_widget(end_task_button)
-        widget_spacer = Widget(size_hint_y=None, height="20dp")
+        widget_spacer = Widget(size_hint_y=None, height=dp(20))
         self.last_task_box.add_widget(widget_spacer)
 
     def scroll_to_last(self):
@@ -248,7 +248,7 @@ class TimebotEntryScreen(MDScreen):
             title="Edit Task",
             type="custom",
             content_cls=edit_dialog,
-            radius=["20dp", "7dp", "20dp", "7dp"],
+            radius=[dp(20), dp(7), dp(20), dp(7)],
             buttons=[
                 MDFlatButton(
                     text="SAVE", text_color=app.theme_cls.primary_color,
@@ -291,7 +291,7 @@ class TimebotEntryScreen(MDScreen):
             title="Delete Task",
             type="custom",
             content_cls=confirm_dialog,
-            radius=["20dp", "7dp", "20dp", "7dp"],
+            radius=[dp(20), dp(7), dp(20), dp(7)],
             buttons=[
                 MDFlatButton(
                     text="DELETE", text_color=app.theme_cls.primary_color,
