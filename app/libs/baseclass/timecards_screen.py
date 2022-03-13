@@ -2,6 +2,7 @@ from functools import partial
 from kivy.utils import get_color_from_hex as gch
 from kivy.metrics import dp
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
@@ -10,9 +11,14 @@ from kivymd.uix.spinner import MDSpinner
 from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDFlatButton, MDIconButton
+from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
-from pyparsing import col
+from kivymd.uix.card import MDCard
+from kivy.uix.modalview import ModalView
+from kivymd.uix.selection import MDSelectionList
+from kivymd.uix.list import OneLineListItem
+from kivymd.toast import toast
 from api import API
 from service import Service
 from day import Day
@@ -29,11 +35,17 @@ class TimebotTimecardConfirmDeleteTaskDialog(MDBoxLayout):
     pass
 
 
+class MD3Card(MDCard, RoundedRectangularElevationBehavior):
+    pass
+
+
 class TimebotTimecardsScreen(MDScreen):
 
     def __init__(self, **kw):
         super(TimebotTimecardsScreen, self).__init__(**kw)
         self.custom_dialog = None
+        self.timesheets_modal_open = False
+        self.timesheets_modal = self.add_timesheets_modal()
         self.top_center = {"center_x": .5, "top": 1}
         self.mid_center = {"center_x": .5, "top": .80}
         self.center_center = {"center_x": .5, "center_y": .5}
@@ -43,9 +55,31 @@ class TimebotTimecardsScreen(MDScreen):
         self.heading_height = dp(35)
         self.header_height = dp(30)
         self.task_height = dp(50)
-        Clock.schedule_once(self.load_timesheet, 2)
+        Clock.schedule_once(self.load_current_timesheet, 2)
 
-    def load_timesheet(self, *args):
+    def add_timesheets_modal(self):
+        modal = ModalView(size_hint=(.8, .8), auto_dismiss=False)
+        view = ScrollView()
+        timecard_list = MDSelectionList(spacing=dp(12))
+        for timecard in Service(Timecard).get():
+            timecard_list.add_widget(OneLineListItem(
+                text=f"Week of: {timecard.begin_date} - {timecard.end_date}",
+                _no_ripple_effect=True,
+                on_release=self.selected
+            ))
+        view.add_widget(timecard_list)
+        modal.add_widget(view)
+        return modal
+
+    def selected(self, instance):
+        toast(f'loading {instance.text}')
+        begin_date = instance.text.split(': ')[1].split(' - ')[0]
+        self.timecard = Service(Timecard).get(begin_date)
+        self.today = None, None, '', None
+        self.timesheets_modal.dismiss()
+        self.load_timesheet_data()
+
+    def load_current_timesheet(self, *args):
         self.clear_widgets()
         self.today = Utils.get_begin_date()
         self.scroller = ScrollView()
@@ -54,12 +88,16 @@ class TimebotTimecardsScreen(MDScreen):
         self.scroller.pos_hint = self.top_center
         self.view = MDList(spacing=dp(10))
         self.timecard: Timecard = API.get_current_timecard()
+        self.scroller.add_widget(self.view)
+        self.add_widget(self.scroller)
+        self.load_timesheet_data()
+
+    def load_timesheet_data(self):
+        self.view.clear_widgets()
         self.add_heading()
         self.weekdays_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None), pos_hint=self.top_center)
         self.show_weekdays()
         self.view.add_widget(self.weekdays_box)
-        self.scroller.add_widget(self.view)
-        self.add_widget(self.scroller)
 
     def on_enter(self):
         self.today = Utils.get_begin_date()
@@ -72,13 +110,19 @@ class TimebotTimecardsScreen(MDScreen):
     def add_heading(self):
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
         self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=0, spacing=0, pos_hint=self.top_center)
+        timecard_card = MDCard(padding=0, md_bg_color=gch("#33333d"), on_release=self.choose_timesheet)
         timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(220), font_style="Body2")
-        self.heading_info_box.add_widget(timecard_label)
+        timecard_card.add_widget(timecard_label)
+        self.heading_info_box.add_widget(timecard_card)
         hours_label = MDLabel(adaptive_height=True, text=f'Total: {API.get_total()}', size_hint=(None, None), width=dp(80), font_style="Body2")
         self.heading_info_box.add_widget(hours_label)
         self.heading_box.add_widget(self.heading_info_box)
         self.add_column_headers(self.heading_box)
         self.view.add_widget(self.heading_box)
+
+    def choose_timesheet(self, instance):
+        self.timesheets_modal_open = True
+        self.timesheets_modal.open()
 
     def add_column_headers(self, heading_box):
         task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center)
@@ -147,7 +191,7 @@ class TimebotTimecardsScreen(MDScreen):
         days_rows = days if isinstance(days, list) else [days]
         for day in days_rows:
             total = self.totals[day.weekday]
-            total.text = f'Total: {API.get_total(day.weekday)}'
+            total.text = f'Total: {API.get_total(day.weekday, day.dayid)}'
             if not weekday or (weekday and day.weekday == weekday):
                 Clock.schedule_once(partial(self.fill_weekday, day))
 

@@ -53,7 +53,7 @@ class TimebotShareScreen(MDScreen):
 
     def exit_manager(self, *args):
         '''Called when the user reaches the root of the directory tree.'''
-
+        Window.unbind(on_keyboard=self.events)
         self.modal.dismiss()
         self.modal_open = False
 

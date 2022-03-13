@@ -131,20 +131,23 @@ class API:
         project.remove(code)
 
     @staticmethod
-    def get_today(task_weekday=None):
+    def get_today(task_weekday=None, dayid: int=None):
         today, now, begin_date, weekday, schema = API.get_now()
         day = Service(Day, Sqlite3DB, schema)
         task = Service(Task, Sqlite3DB, schema)
-        day_obj: Day = day.get({'begin_date': begin_date, 'weekday': task_weekday if task_weekday else weekday})[0]
+        if dayid:
+            day_obj: Day = day.get(dayid)
+        else:
+            day_obj: Day = day.get({'begin_date': begin_date, 'weekday': task_weekday if task_weekday else weekday})[0]
         tasks = task.get({'dayid': day_obj.dayid})
         return now, task, day_obj, tasks
 
     @staticmethod
-    def get_total(task_weekday: str=None):
+    def get_total(task_weekday: str=None, dayid: int=None):
         total = 0
         tasks = []
-        if task_weekday:
-            now, task, day_obj, day_tasks = API.get_today(task_weekday)
+        if task_weekday or dayid:
+            now, task, day_obj, day_tasks = API.get_today(task_weekday, dayid)
             tasks += [e.as_dict() for e in day_tasks]
         else:
             for weekday in Utils.weekdays:
