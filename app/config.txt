@@ -8,10 +8,18 @@
         "section": "Timecards"
     },
     {
+        "key": "unbilled_project_code",
+        "title": "Unbilled Project Code",
+        "type": "string",
+        "value": "DRG-000099",
+        "desc": "The code to assign to any unbilled tasks",
+        "section": "Timecards"
+    },
+    {
         "key": "cascade_delete",
         "title": "Cascade Delete",
         "type": "bool",
-        "value": "false",
+        "value": "0",
         "desc": "Allow child tasks to be deleted when a project code or timecard is removed",
         "section": "Timecards"
     },
@@ -19,7 +27,7 @@
         "key": "version_tour",
         "title": "Version Tour",
         "type": "options",
-        "value": "1.1.0",
+        "value": "0.0.0",
         "options": [
             "1.1.0",
             "1.0.0",

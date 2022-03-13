@@ -49,11 +49,11 @@ class API:
         today, now, begin_date, weekday, schema = API.get_now()
         setting = Service(Setting, Sqlite3DB, schema)
         settings = [s.as_dict() for s in setting.get()]
-        print(settings)
         config_records = Utils.data_to_dict(table_name='setting', data=settings, exclude_undefined=True)
         for record in config_records:
             if record.get('options'):
                 record['options'] = record['options'].split(',')
+        API.data().save_records('config', config_records)
 
     @staticmethod
     def save_my_config():
@@ -75,6 +75,10 @@ class API:
     @staticmethod
     def set_setting(key: str, value: str) -> str:
         today, now, begin_date, weekday, schema = API.get_now()
+        if key == 'default_project_code':
+            os.environ["DEFAULT_PROJECT_CODE"] = value
+        if key == 'unbilled_project_code':
+            os.environ["UNBILLED_PROJECT_CODE"] = value
         setting = Service(Setting, Sqlite3DB, schema)
         setting_obj = setting.get(key)
         setting.update(setting_obj, {'value': value})
@@ -97,7 +101,7 @@ class API:
         timecards = timecard.get({'begin_date': begin_date})
         print(f'timecards: {timecards}')
         if not timecards:
-            code = API.get_setting('default_project_code')
+            code = os.environ["DEFAULT_PROJECT_CODE"]
             new_timecard = Timecard(begin_date)
             new_timecard.add_days({})
             timecard_dict = new_timecard.as_dict()
@@ -149,7 +153,7 @@ class API:
                 now, task, day_obj, day_tasks = API.get_today(weekday, dayid)
                 tasks += [e.as_dict() for e in day_tasks]
         tasks = Utils.data_to_dict(table_name='task', data=tasks)
-        unbilled = Service(Setting).get('unbilled_project_code').value
+        unbilled = os.environ["UNBILLED_PROJECT_CODE"]
         for task in tasks:
             if '-' not in task['total'] and task['code'] != unbilled:
                 total += int(task['total'].split(':')[0]) * 60

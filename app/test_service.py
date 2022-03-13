@@ -10,6 +10,7 @@ from api import API
 
 
 os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
+os.environ["UNBILLED_PROJECT_CODE"] = "DRG-000099"
 
 
 class TestRepository(unittest.TestCase):

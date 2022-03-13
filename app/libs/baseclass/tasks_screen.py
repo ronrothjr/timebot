@@ -112,8 +112,7 @@ class TimebotTasksScreen(MDScreen):
         self.project_grid.clear_widgets()
         projects: List[Project] = Service(Project).get({'show': 1})
         for project in projects:
-            project_card_border = MD3Card(padding=dp(4), radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), md_bg_color=(1,1,1,1))
-            project_card = MDCard(padding=16, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, 1), size=(dp(112), dp(72)), pos_hint=self.center_center, on_release=self.released)
+            project_card = MD3Card(padding=0, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1,1,1,1))
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
             project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint=self.center_center)
             project_desc_float = FloatLayout(top=dp(15))
@@ -122,8 +121,7 @@ class TimebotTasksScreen(MDScreen):
             project_layout.add_widget(project_label)
             project_layout.add_widget(project_desc_float)
             project_card.add_widget(project_layout)
-            project_card_border.add_widget(project_card)
-            self.project_grid.add_widget(project_card_border)
+            self.project_grid.add_widget(project_card)
 
     def add_today(self):
         today, begin_date, weekday = Utils.get_begin_date()
@@ -208,7 +206,7 @@ class TimebotTasksScreen(MDScreen):
     def show_empty_card(self):
         empty_card = MD3Card(padding=16, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(.98, None), size=(dp(120), dp(80)), md_bg_color=gch('606060'), line_color=(1, 1, 1, 1))
         empty_layout = MDRelativeLayout(size=empty_card.size, pos_hint=self.center_center)
-        empty_label = MDLabel(text="You have no tasks for today", adaptive_width=True, font_style="Caption", halign="center", size_hint=(1, None), pos_hint=self.center_center)
+        empty_label = MDLabel(text="You have no tasks for today", adaptive_width=True, font_style="H6", halign="center", size_hint=(1, None), pos_hint=self.center_center)
         empty_layout.add_widget(empty_label)
         empty_card.add_widget(empty_layout)
         self.task_view.add_widget(empty_card)

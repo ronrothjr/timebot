@@ -55,6 +55,7 @@ class MDTimebot(MDApp):
         self.task = Service(Task)
         API.add_settings()
         os.environ["DEFAULT_PROJECT_CODE"] = API.get_setting('default_project_code').value
+        os.environ["UNBILLED_PROJECT_CODE"] = API.get_setting('unbilled_project_code').value
         API.add_current_timecard()
 
     def callback(self, instance):

@@ -1,3 +1,5 @@
+
+import os
 from functools import partial
 from kivy.utils import get_color_from_hex as gch
 from kivy.metrics import dp
@@ -10,6 +12,7 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.spinner import MDSpinner
 from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.button import MDFlatButton, MDIconButton
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
 from kivymd.uix.dialog import MDDialog
@@ -76,7 +79,6 @@ class TimebotTimecardsScreen(MDScreen):
         toast(f'loading {instance.text}')
         begin_date = instance.text.split(': ')[1].split(' - ')[0]
         self.timecard = self.app.timecard.get(begin_date)
-        self.today = None, None, '', None
         self.timesheets_modal.dismiss()
         self.load_timesheet_data()
 
@@ -89,7 +91,6 @@ class TimebotTimecardsScreen(MDScreen):
         self.scroller.pos_hint = self.top_center
         self.view = MDList(spacing=dp(10))
         self.timecard: Timecard = API.get_current_timecard()
-        print(self.timecard)
         self.scroller.add_widget(self.view)
         self.add_widget(self.scroller)
         self.load_timesheet_data()
@@ -112,11 +113,15 @@ class TimebotTimecardsScreen(MDScreen):
     def add_heading(self):
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
         self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=0, spacing=0, pos_hint=self.top_center)
-        timecard_card = MDCard(padding=0, md_bg_color=gch("#33333d"), on_release=self.choose_timesheet)
-        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(220), font_style="Body2")
-        timecard_card.add_widget(timecard_label)
+        timecard_card = MDCard(padding=0, radius=[dp(7), dp(7), dp(7), dp(7)], size_hint=(None, None), width=dp(220), height=dp(30), on_release=self.choose_timesheet, line_color=(1,1,1,1))
+        timecard_layout = MDRelativeLayout(size=timecard_card.size, pos_hint=self.center_center)
+        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(200), height=dp(30), pos_hint=self.center_center, font_style="Body2")
+        timecard_layout.add_widget(timecard_label)
+        select_icon = MDIconButton(icon='chevron-down', user_font_size="20sp", pos_hint={"center_x": .95, "center_y": .5})
+        timecard_layout.add_widget(select_icon)
+        timecard_card.add_widget(timecard_layout)
         self.heading_info_box.add_widget(timecard_card)
-        hours_label = MDLabel(adaptive_height=True, text=f'Total: {API.get_total()}', size_hint=(None, None), width=dp(80), font_style="Body2")
+        hours_label = MDLabel(adaptive_height=True, text=f'Total: {API.get_total()}', size_hint=(None, None), width=dp(100), halign="center", font_style="Body1")
         self.heading_info_box.add_widget(hours_label)
         self.heading_box.add_widget(self.heading_info_box)
         self.add_column_headers(self.heading_box)
@@ -174,7 +179,7 @@ class TimebotTimecardsScreen(MDScreen):
         return weekday_tasks
 
     def add_new_task(self, instance):
-        code = API.get_setting('default_project_code').value
+        code = os.environ["DEFAULT_PROJECT_CODE"]
         weekday: str = instance.parent.children[3].text
         API.switch_or_start_task(code=code, weekday=weekday)
         self.fill_weekdays(weekday)
@@ -192,6 +197,7 @@ class TimebotTimecardsScreen(MDScreen):
         print(f'begin_date: {self.timecard.begin_date}')
         days = self.app.day.get({'begin_date': self.timecard.begin_date})
         days_rows = days if isinstance(days, list) else [days]
+        print(f'days count: {len(days_rows)}')
         for day in days_rows:
             total = self.totals[day.weekday]
             total.text = f'Total: {API.get_total(day.weekday, day.dayid)}'
