@@ -2,6 +2,8 @@ from re import S
 import sqlite3, datetime
 from typing import Dict, List
 
+conn = sqlite3.connect('app.db')
+
 
 class DatabaseSchema:
 
@@ -185,8 +187,6 @@ class Sqlite3DB:
 
     def execute(self, sql, fetch:bool=False, lastrowid:bool=False):
         results = None
-        conn = sqlite3.connect(self.schema.db_name)
-        print(self.schema.db_name)
         c = conn.cursor()
         c.execute('PRAGMA foreign_keys = ON;')
         c.execute('BEGIN;')
@@ -202,6 +202,5 @@ class Sqlite3DB:
             print(e)
             c.execute('ROLLBACK;')
         conn.commit()
-        conn.close()
         if fetch or lastrowid:
             return results
