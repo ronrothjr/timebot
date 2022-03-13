@@ -120,13 +120,13 @@ class TestDB(unittest.TestCase):
         self.db.add('timecard', {'begin_date': '2022-02-20', 'end_date': '2022-02-26'})
         day = {'begin_date': '2022-02-20', 'weekday': 'Monday'}
         day['dayid'] = self.db.add('day', day)
-        entry = {'dayid': day['dayid'], 'begin': '0900', 'end': '1600', 'code': 'DRG-403009'}
-        entry['entryid'] = self.db.add('entry', entry)
-        self.db.update('entry', entry, {'begin': '0830'})
-        entries = self.db.get('entry')
-        self.assertEqual(len(entries), 1, 'entries should have only 1')
-        entry = entries[entry['entryid']]
-        self.assertEqual(entry['end'], '1600', '0830 entry should end at 4pm')
+        task = {'dayid': day['dayid'], 'begin': '0900', 'end': '1600', 'code': 'DRG-403009'}
+        task['entryid'] = self.db.add('task', task)
+        self.db.update('task', task, {'begin': '0830'})
+        tasks = self.db.get('task')
+        self.assertEqual(len(tasks), 1, 'tasks should have only 1')
+        task = tasks[task['entryid']]
+        self.assertEqual(task['end'], '1600', '0830 task should end at 4pm')
         self.db.update('day', day, {'weekday': 'Tuesday'})
 
 

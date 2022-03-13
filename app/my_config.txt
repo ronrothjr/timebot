@@ -1,9 +1,10 @@
 {
     "Timecards": {
-        "default_project_code": "DRG-403009",
+        "default_project_code": "DRG-000099",
+        "unbilled_project_code": "DRG-000099",
         "cascade_delete": "0"
     },
     "About": {
-        "version_tour": "0.0.1"
+        "version_tour": "0.0.0"
     }
 }

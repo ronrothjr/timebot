@@ -32,6 +32,9 @@ class API:
         settings = setting.get('default_project_code')
         if not settings:
             setting.add({'key': 'default_project_code', 'value': 'DRG-000099', 'options': '', 'title': 'Default Project Code', 'type': 'string', 'desc': 'The default code to assign new tasks in a timecard', 'section': 'Timecards'})
+        settings = setting.get('unbilled_project_code')
+        if not settings:
+            setting.add({'key': 'unbilled_project_code', 'value': 'DRG-000099', 'options': '', 'title': 'Unbilled Project Code', 'type': 'string', 'desc': 'The code to assign to any unbilled tasks', 'section': 'Timecards'})
         settings = setting.get('cascade_delete')
         if not settings:
             setting.add({'key': 'cascade_delete', 'value': '0', 'options': '', 'title': 'Cascade Delete', 'type': 'bool', 'desc': 'Allow child tasks to be deleted when a project code or timecard is removed', 'section': 'Timecards'})
@@ -46,6 +49,7 @@ class API:
         today, now, begin_date, weekday, schema = API.get_now()
         setting = Service(Setting, Sqlite3DB, schema)
         settings = [s.as_dict() for s in setting.get()]
+        print(settings)
         config_records = Utils.data_to_dict(table_name='setting', data=settings, exclude_undefined=True)
         for record in config_records:
             if record.get('options'):
@@ -85,21 +89,20 @@ class API:
         task = Service(Task, Sqlite3DB, schema)
         projects = project.get()
         if not projects:
-            project.add(Project({'code': 'DRG-403009', 'desc': 'WorkScope Exp', 'show': 1}))
+            project.add({'code': 'DRG-403009', 'desc': 'WorkScope Exp', 'show': 1})
             project.add({'code': 'DRG-413009', 'desc': 'WorkScope Cap', 'show': 0})
-            project.add(Project({'code': 'DRG-403001', 'desc': 'Back Office Mgmt', 'show': 1}))
-            project.add(Project({'code': 'DRG-403005', 'desc': 'Vendor Master Exp', 'show': 1}))
-            project.add(Project({'code': 'DRG-413005', 'desc': 'Vendor Master Cap', 'show': 1}))
-            project.add(Project({'code': 'DRG-000099', 'desc': 'UAT', 'show': 0}))
+            project.add({'code': 'DRG-403001', 'desc': 'Back Office Mgmt', 'show': 1})
+            project.add({'code': 'DRG-403005', 'desc': 'Vendor Master Exp', 'show': 1})
+            project.add({'code': 'DRG-413005', 'desc': 'Vendor Master Cap', 'show': 1})
+            project.add({'code': 'DRG-000099', 'desc': 'UAT', 'show': 0})
         timecards = timecard.get({'begin_date': begin_date})
         if not timecards:
             code = API.get_setting('default_project_code')
-            print(code.as_dict())
             timecard_data = {
                 'days': {
                     'Monday': {
                         'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'tasks': {
-                            0: {'dayid': 0, 'entryid': 0, 'begin': '0800', 'end': '1600', 'code': code.value if code else os.environ["DEFAULT_PROJECT_CODE"]}
+                            0: {'dayid': 0, 'entryid': 0, 'begin': '0800', 'end': '1600', 'code': code if code else os.environ["DEFAULT_PROJECT_CODE"]}
                         }
                     }
                 }
@@ -151,11 +154,12 @@ class API:
             tasks += [e.as_dict() for e in day_tasks]
         else:
             for weekday in Utils.weekdays:
-                now, task, day_obj, day_tasks = API.get_today(weekday)
+                now, task, day_obj, day_tasks = API.get_today(weekday, dayid)
                 tasks += [e.as_dict() for e in day_tasks]
         tasks = Utils.data_to_dict(table_name='task', data=tasks)
+        unbilled = Service(Setting).get('unbilled_project_code').value
         for task in tasks:
-            if '-' not in task['total'] and task['code'] != 'DRG-000099':
+            if '-' not in task['total'] and task['code'] != unbilled:
                 total += int(task['total'].split(':')[0]) * 60
                 total += int(task['total'].split(':')[1])
         total_str = f'{str(int(total/60))}:{str(total%60).rjust(2,"0")}'
@@ -185,7 +189,8 @@ class API:
         has_break_code = code != '' and last_end_str and last_end_str < now_str
         is_new_task = code != '' and not last
         if is_today and has_break_code:
-            new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': 'DRG-000099'}
+            unbilled = Service(Setting).get('unbilled_project_code').value
+            new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': unbilled}
             task.add(new_task)
         is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
         is_same_after_break = has_break and code == last.code

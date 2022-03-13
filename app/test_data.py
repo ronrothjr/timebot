@@ -26,11 +26,20 @@ class TestData(unittest.TestCase):
 
     def test_save_records_from_list(self):
         file_size = self.data.save_records('test_data', [{"username":"John","password":"1234"}, {"username":"Jane","password":"4321"}])
-        self.assertEqual(file_size, 84)
+        self.assertEqual(file_size, 138)
 
     def test_encode_records_should_retutn_str_if_list_has_data(self):
         file_str = self.data.encode_records([{"username":"John","password":"1234"}, {"username":"Jane","password":"4321"}])
-        self.assertEqual(file_str, '[{"username": "John", "password": "1234"}, {"username": "Jane", "password": "4321"}]')
+        self.assertEqual(file_str, """[
+    {
+        "username": "John",
+        "password": "1234"
+    },
+    {
+        "username": "Jane",
+        "password": "4321"
+    }
+]""")
 
     def test_load_records_returns_empty_list_if_collection_does_not_exist(self):
         test_data2 = self.data.load_records('test_data2')

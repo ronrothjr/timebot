@@ -114,8 +114,7 @@ class Sqlite3DB:
         max_id = self.get_max_id(table_name)
         columns = ', '.join([c.name for c in table.model.values()])
         values = ','.join([table.get_column_value(c, data, max_id) for c in table.model.values()])
-        sql = "INSERT INTO {} ({})VALUES ({})".format(table_name, columns, values)
-        print(sql)
+        sql = "INSERT INTO {} ({}) VALUES ({})".format(table_name, columns, values)
         record_id = self.execute(sql, lastrowid=True)
         return record_id
 

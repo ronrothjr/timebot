@@ -2,11 +2,11 @@ class Project:
 
     def __init__(self, *args):
         if isinstance(args[0], dict):
-            self.code = args[0].get('code')
-            self.desc = args[0].get('desc')
-            self.show = args[0].get('show')
+            project = args[0]
+            self.code = project.get('code')
+            self.desc = project.get('desc')
+            self.show = project.get('show')
         else:
-            print(args)
             self.code = args[0]
             self.desc = args[1]
             self.show = args[2]

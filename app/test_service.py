@@ -36,11 +36,11 @@ class TestRepository(unittest.TestCase):
         self.assertIsInstance(self.project.repository.db, Sqlite3DB)
 
     def test_repository_can_handle_timecard_data(self):
-        self.project.add(Project({'code': 'DRG-403009', 'desc': 'Workscope Exp', 'show': 1}))
-        self.project.add(Project({'code': 'DRG-403001', 'desc': 'Back Office Mgmt', 'show': 1}))
-        self.project.add(Project({'code': 'DRG-403005', 'desc': 'Vendor Master Exp', 'show': 1}))
-        self.project.add(Project({'code': 'DRG-413005', 'desc': 'Vendor Master Cap', 'show': 1}))
-        self.project.add(Project({'code': 'DRG-000099', 'desc': 'UAT', 'show': 0}))
+        self.project.add({'code': 'DRG-403009', 'desc': 'Workscope Exp', 'show': 1})
+        self.project.add({'code': 'DRG-403001', 'desc': 'Back Office Mgmt', 'show': 1})
+        self.project.add({'code': 'DRG-403005', 'desc': 'Vendor Master Exp', 'show': 1})
+        self.project.add({'code': 'DRG-413005', 'desc': 'Vendor Master Cap', 'show': 1})
+        self.project.add({'code': 'DRG-000099', 'desc': 'UAT', 'show': 0})
         self.timecard.add('2022-02-20', {'days': {}})
         day = self.day.add('2022-02-20', 'Monday')
         task = self.task.add(0, day.dayid, '0900', '1600', 'DRG-403009')
