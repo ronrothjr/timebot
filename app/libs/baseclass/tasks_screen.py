@@ -112,7 +112,8 @@ class TimebotTasksScreen(MDScreen):
         self.project_grid.clear_widgets()
         projects: List[Project] = Service(Project).get({'show': 1})
         for project in projects:
-            project_card = MD3Card(padding=16, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1, 1, 1, 1), on_release=self.released)
+            project_card_border = MD3Card(padding=dp(4), radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), md_bg_color=(1,1,1,1))
+            project_card = MDCard(padding=16, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, 1), size=(dp(112), dp(72)), pos_hint=self.center_center, on_release=self.released)
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
             project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint=self.center_center)
             project_desc_float = FloatLayout(top=dp(15))
@@ -121,7 +122,8 @@ class TimebotTasksScreen(MDScreen):
             project_layout.add_widget(project_label)
             project_layout.add_widget(project_desc_float)
             project_card.add_widget(project_layout)
-            self.project_grid.add_widget(project_card)
+            project_card_border.add_widget(project_card)
+            self.project_grid.add_widget(project_card_border)
 
     def add_today(self):
         today, begin_date, weekday = Utils.get_begin_date()
