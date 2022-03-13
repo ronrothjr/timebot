@@ -115,7 +115,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=0, spacing=0, pos_hint=self.top_center)
         timecard_card = MDCard(padding=0, radius=[dp(7), dp(7), dp(7), dp(7)], size_hint=(None, None), width=dp(230), height=dp(30), on_release=self.choose_timesheet, line_color=(1,1,1,1))
         timecard_layout = MDRelativeLayout(size=timecard_card.size, pos_hint=self.center_center)
-        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(200), height=dp(30), pos_hint=self.center_center, font_style="Body2")
+        timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(200), height=dp(30), pos_hint={"center_x": .45, "center_y": .5}, font_style="Body2")
         timecard_layout.add_widget(timecard_label)
         select_icon = MDIconButton(icon='chevron-down', user_font_size="20sp", pos_hint={"center_x": .95, "center_y": .5})
         timecard_layout.add_widget(select_icon)
