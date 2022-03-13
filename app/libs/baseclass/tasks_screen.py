@@ -13,6 +13,7 @@ from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.floatlayout import  FloatLayout
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.label import MDLabel
@@ -99,7 +100,7 @@ class TimebotTasksScreen(MDScreen):
     def add_project_grid(self):
         self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, 1), pos_hint = self.top_center)
         self.project_view = MDList(adaptive_height=True, spacing=dp(10), pos_hint=self.top_center)
-        project_label = MDLabel(size_hint=(1, None), height=dp(20), halign="center", text=f"Select a project to record a task", font_style="Body2", pos_hint={"center_x": .5})
+        project_label = MDLabel(size_hint=(1, None), height=dp(20), halign="center", text="Select a project to record a task", font_style="Body2", pos_hint={"center_x": .5})
         self.project_view.add_widget(project_label)
         self.project_grid = MDGridLayout(cols=2, padding=dp(10), spacing=dp(20), adaptive_size=True, size_hint=(1, None), pos_hint=self.top_center)
         self.project_view.add_widget(self.project_grid)
@@ -114,7 +115,11 @@ class TimebotTasksScreen(MDScreen):
             project_card = MD3Card(padding=16, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1, 1, 1, 1), on_release=self.released)
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
             project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint=self.center_center)
+            project_desc_float = FloatLayout(top=dp(15))
+            project_desc_label = MDLabel(text=project.desc, adaptive_width=True, font_style="Overline", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+            project_desc_float.add_widget(project_desc_label)
             project_layout.add_widget(project_label)
+            project_layout.add_widget(project_desc_float)
             project_card.add_widget(project_layout)
             self.project_grid.add_widget(project_card)
 

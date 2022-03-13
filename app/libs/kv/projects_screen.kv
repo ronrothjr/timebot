@@ -7,7 +7,7 @@
     orientation: "vertical"
     spacing: dp(12)
     size_hint_y: None
-    height: dp(160)
+    height: dp(180)
 
     MDLabel:
         id: error
@@ -19,6 +19,25 @@
     MDTextField:
         id: code
         hint_text: "Project Code"
+
+    MDTextField:
+        id: desc
+        hint_text: "Project Description"
+
+<TimebotEditProjectDialog>
+    orientation: "vertical"
+    spacing: dp(12)
+    size_hint_y: None
+    height: dp(160)
+
+    MDLabel:
+        id: code
+        text: ""
+        halign: "center"
+
+    MDTextField:
+        id: desc
+        hint_text: "Project Description"
 
 <TimebotConfirmDeleteProjectDialog>
     orientation: "vertical"
