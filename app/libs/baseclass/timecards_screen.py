@@ -113,7 +113,7 @@ class TimebotTimecardsScreen(MDScreen):
     def add_heading(self):
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
         self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=0, spacing=0, pos_hint=self.top_center)
-        timecard_card = MDCard(padding=0, radius=[dp(7), dp(7), dp(7), dp(7)], size_hint=(None, None), width=dp(220), height=dp(30), on_release=self.choose_timesheet, line_color=(1,1,1,1))
+        timecard_card = MDCard(padding=0, radius=[dp(7), dp(7), dp(7), dp(7)], size_hint=(None, None), width=dp(230), height=dp(30), on_release=self.choose_timesheet, line_color=(1,1,1,1))
         timecard_layout = MDRelativeLayout(size=timecard_card.size, pos_hint=self.center_center)
         timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(200), height=dp(30), pos_hint=self.center_center, font_style="Body2")
         timecard_layout.add_widget(timecard_label)
