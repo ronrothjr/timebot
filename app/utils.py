@@ -20,6 +20,7 @@ class Utils:
         tables = {
             'project': {
                 'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'id': True, 'dp': 30},
+                'desc': {'name': 'desc', 'display': 'Desc', 'type': 'TEXT', 'dp': 80},
                 'show': {'name': 'show', 'display': 'Show', 'type': 'INTEGER', 'dp': 30}
             },
             'timecard': {

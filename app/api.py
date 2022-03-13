@@ -85,12 +85,12 @@ class API:
         task = Service(Task, Sqlite3DB, schema)
         projects = project.get()
         if not projects:
-            project.add({'code': 'DRG-403009', 'show': 1})
-            project.add({'code': 'DRG-403001', 'show': 1})
-            project.add({'code': 'DRG-403005', 'show': 1})
-            project.add({'code': 'DRG-413005', 'show': 1})
-            project.add({'code': 'DRG-000099', 'show': 0})
-            project.add({'code': 'DRG-413009', 'show': 0})
+            project.add(Project({'code': 'DRG-403009', 'desc': 'WorkScope Exp', 'show': 1}))
+            project.add({'code': 'DRG-413009', 'desc': 'WorkScope Cap', 'show': 0})
+            project.add(Project({'code': 'DRG-403001', 'desc': 'Back Office Mgmt', 'show': 1}))
+            project.add(Project({'code': 'DRG-403005', 'desc': 'Vendor Master Exp', 'show': 1}))
+            project.add(Project({'code': 'DRG-413005', 'desc': 'Vendor Master Cap', 'show': 1}))
+            project.add(Project({'code': 'DRG-000099', 'desc': 'UAT', 'show': 0}))
         timecards = timecard.get({'begin_date': begin_date})
         if not timecards:
             code = API.get_setting('default_project_code')

@@ -34,11 +34,11 @@ class TestRepository(unittest.TestCase):
         self.assertIsInstance(self.task.name, str)
 
     def test_repository_can_handle_timecard_data(self):
-        self.project.add(Project({'code': 'DRG-403009', 'show': 1}))
-        self.project.add(Project({'code': 'DRG-403001', 'show': 1}))
-        self.project.add(Project({'code': 'DRG-403005', 'show': 1}))
-        self.project.add(Project({'code': 'DRG-413005', 'show': 1}))
-        self.project.add(Project({'code': 'DRG-000099', 'show': 0}))
+        self.project.add(Project({'code': 'DRG-403009', 'desc': 'Workscope Exp', 'show': 1}))
+        self.project.add(Project({'code': 'DRG-403001', 'desc': 'Back Office Mgmt', 'show': 1}))
+        self.project.add(Project({'code': 'DRG-403005', 'desc': 'Vendor Master Exp', 'show': 1}))
+        self.project.add(Project({'code': 'DRG-413005', 'desc': 'Vendor Master Cap', 'show': 1}))
+        self.project.add(Project({'code': 'DRG-000099', 'desc': 'UAT', 'show': 0}))
         self.timecard.add(Timecard('2022-02-20', {'days': {}}))
         day = Day('2022-02-20', 'Monday')
         day = self.day.add(day)

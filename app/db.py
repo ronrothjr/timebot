@@ -112,9 +112,12 @@ class Sqlite3DB:
         self.now = str(datetime.datetime.now())
         table: Table = self.schema.tables[table_name]
         max_id = self.get_max_id(table_name)
+        columns = ', '.join([c.name for c in table.model.values()])
         values = ','.join([table.get_column_value(c, data, max_id) for c in table.model.values()])
-        id = self.execute("INSERT INTO {} VALUES ({})".format(table_name, values), lastrowid=True)
-        return id
+        sql = "INSERT INTO {} ({})VALUES ({})".format(table_name, columns, values)
+        print(sql)
+        record_id = self.execute(sql, lastrowid=True)
+        return record_id
 
     def get_max_id(self, table_name):
         records = self.get(table_name)
@@ -136,14 +139,15 @@ class Sqlite3DB:
             id_column = table.get_id_name()
             sql_id_value = (query if isinstance(query, int) else f"'{query}'") if query else ''
             where = f" WHERE {id_column} = {sql_id_value}" if query else ''
-        results = self.execute(f"SELECT * from {table_name}{where}", fetch=True)
+        cols = ', '.join([k for k in table.model.keys()])
+        results = self.execute(f"SELECT {cols} from {table_name}{where}", fetch=True)
         records = {}
         for r in results:
             record = {}
             for x in range(0, len(table.model.keys())):
                 name = list(table.model.keys())[x]
                 record[name] = r[x]
-            id, id_value = table.get_id_field_value(record)
+            id_field, id_value = table.get_id_field_value(record)
             records[id_value] = record
         return records
 
