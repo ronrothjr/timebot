@@ -17,7 +17,7 @@ class Day:
             self.begin_date = args[0]
             self.weekday = args[1]
             if len(args) > 2:
-                self.add_entries(args[2])
+                self.add_tasks(args[2])
 
     def add_tasks(self, tasks: dict):
         for entryid, task in tasks.items():
