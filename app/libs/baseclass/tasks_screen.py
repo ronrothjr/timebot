@@ -269,7 +269,7 @@ class TimebotTasksScreen(MDScreen):
         self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
 
     def released(self, instance):
-        API.switch_or_start_task(instance.children[0].children[0].text)
+        API.switch_or_start_task(instance.children[0].children[1].text)
         self.fill_task_grid()
         self.scroll_to_last()
 
