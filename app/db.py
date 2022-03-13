@@ -102,11 +102,12 @@ class Table:
 
 class Sqlite3DB:
 
-    def __init__(self, schema: DatabaseSchema):
+    def __init__(self, schema: DatabaseSchema, setup: bool=False):
         self.schema = schema
         self.now = f"'{str(datetime.datetime.now())}'"
-        for table in schema.tables.values():
-            self.execute(table.create)
+        if setup:
+            for table in schema.tables.values():
+                self.execute(table.create)
 
     def add(self, table_name: str, data: dict):
         self.now = str(datetime.datetime.now())
@@ -185,10 +186,12 @@ class Sqlite3DB:
     def execute(self, sql, fetch:bool=False, lastrowid:bool=False):
         results = None
         conn = sqlite3.connect(self.schema.db_name)
+        print(self.schema.db_name)
         c = conn.cursor()
         c.execute('PRAGMA foreign_keys = ON;')
         c.execute('BEGIN;')
         try:
+            print(sql)
             c.execute(sql)
             if fetch:
                 results = c.fetchall()

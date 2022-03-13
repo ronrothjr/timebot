@@ -9,7 +9,7 @@ class Timecard:
     
     def __init__(self, *args):
         self.days = {}
-        if len(args) == 1:
+        if len(args) == 1 and isinstance(args[0], dict):
             timecard = args[0]
             self.set_begin_date(date_str=timecard.get('begin_date'))
             self.end_date = self.get_date(date_str=timecard.get('end_date'))
@@ -18,7 +18,7 @@ class Timecard:
         else:
             self.set_begin_date(date_str=args[0])
             self.end_date = self.begin_date + timedelta(days=6)
-            if len(args) > 1:
+            if len(args) > 1 and args[1]:
                 self.add_days(args[1].get('days'))
 
     def default_task(self):

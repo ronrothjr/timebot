@@ -88,6 +88,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.scroller.pos_hint = self.top_center
         self.view = MDList(spacing=dp(10))
         self.timecard: Timecard = API.get_current_timecard()
+        print(self.timecard)
         self.scroller.add_widget(self.view)
         self.add_widget(self.scroller)
         self.load_timesheet_data()
@@ -187,6 +188,7 @@ class TimebotTimecardsScreen(MDScreen):
         expander.clear_widgets()
 
     def fill_weekdays(self, weekday:str=None):
+        print(f'begin_date: {self.timecard.begin_date}')
         days = Service(Day).get({'begin_date': self.timecard.begin_date})
         days_rows = days if isinstance(days, list) else [days]
         for day in days_rows:

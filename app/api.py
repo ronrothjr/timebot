@@ -28,7 +28,7 @@ class API:
     @staticmethod
     def add_settings():
         today, now, begin_date, weekday, schema = API.get_now()
-        setting = Service(Setting, Sqlite3DB, schema)
+        setting = Service(object_class=Setting, database=Sqlite3DB, schema_dict=schema, setup=True)
         settings = setting.get('default_project_code')
         if not settings:
             setting.add({'key': 'default_project_code', 'value': 'DRG-000099', 'options': '', 'title': 'Default Project Code', 'type': 'string', 'desc': 'The default code to assign new tasks in a timecard', 'section': 'Timecards'})
@@ -82,7 +82,6 @@ class API:
     @staticmethod
     def add_current_timecard():
         today, now, begin_date, weekday, schema = API.get_now()
-        setting = Service(Setting, Sqlite3DB, schema)
         project = Service(Project, Sqlite3DB, schema)
         timecard = Service(Timecard, Sqlite3DB, schema)
         day = Service(Day, Sqlite3DB, schema)
@@ -96,22 +95,15 @@ class API:
             project.add({'code': 'DRG-413005', 'desc': 'Vendor Master Cap', 'show': 1})
             project.add({'code': 'DRG-000099', 'desc': 'UAT', 'show': 0})
         timecards = timecard.get({'begin_date': begin_date})
+        print(f'timecards: {timecards}')
         if not timecards:
             code = API.get_setting('default_project_code')
-            timecard_data = {
-                'days': {
-                    'Monday': {
-                        'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'tasks': {
-                            0: {'dayid': 0, 'entryid': 0, 'begin': '0800', 'end': '1600', 'code': code if code else os.environ["DEFAULT_PROJECT_CODE"]}
-                        }
-                    }
-                }
-            }
-            new_timecard = Timecard(begin_date, timecard_data)
-            data = new_timecard.as_dict()
-            print(data)
-            timecard.add(data)
-            for weekday, day_obj in data.get('days').items():
+            new_timecard = Timecard(begin_date)
+            new_timecard.add_days({})
+            timecard_dict = new_timecard.as_dict()
+            print(f'new_timecard: {timecard_dict}')
+            timecard.add(timecard_dict)
+            for weekday, day_obj in timecard_dict.get('days').items():
                 tasks = day_obj.get('tasks', {})
                 new_day = day.add(begin_date, weekday, tasks)
                 for new_task in tasks.values():

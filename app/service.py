@@ -5,11 +5,11 @@ from utils import Utils
 
 class Service:
 
-    def __init__(self, object_class, database: Sqlite3DB=None, schema_dict=None):
+    def __init__(self, object_class, database: Sqlite3DB=None, schema_dict=None, setup: bool=False):
         schema = DatabaseSchema(**Utils.get_schema() if not schema_dict else schema_dict)
         db = database if database else Sqlite3DB
         self.object_class = object_class
-        self.repository = Repository[object_class](object_class, db, schema)
+        self.repository = Repository[object_class](object_class=object_class, database=db, schema=schema, setup=setup)
 
     def add(self, *args):
         obj = self.object_class(*args)
