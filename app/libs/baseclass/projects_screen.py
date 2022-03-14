@@ -17,10 +17,6 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
-from service import Service
-from project import Project
-from task import Task
-from api import API
 
 
 class TimebotAddProjectDialog(MDBoxLayout):
@@ -40,6 +36,7 @@ class TimebotProjectsScreen(MDScreen):
 
     def __init__(self, **kw):
         super(TimebotProjectsScreen, self).__init__(**kw)
+        self.app = App.get_running_app()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
         self.scroller.size_hint = (0.9, 1)
@@ -54,25 +51,25 @@ class TimebotProjectsScreen(MDScreen):
 
     def show_projects(self):
         self.view.clear_widgets()
-        projects: List[Project] = Service(Project).get()
+        projects: List[Project] = self.app.project.get()
         for project in projects:
-            self.add_project_card(project)
-        self.add_project_card(Project({'code': 'ADD', 'show': 0}))
+            self.add_project_card(project.as_dict())
+        self.add_project_card({'code': 'ADD', 'show': 0})
     
     def add_project_card(self, project):
         project_card = MD3Card(padding=dp(16), radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(.98, None), size=(dp(120), dp(80)), line_color=(1, 1, 1, 1))
         project_layout = MDRelativeLayout(size=project_card.size, pos_hint={"center_x": .5, "center_y": .5})
-        if project.code == 'ADD':
+        if project['code'] == 'ADD':
             project_icon_add = MDIconButton(icon='plus', pos_hint={"center_x": .5, "center_y": .5}, on_release=self.released)
             project_layout.add_widget(project_icon_add)
         else:
-            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+            project_label = MDLabel(text=project['code'], adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
             project_desc_float = FloatLayout(top=dp(15))
-            project_desc_label = MDLabel(text=project.desc, adaptive_width=True, font_style="Overline", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+            project_desc_label = MDLabel(text=project['desc'], adaptive_width=True, font_style="Overline", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
             project_desc_float.add_widget(project_desc_label)
             project_icon_close = MDIconButton(icon='close', pos_hint={"center_x": .95, "center_y": 1}, on_release=self.confirm_delete_project)
             project_icon_edit = MDIconButton(icon='pencil', pos_hint={"center_x": 0, "center_y": 1}, on_release=self.released)
-            project_icon_star = MDIconButton(icon='star' if project.show else 'star-outline', pos_hint={"center_x": .5, "center_y": 1}, on_release=self.released)
+            project_icon_star = MDIconButton(icon='star' if project['show'] else 'star-outline', pos_hint={"center_x": .5, "center_y": 1}, on_release=self.released)
             project_layout.add_widget(project_label)
             project_layout.add_widget(project_desc_float)
             project_layout.add_widget(project_icon_close)
@@ -121,7 +118,7 @@ class TimebotProjectsScreen(MDScreen):
             self.custom_dialog.open()
         else:
             print(instance.icon, instance.parent.children[4].text)
-            API.toggle_project_code(instance.icon, instance.parent.children[4].text)
+            self.app.api.toggle_project_code(instance.icon, instance.parent.children[4].text)
             self.show_projects()
 
     def cancel_dialog(self, *args):
@@ -130,30 +127,26 @@ class TimebotProjectsScreen(MDScreen):
     def add_project(self, *args):
         code = self.custom_dialog.content_cls.ids.code.text
         desc = self.custom_dialog.content_cls.ids.desc.text
-        project = Service(Project)
-        if len(code) == 0 or project.get(code):
+        if len(code) == 0 or self.app.project.get(code):
             self.custom_dialog.content_cls.ids.error.text = "Invalid project code"
         else:
-            project.add({'code': code, 'desc': desc, 'show': 1})
+            self.app.project.add({'code': code, 'desc': desc, 'show': 1})
             self.custom_dialog.dismiss(force=True)
             self.show_projects()
 
     def update_project(self, *args):
         code = self.custom_dialog.content_cls.ids.code.text
         desc = self.custom_dialog.content_cls.ids.desc.text
-        project = Service(Project)
-        orig = project.get(code)
-        project.update(orig, {'desc': desc})
+        orig = self.app.project.get(code)
+        self.app.project.update(orig, {'desc': desc})
         self.custom_dialog.dismiss(force=True)
         self.show_projects()
 
     def confirm_delete_project(self, instance):
         print(instance.icon, )
         self.remove_me = instance.parent.children[4].text
-        app = App.get_running_app()
-        task = Service(Task)
-        tasks = task.get({'code': self.remove_me})
-        cascade_delete = API.get_setting('cascade_delete').value == '1'
+        tasks = self.app.task.get({'code': self.remove_me})
+        cascade_delete = self.app.api.get_setting('cascade_delete').value == '1'
         can_delete = not tasks or tasks and cascade_delete
         button_text = "DELETE" if can_delete else "OK"
         on_release = self.delete_project if can_delete else self.cancel_dialog
@@ -165,12 +158,12 @@ class TimebotProjectsScreen(MDScreen):
             radius=[dp(20), dp(7), dp(20), dp(7)],
             buttons=[
                 MDFlatButton(
-                    text=button_text, text_color=app.theme_cls.primary_color,
+                    text=button_text, text_color=self.app.theme_cls.primary_color,
                     on_release=on_release
                 ),
             ],
         )
-        self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
+        self.custom_dialog.md_bg_color = self.app.theme_cls.bg_dark
         if can_delete:
             self.custom_dialog.content_cls.ids.code.text = f'Project: {self.remove_me}'
         else:
@@ -180,7 +173,7 @@ class TimebotProjectsScreen(MDScreen):
 
     def delete_project(self, instance):
         self.custom_dialog.dismiss(force=True)
-        API.remove_project_code(self.remove_me)
+        self.app.api.remove_project_code(self.remove_me)
         self.show_projects()
 
 class MD3Card(MDCard, RoundedRectangularElevationBehavior):

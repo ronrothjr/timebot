@@ -9,13 +9,13 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
-from api import API
 
 
 class TimebotWelcomeScreen(MDScreen):
 
     def __init__(self, **kw):
         super(TimebotWelcomeScreen, self).__init__(**kw)
+        self.app = App.get_running_app()
         self.tap = 0
         self.tap_text = {
             '0.0.0': [
@@ -46,7 +46,7 @@ class TimebotWelcomeScreen(MDScreen):
                 }
             ]
         }
-        self.tour_setting = API.get_setting('version_tour')
+        self.tour_setting = self.app.api.get_setting('version_tour')
         self.tour = self.tour_setting.value
         print(self.tour)
 
@@ -57,7 +57,7 @@ class TimebotWelcomeScreen(MDScreen):
             tour_index = options.index(self.tour)
             next_version = options[tour_index - 1] if tour_index - 1 > 0 else None
             if next_version:
-                API.set_setting('version_tour', next_version)
+                self.app.api.set_setting('version_tour', next_version)
 
     def take_tour_0_0_0(self):
         items = self.parent.parent.children[1].children[0].children
@@ -93,7 +93,7 @@ class TimebotWelcomeScreen(MDScreen):
 
     def place_card(self, card_text):
         self.card_view.clear_widgets()
-        desc_card = MD3Card(padding=dp(16), radius=[dp(15),], size_hint=(None, None), width=dp(300), height=dp(160), md_bg_color=App.get_running_app().theme_cls.primary_color)
+        desc_card = MD3Card(padding=dp(16), radius=[dp(15),], size_hint=(None, None), width=dp(300), height=dp(160), md_bg_color=self.app.api.theme_cls.primary_color)
         card_layout = MDRelativeLayout(size_hint=(None, None), width=dp(280), height=dp(160), pos_hint={"center_x": .5, "center_y": .5})
         card_label = MDLabel(text=card_text, adaptive_height=True, font_style="Subtitle1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         card_layout.add_widget(card_label)

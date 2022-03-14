@@ -45,6 +45,7 @@ class MDTimebot(MDApp):
         self.title = "Timebot"
         self.icon = f"{os.environ['TIMEBOT_ROOT']}/assets/images/logo.png"
         self.services()
+        self.api = API
         self.utils = Utils
 
     def services(self):
