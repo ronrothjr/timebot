@@ -22,6 +22,7 @@ from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton, MDRoundFlatButton, MDTextButton
 from kivymd.uix.textfield import MDTextField
+from .timepicker import MDTimePicker
 from service import Service
 from project import Project
 from timecard import Timecard
@@ -263,10 +264,38 @@ class TimebotTasksScreen(MDScreen):
         )
         self.custom_dialog.md_bg_color = app.theme_cls.bg_dark
         self.custom_dialog.open()
+        self.custom_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
+        self.custom_dialog.content_cls.ids.end_time.on_release = self.open_end_time
         self.original_values = [labels[4], labels[3], labels[1]]
         self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
         self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
         self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
+
+    def open_begin_time(self, *args):
+        time_dialog = MDTimePicker()
+        time_dialog.bind(time=self.get_begin_time)
+        begin_time = self.custom_dialog.content_cls.ids.begin.text
+        begin_time_str = f"{begin_time[0:2]}:{begin_time[2:4]}:00"
+        begin_time_time = datetime.datetime.strptime(begin_time_str, '%H:%M:%S').time()
+        time_dialog.set_time(begin_time_time)
+        time_dialog.open()
+
+    def open_end_time(self, *args):
+        time_dialog = MDTimePicker()
+        time_dialog.bind(time=self.get_end_time)
+        end_time = self.custom_dialog.content_cls.ids.end.text
+        end_time_str = f"{end_time[0:2]}:{end_time[2:4]}:00"
+        end_time_time = datetime.datetime.strptime(end_time_str, '%H:%M:%S').time()
+        time_dialog.set_time(end_time_time)
+        time_dialog.open()
+
+    def get_begin_time(self, *args):
+        print(args)
+        self.custom_dialog.content_cls.ids.begin.text = Utils.db_format_time(args[0])
+
+    def get_end_time(self, *args):
+        print(args)
+        self.custom_dialog.content_cls.ids.end.text = Utils.db_format_time(args[0])
 
     def released(self, instance):
         API.switch_or_start_task(instance.children[0].children[1].text)

@@ -17,13 +17,29 @@
         theme_text_color: "Custom"
         text_color: 1, 0, 0, 1
 
-    MDTextField:
-        id: begin
-        hint_text: "Begin Time"
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_x: None
+        width: dp(100)
 
-    MDTextField:
-        id: end
-        hint_text: "End Time"
+        MDLabel:
+            id: begin
+    
+        MDIconButton:
+            id: begin_time
+            icon: 'timeline-clock-outline'
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_x: None
+        width: dp(100)
+
+        MDLabel:
+            id: end
+    
+        MDIconButton:
+            id: end_time
+            icon: 'timeline-clock-outline'
 
     MDTextField:
         id: code
