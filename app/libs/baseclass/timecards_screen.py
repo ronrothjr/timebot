@@ -1,5 +1,5 @@
 
-import os
+import os, datetime
 from functools import partial
 from kivy.utils import get_color_from_hex as gch
 from kivy.metrics import dp
@@ -87,7 +87,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.scroller.size_hint = (0.9, 1)
         self.scroller.pos_hint = self.top_center
         self.view = MDList(spacing=dp(10))
-        self.timecard: Timecard = self.app.api.get_current_timecard()
+        self.timecard = self.app.api.get_current_timecard()
         self.scroller.add_widget(self.view)
         self.add_widget(self.scroller)
         self.load_timesheet_data()
