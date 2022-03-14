@@ -21,6 +21,8 @@ from kivymd.uix.card import MDCard
 from kivy.uix.modalview import ModalView
 from kivymd.uix.selection import MDSelectionList
 from kivymd.uix.list import OneLineListItem
+from kivymd.uix.list import TwoLineListItem
+from .timepicker import MDTimePicker
 from kivymd.toast import toast
 
 
@@ -54,6 +56,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.header_height = dp(30)
         self.task_height = dp(50)
         Clock.schedule_once(self.load_current_timesheet, 2)
+        self.project_modal = self.add_project_modal()
 
     def add_timesheets_modal(self):
         modal = ModalView(size_hint=(.8, .8), auto_dismiss=False)
@@ -242,9 +245,67 @@ class TimebotTimecardsScreen(MDScreen):
         self.custom_dialog.open()
         self.original_values = [labels[3], labels[2], labels[0], parent_labels[1]]
         self.custom_dialog.content_cls.ids.weekday.text = f'Weekday: {self.original_values[3]}'
+        self.custom_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
+        self.custom_dialog.content_cls.ids.end_time.on_release = self.open_end_time
+        self.custom_dialog.content_cls.ids.project_label.text = self.original_values[2]
+        self.custom_dialog.content_cls.ids.project_card.on_release = self.choose_project
         self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
-        self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
-        self.custom_dialog.content_cls.ids.code.text = self.original_values[2]
+        self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] \
+
+    def add_project_modal(self):
+        modal = ModalView(size_hint=(None, None), height=dp(340), width=dp(280), auto_dismiss=True)
+        modal_box = MDBoxLayout(orientation="vertical", size_hint=(1,1), pos_hint=self.top_center, padding=[dp(5),dp(5),dp(5),dp(5)])
+        modal_text = MDLabel(text="Select a project code:", size_hint=(None, None), height=dp(50), width=dp(200), pos_hint=self.top_center, font_style="H6")
+        modal_box.add_widget(modal_text)
+        view = ScrollView()
+        self.project_list = MDSelectionList(spacing=dp(12))
+        view.add_widget(self.project_list)
+        modal_box.add_widget(view)
+        modal.add_widget(modal_box)
+        return modal
+
+    def choose_project(self, *args):
+        self.project_list.clear_widgets()
+        for project in self.app.project.get():
+            self.project_list.add_widget(TwoLineListItem(
+                text=project.code,
+                secondary_text=project.desc,
+                _no_ripple_effect=True,
+                on_release=self.selected,
+                secondary_font_style="Body2"
+            ))
+        self.project_modal_open = True
+        self.project_modal.open()
+
+    def selected(self, instance):
+        self.custom_dialog.content_cls.ids.project_label.text = instance.text
+        self.project_modal.dismiss()
+
+    def open_begin_time(self, *args):
+        time_dialog = MDTimePicker()
+        time_dialog.bind(time=self.get_begin_time)
+        begin_time = self.custom_dialog.content_cls.ids.begin.text
+        begin_time_str = f"{begin_time[0:2]}:{begin_time[2:4]}:00"
+        begin_time_time = datetime.datetime.strptime(begin_time_str, '%H:%M:%S').time()
+        time_dialog.set_time(begin_time_time)
+        time_dialog.open()
+
+    def open_end_time(self, *args):
+        time_dialog = MDTimePicker()
+        time_dialog.bind(time=self.get_end_time)
+        end_time = self.custom_dialog.content_cls.ids.end.text
+        end_time_str = f"{end_time[0:2]}:{end_time[2:4]}:00"
+        end_time_time = datetime.datetime.strptime(end_time_str, '%H:%M:%S').time()
+        time_dialog.set_time(end_time_time)
+        time_dialog.open()
+
+    def get_begin_time(self, *args):
+        print(args)
+        self.custom_dialog.content_cls.ids.begin.text = self.app.utils.db_format_time(args[0])
+
+    def get_end_time(self, *args):
+        print(args)
+        self.custom_dialog.content_cls.ids.end.text = self.app.utils.db_format_time(args[0])
 
     def cancel_dialog(self, *args):
         self.custom_dialog.dismiss(force=True)
@@ -253,7 +314,7 @@ class TimebotTimecardsScreen(MDScreen):
         weekday = self.original_values[3]
         begin = self.custom_dialog.content_cls.ids.begin.text
         end = self.custom_dialog.content_cls.ids.end.text
-        code = self.custom_dialog.content_cls.ids.code.text
+        code = self.custom_dialog.content_cls.ids.project_label.text
         error = self.app.api.update_task(self.original_values, begin, end, code, weekday)
         if error:
             self.custom_dialog.content_cls.ids.error.text = error

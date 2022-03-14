@@ -24,17 +24,69 @@
         theme_text_color: "Custom"
         text_color: 1, 1, 1, 1
 
-    MDTextField:
-        id: begin
-        hint_text: "Begin Time"
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_x: None
+        width: dp(140)
 
-    MDTextField:
-        id: end
-        hint_text: "End Time"
+        MDTextField:
+            id: begin
+            hint_text: 'Begin Time'
+    
+        MDIconButton:
+            id: begin_time
+            icon: 'timeline-clock-outline'
 
-    MDTextField:
-        id: code
-        hint_text: "Project Code"
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_x: None
+        width: dp(140)
+
+        MDTextField:
+            id: end
+            hint_text: "End Time"
+    
+        MDIconButton:
+            id: end_time
+            icon: 'timeline-clock-outline'
+    
+    MDBoxLayout:
+        id: project_box
+        orientation: 'horizontal'
+        size_hint: None, None
+        width: dp(100)
+        height: dp(30)
+        padding: 0
+        spacing: 0
+
+        MDCard:
+            id: project_card
+            padding: 0
+            radius: dp(7), dp(7), dp(7), dp(7)
+            size_hint: None, None
+            width: dp(230)
+            height: dp(30)
+            line_color: 1,1,1,1
+            
+            MDRelativeLayout:
+                size_hint: None, None
+                width: dp(230)
+                height: dp(30)
+                pos_hint: {"center_x": .5, "center_y": .5}
+
+                MDLabel:
+                    id: project_label
+                    text: ''
+                    size_hint: None, None
+                    width: dp(200)
+                    height: dp(30)
+                    pos_hint: {"center_x": .45, "center_y": .5}
+                    font_style: "Body1"
+
+                MDIconButton:
+                    icon: 'chevron-down'
+                    user_font_size: "20sp"
+                    pos_hint: {"center_x": .95, "center_y": .5}
 
 <TimebotTimecardConfirmDeleteTaskDialog>
     orientation: "vertical"
