@@ -1,8 +1,22 @@
-import datetime
+import os, datetime
+from db import Sqlite3DB, DatabaseSchema
 
 class Utils:
 
     weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+    def remove_data(schema=None) -> None:
+        schema = schema if schema else Utils.get_schema()
+        db = Sqlite3DB(DatabaseSchema(**schema))
+        for table in schema['tables'].keys():
+            db.execute(f'delete from {table}')
+
+    @staticmethod
+    def remove_db() -> None:
+        try:
+            os.remove('app.db')
+        except:
+            pass
     
     @staticmethod
     def get_data(obj):

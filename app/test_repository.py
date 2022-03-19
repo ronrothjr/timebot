@@ -14,19 +14,17 @@ class TestRepository(unittest.TestCase):
 
     def setUp(self) -> None:
         schema = DatabaseSchema(**Utils.get_schema())
-        self.project = Repository[Project](Project, Sqlite3DB, schema)
-        self.timecard = Repository[Timecard](Timecard, Sqlite3DB, schema)
-        self.day = Repository[Day](Day, Sqlite3DB, schema)
-        self.task = Repository[Task](Task, Sqlite3DB, schema)
+        db = Sqlite3DB(schema, setup=True)
+        self.project = Repository[Project](Project, database_object=db)
+        self.timecard = Repository[Timecard](Timecard, database_object=db)
+        self.day = Repository[Day](Day, database_object=db)
+        self.task = Repository[Task](Task, database_object=db)
 
     def tearDown(self) -> None:
-        self.remove_db()
-
-    def remove_db(self) -> None:
-        try:
-            os.remove('app.db')
-        except:
-            pass
+        self.project.db.drop()
+        self.timecard.db.drop()
+        self.day.db.drop()
+        self.task.db.drop().close().remove_db()
 
     def test_can_instantiate_a_repository(self):
         self.assertIsInstance(self.task, Repository)

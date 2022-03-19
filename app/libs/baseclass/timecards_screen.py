@@ -1,6 +1,7 @@
 
 import os, datetime
 from functools import partial
+from typing import List
 from kivy.utils import get_color_from_hex as gch
 from kivy.metrics import dp
 from kivy.app import App
@@ -101,10 +102,10 @@ class TimebotTimecardsScreen(MDScreen):
 
     def on_enter(self):
         self.today = self.app.utils.get_begin_date()
-        self.fill_weekdays(self.today[2])
         self.set_hours()
+        self.fill_weekdays(self.today[2])
 
-    def set_hours(self):
+    def set_hours(self, tasks: List[dict]=None):
         self.heading_info_box.children[0].text = f'Total: {self.app.api.get_total()}'
 
     def add_heading(self):
@@ -196,8 +197,6 @@ class TimebotTimecardsScreen(MDScreen):
         days_rows = days if isinstance(days, list) else [days]
         print(f'days count: {len(days_rows)}')
         for day in days_rows:
-            total = self.totals[day.weekday]
-            total.text = f'Total: {self.app.api.get_total(day.weekday, day.dayid)}'
             if not weekday or (weekday and day.weekday == weekday):
                 Clock.schedule_once(partial(self.fill_weekday, day))
 
@@ -205,12 +204,17 @@ class TimebotTimecardsScreen(MDScreen):
         weekday_box = self.weekdays[day.weekday]
         weekday_box.clear_widgets()
         tasks = self.app.task.get({'dayid': day.dayid})
+        total = self.totals[day.weekday]
+        total_text = ''
         if tasks:
             dict_tasks = self.app.utils.data_to_dict('task', [task.as_dict() for task in tasks])
+            total_text = f'Total: {self.app.api.get_total(tasks=dict_tasks)}'
             for task in dict_tasks:
                 self.add_task(task, weekday_box)
         else:
+            total_text = "0:00"
             weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
+        total.text = total_text
 
     def add_task(self, task, weekday_box):
         task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)

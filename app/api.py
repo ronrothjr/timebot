@@ -1,5 +1,6 @@
 import datetime, os
 from threading import stack_size
+from typing import List
 from service import Service
 from db import Sqlite3DB
 from task import Task
@@ -142,17 +143,18 @@ class API:
         return now, task, day_obj, tasks
 
     @staticmethod
-    def get_total(task_weekday: str=None, dayid: int=None):
+    def get_total(task_weekday: str=None, dayid: int=None, tasks: List[dict]=None):
         total = 0
-        tasks = []
-        if task_weekday or dayid:
-            now, task, day_obj, day_tasks = API.get_today(task_weekday, dayid)
-            tasks += [e.as_dict() for e in day_tasks]
-        else:
-            for weekday in Utils.weekdays:
-                now, task, day_obj, day_tasks = API.get_today(weekday, dayid)
+        if not tasks:
+            tasks = []
+            if task_weekday or dayid:
+                now, task, day_obj, day_tasks = API.get_today(task_weekday, dayid)
                 tasks += [e.as_dict() for e in day_tasks]
-        tasks = Utils.data_to_dict(table_name='task', data=tasks)
+            else:
+                for weekday in Utils.weekdays:
+                    now, task, day_obj, day_tasks = API.get_today(weekday, dayid)
+                    tasks += [e.as_dict() for e in day_tasks]
+            tasks = Utils.data_to_dict(table_name='task', data=tasks)
         unbilled = os.environ["UNBILLED_PROJECT_CODE"]
         for task in tasks:
             if '-' not in task['total'] and task['code'] != unbilled:
@@ -185,7 +187,8 @@ class API:
         has_break_code = code != '' and last_end_str and last_end_str < now_str
         is_new_task = code != '' and not last
         if is_today and has_break_code:
-            unbilled = Service(Setting).get('unbilled_project_code').value
+            unbilled_project_code = Service(Setting).get('unbilled_project_code')
+            unbilled = unbilled_project_code.value if unbilled_project_code else os.environ["UNBILLED_PROJECT_CODE"]
             new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': unbilled}
             task.add(new_task)
         is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str

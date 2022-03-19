@@ -13,17 +13,21 @@ os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
 os.environ["UNBILLED_PROJECT_CODE"] = "DRG-000099"
 
 
-class TestRepository(unittest.TestCase):
+class TestService(unittest.TestCase):
 
     def setUp(self) -> None:
         schema = Utils.get_schema()
-        self.project = Service(Project, Sqlite3DB, schema)
+        self.project = Service(Project, Sqlite3DB, schema, setup=True)
         self.timecard = Service(Timecard, Sqlite3DB, schema)
         self.day = Service(Day, Sqlite3DB, schema)
         self.task = Service(Task, Sqlite3DB, schema)
 
     def tearDown(self) -> None:
-        self.remove_db()
+        Utils.remove_data()
+
+    @classmethod
+    def tearDownClass(self) -> None:
+        Utils.remove_db()
 
     def remove_db(self) -> None:
         try:

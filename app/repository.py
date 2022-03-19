@@ -6,9 +6,9 @@ T = TypeVar('T')
 
 class Repository(Generic[T]):
     
-    def __init__(self, object_class: T, database: Sqlite3DB, schema: DatabaseSchema, setup: bool=False):
+    def __init__(self, object_class: T, database: Sqlite3DB=None, schema: DatabaseSchema=None, setup: bool=False, database_object: Sqlite3DB=None):
         self.object_class = object_class
-        self.db: Sqlite3DB = database(schema, setup)
+        self.db: Sqlite3DB = database_object if database_object else database(schema, setup)
 
     @property
     def name(self):

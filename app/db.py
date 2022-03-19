@@ -1,8 +1,5 @@
-from re import S
-import sqlite3, datetime
-from typing import Dict, List
-
-conn = sqlite3.connect('app.db')
+import os, sqlite3, datetime
+from typing import Dict, List, Union
 
 
 class DatabaseSchema:
@@ -36,6 +33,7 @@ class Table:
         self.fields = self.get_field_definitions(fields)
         self.model: Dict[str, Column] = self.get_model()
         self.create: str = self.get_create_sql()
+        self.drop: str = self.get_drop_sql()
 
     @property
     def now(self):
@@ -74,6 +72,9 @@ class Table:
         sql = f'CREATE TABLE if not exists {self.name} ({table_str})'
         return sql
 
+    def get_drop_sql(self) -> str:
+        sql = f'DROP TABLE if exists {self.name}'
+
     def get_id_name(self):
         id_model = self.get_id_column()
         id = id_model[0].name if id_model else None
@@ -107,9 +108,14 @@ class Sqlite3DB:
     def __init__(self, schema: DatabaseSchema, setup: bool=False):
         self.schema = schema
         self.now = f"'{str(datetime.datetime.now())}'"
-        if setup:
-            for table in schema.tables.values():
-                self.execute(table.create)
+        self.conn = sqlite3.connect(self.schema.db_name)
+        self.results = None
+        [self.execute(table.create) for table in schema.tables.values() if setup]
+
+    def drop(self):
+        for table in self.schema.tables.values():
+            self.execute(table.drop)
+        return self
 
     def add(self, table_name: str, data: dict):
         self.now = str(datetime.datetime.now())
@@ -118,7 +124,8 @@ class Sqlite3DB:
         columns = ', '.join([c.name for c in table.model.values()])
         values = ','.join([table.get_column_value(c, data, max_id) for c in table.model.values()])
         sql = "INSERT INTO {} ({}) VALUES ({})".format(table_name, columns, values)
-        record_id = self.execute(sql, lastrowid=True)
+        self.execute(sql, lastrowid=True)
+        record_id = self.results
         return record_id
 
     def get_max_id(self, table_name):
@@ -127,14 +134,21 @@ class Sqlite3DB:
         max_id = max(records.values(), key=lambda x:x[id_column])[id_column] if records else 0
         return max_id
 
-    def get(self, table_name, query: int=None):
+    def get(self, table_name, query=None):
         table: Table = self.schema.tables[table_name]
         where = ''
         if isinstance(query, dict):
             query_list = []
             for k, v in query.items():
-                sql_value = (v if isinstance(v, int) else f"'{v}'") if v else ''
-                query_list.append(f'{k} = {sql_value}')
+                if isinstance(v, list):
+                    query_list_values = []
+                    for item in v:
+                        sql_list_item_value = (item if isinstance(item, int) else f"'{item}'") if item else ''
+                        query_list_values.append(sql_list_item_value)
+                    query_list.append(f'{k} in ({",".join(query_list_values)})')
+                else:
+                    sql_value = (v if isinstance(v, int) else f"'{v}'") if v else ''
+                    query_list.append(f'{k} = {sql_value}')
             sql_query = ' and '.join(query_list)
             where = f" WHERE {sql_query}"
         elif isinstance(query, (int, str)):
@@ -142,9 +156,9 @@ class Sqlite3DB:
             sql_id_value = (query if isinstance(query, int) else f"'{query}'") if query else ''
             where = f" WHERE {id_column} = {sql_id_value}" if query else ''
         cols = ', '.join([k for k in table.model.keys()])
-        results = self.execute(f"SELECT {cols} from {table_name}{where}", fetch=True)
+        self.execute(f"SELECT {cols} from {table_name}{where}", fetch=True)
         records = {}
-        for r in results:
+        for r in self.results:
             record = {}
             for x in range(0, len(table.model.keys())):
                 name = list(table.model.keys())[x]
@@ -186,21 +200,35 @@ class Sqlite3DB:
         self.execute(f"DELETE FROM {table_name}{where}")
 
     def execute(self, sql, fetch:bool=False, lastrowid:bool=False):
-        results = None
-        c = conn.cursor()
-        c.execute('PRAGMA foreign_keys = ON;')
-        c.execute('BEGIN;')
+        self.results = None
+        cursor = self.conn.cursor()
+        cursor.execute('PRAGMA foreign_keys = ON;')
+        cursor.execute('BEGIN;')
         try:
             print(sql)
-            c.execute(sql)
+            cursor.execute(sql)
             if fetch:
-                results = c.fetchall()
+                self.results = cursor.fetchall()
             if lastrowid:
-                results =  c.lastrowid
-            c.execute('COMMIT;')
+                self.results =  cursor.lastrowid
+            cursor.execute('COMMIT;')
         except Exception as e:
             print(e)
-            c.execute('ROLLBACK;')
-        conn.commit()
-        if fetch or lastrowid:
-            return results
+            cursor.execute('ROLLBACK;')
+        self.conn.commit()
+        return self
+
+    def connect(self, db_name: str=None):
+        if (not hasattr(self, 'conn')):
+            self.conn = sqlite3.connect(db_name if db_name else self.schema.db_name)
+
+    def close(self):
+        self.conn.close()
+        return self
+
+    def remove_db(self):
+        try:
+            os.remove(self.schema.db_name)
+        except:
+            pass
+        return self
