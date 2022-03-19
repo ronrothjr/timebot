@@ -111,7 +111,7 @@ class TimebotTasksScreen(MDScreen):
 
     def show_project_grid(self):
         self.project_grid.clear_widgets()
-        projects: List[Project] = self.app.project.get({'show': 1})
+        projects: List[Project] = sorted(self.app.project.get({'show': 1}), key=(lambda p: p.code))
         for project in projects:
             project_card = MD3Card(padding=0, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1,1,1,1), on_release=self.released)
             project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
@@ -303,7 +303,8 @@ class TimebotTasksScreen(MDScreen):
 
     def choose_project(self, *args):
         self.project_list.clear_widgets()
-        for project in self.app.project.get():
+        projects: List[Project] = sorted(self.app.project.get(), key=(lambda p: p.code))
+        for project in projects:
             self.project_list.add_widget(TwoLineListItem(
                 text=project.code,
                 secondary_text=project.desc,

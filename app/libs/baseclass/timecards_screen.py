@@ -74,10 +74,10 @@ class TimebotTimecardsScreen(MDScreen):
         self.fill_weekdays(weekday)
 
     def add_timesheets_modal(self):
-        modal = ModalView(size_hint=(.8, .8), auto_dismiss=False)
+        modal = ModalView(size_hint=(.8, .8), auto_dismiss=True)
         view = ScrollView()
         timecard_list = MDSelectionList(spacing=dp(12))
-        for timecard in self.app.timecard.get():
+        for timecard in list(reversed(self.app.timecard.get())):
             timecard_list.add_widget(OneLineListItem(
                 text=f"Week of: {timecard.begin_date} - {timecard.end_date}",
                 _no_ripple_effect=True,
@@ -293,7 +293,8 @@ class TimebotTimecardsScreen(MDScreen):
 
     def choose_project(self, *args):
         self.project_list.clear_widgets()
-        for project in self.app.project.get():
+        projects = sorted(self.app.project.get(), key=(lambda p: p.code))
+        for project in projects:
             self.project_list.add_widget(TwoLineListItem(
                 text=project.code,
                 secondary_text=project.desc,
