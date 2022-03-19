@@ -222,8 +222,8 @@ class API:
             end_str = Utils.db_format_time(task_obj.end) if not in_progress else ''
 
     @staticmethod
-    def get_last_task(weekday: str=None):
-        now, task, day_obj, tasks = API.get_today(weekday)
+    def get_last_task(weekday: str=None, dayid: int=None):
+        now, task, day_obj, tasks = API.get_today(weekday, dayid)
         last = None
         for task_obj in tasks:
             begin_str = Utils.db_format_time(task_obj.begin)

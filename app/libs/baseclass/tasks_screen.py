@@ -125,26 +125,44 @@ class TimebotTasksScreen(MDScreen):
             self.project_grid.add_widget(project_card)
 
     def add_today(self):
-        today, begin_date, weekday = self.app.utils.get_begin_date()
-        self.day = self.app.day.get({'begin_date': begin_date, 'weekday': weekday})[0]
+        self.get_today()
         self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, spacing=dp(5), pos_hint=self.top_center)
+        self.reorienter.add_widget(self.weekday_box)
+        self.fill_weekday_box()
+
+    def get_today(self):
+        today, begin_date, weekday = self.app.utils.get_begin_date()
+        self.weekday = weekday
+        self.day = self.app.day.get({'begin_date': begin_date, 'weekday': weekday})[0]
+
+    def fill_weekday_box(self):
+        self.weekday_box.clear_widgets()
         self.add_heading()
         self.add_column_headers()
         self.add_task_grid()
         self.add_last_task_button()
-        self.reorienter.add_widget(self.weekday_box)
         self.fill_task_grid()
         if hasattr(self, 'show_event'):
             Clock.unschedule(self.show_event)
         self.show_event = Clock.schedule_interval(self.check_active, 1)
 
     def check_active(self, *args):
+        today, begin_date, weekday = self.app.utils.get_begin_date()
+        is_same_day = self.weekday == weekday
         if hasattr(self, 'task_view') and self.task_view.children:
             task = self.task_view.children[0]
             labels = list(reversed([c for c in task.children if isinstance(c, MDLabel)]))
             if labels and labels[1].text == '(active)' and self.tasks:
-                last = self.app.utils.data_to_dict('task', [task.as_dict() for task in self.tasks])[-1]
-                labels[2].text = last['total']
+                if not is_same_day:
+                    last_task = self.app.api.get_last_task(dayid=day.dayid)
+                    self.app.api.update_task(last_task, {'end': '0000'})
+                    self.app.api.switch_or_start_task(last_task.code)
+                else:
+                    last = self.app.utils.data_to_dict('task', [task.as_dict() for task in self.tasks])[-1]
+                    labels[2].text = last['total']
+        if not is_same_day:
+            self.get_today()
+            self.fill_weekday_box()
 
     def add_heading(self):
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
