@@ -35,6 +35,11 @@ class TimebotWelcomeScreen(MDScreen):
                     'pos': 'left_bottom'
                 },
                 {
+                    'title': 'This is the Share screen',
+                    'desc': 'You can export your timesheet and send it along to your chosen external application',
+                    'pos': 'left_bottom'
+                },
+                {
                     'title': 'This is the Settings screen',
                     'desc': 'You have various ways to control the actions of Timebot, like setting which Project Code to automatically add to blank timesheets',
                     'pos': 'left_bottom'
@@ -61,7 +66,7 @@ class TimebotWelcomeScreen(MDScreen):
 
     def take_tour_0_0_0(self):
         items = self.parent.parent.children[1].children[0].children
-        self.tap_items = [items[3], items[2], items[1], items[0], items[4]]
+        self.tap_items = [items[4], items[3], items[2], items[1], items[0], items[5]]
         self.card_view = MDGridLayout(cols=1, size_hint=(None, None), width=dp(300), height=dp(160), pos_hint={"center_x": .5, "center_y": .20})
         self.add_widget(self.card_view)
         Clock.schedule_once(self.next_0_0_0, 2)
@@ -93,7 +98,7 @@ class TimebotWelcomeScreen(MDScreen):
 
     def place_card(self, card_text):
         self.card_view.clear_widgets()
-        desc_card = MD3Card(padding=dp(16), radius=[dp(15),], size_hint=(None, None), width=dp(300), height=dp(160), md_bg_color=self.app.api.theme_cls.primary_color)
+        desc_card = MD3Card(padding=dp(16), radius=[dp(15),], size_hint=(None, None), width=dp(300), height=dp(160), md_bg_color=self.app.theme_cls.primary_color)
         card_layout = MDRelativeLayout(size_hint=(None, None), width=dp(280), height=dp(160), pos_hint={"center_x": .5, "center_y": .5})
         card_label = MDLabel(text=card_text, adaptive_height=True, font_style="Subtitle1", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         card_layout.add_widget(card_label)

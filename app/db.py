@@ -143,7 +143,7 @@ class Sqlite3DB:
                 if isinstance(v, list):
                     query_list_values = []
                     for item in v:
-                        sql_list_item_value = (item if isinstance(item, int) else f"'{item}'") if item else ''
+                        sql_list_item_value = (str(item) if isinstance(item, int) else f"'{item}'") if item else ''
                         query_list_values.append(sql_list_item_value)
                     query_list.append(f'{k} in ({",".join(query_list_values)})')
                 else:

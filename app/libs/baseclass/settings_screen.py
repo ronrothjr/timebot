@@ -24,7 +24,7 @@ class TimebotSettingsScreen(MDScreen):
             self.add_widget(s)
 
     def update_setting(self, *args):
-        self.app.api.set_setting(args[2], args[3])
+        self.app.api.set_setting(args[1], args[2])
         self.app.api.save_config()
         self.app.api.save_my_config()
 
