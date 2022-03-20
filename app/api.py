@@ -50,7 +50,7 @@ class API:
         today, now, begin_date, weekday, schema = API.get_now()
         setting = Service(Setting, Sqlite3DB, schema)
         settings = [s.as_dict() for s in setting.get()]
-        config_records = Utils.data_to_dict(table_name='setting', data=settings, exclude_undefined=True)
+        config_records = Utils.data_to_dict(table_name='setting', dict_list=settings, exclude_undefined=True)
         for record in config_records:
             if record.get('options'):
                 record['options'] = record['options'].split(',')

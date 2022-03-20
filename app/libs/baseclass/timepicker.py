@@ -153,7 +153,7 @@ class AmPmSelector(ThemableBehavior, MDBoxLayout):
     bg_color_active = ColorProperty()
     border_width = NumericProperty()
     am = ObjectProperty()
-    am = ObjectProperty()
+    pm = ObjectProperty()
     owner = ObjectProperty()
     text_color = ColorProperty()
     selected = StringProperty()
@@ -163,10 +163,10 @@ class AmPmSelector(ThemableBehavior, MDBoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bind(selected=self._upadte_color)
-        Clock.schedule_once(self._upadte_color)
+        self.bind(selected=self._update_color)
+        Clock.schedule_once(self._update_color)
 
-    def _upadte_color(self, *args):
+    def _update_color(self, *args):
         bg_color = (
             self.owner.accent_color
             if self.owner.accent_color
@@ -577,7 +577,6 @@ class MDTimePicker(BaseDialogPicker):
 
     def set_time(self, time_obj) -> None:
         """Manually set time dialog with the specified time."""
-
         hour = time_obj.hour
         minute = time_obj.minute
         if hour > 12:
@@ -624,6 +623,7 @@ class MDTimePicker(BaseDialogPicker):
         hour = f"{int(hour):02d}"
         minute = f"{int(minute):02d}"
         if self._state != "input":
+            print([hour, minute])
             self._time_input.set_time([hour, minute])
 
     def _get_am_pm(self, selected):

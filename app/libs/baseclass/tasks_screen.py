@@ -27,13 +27,20 @@ from kivy.uix.modalview import ModalView
 from kivymd.uix.selection import MDSelectionList
 from kivymd.uix.list import TwoLineListItem
 from kivymd.toast import toast
+from project import Project
 
 
 class TimebotEditTaskDialog(MDBoxLayout):
     pass
 
+
 class TimebotConfirmDeleteTaskDialog(MDBoxLayout):
     pass
+
+
+class MD3Card(MDCard, RoundedRectangularElevationBehavior):
+    pass
+
 
 class Reorienter(MDBoxLayout):
 
@@ -65,7 +72,7 @@ class TimebotTasksScreen(MDScreen):
         self.center_center = {"center_x": .5, "center_y": .5}
         self.today_width = dp(360)
         self.task_width = dp(340)
-        self.clear_widgets()
+        self.check_active_event = None
         self.reorienter = Reorienter()
         self.add_widget(self.reorienter)
         self.reorienter.reorient()
@@ -113,16 +120,19 @@ class TimebotTasksScreen(MDScreen):
         self.project_grid.clear_widgets()
         projects: List[Project] = sorted(self.app.project.get({'show': 1}), key=(lambda p: p.code))
         for project in projects:
-            project_card = MD3Card(padding=0, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1,1,1,1), on_release=self.released)
-            project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
-            project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint=self.center_center)
-            project_desc_float = FloatLayout(top=dp(15))
-            project_desc_label = MDLabel(text=project.desc, adaptive_width=True, font_style="Overline", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
-            project_desc_float.add_widget(project_desc_label)
-            project_layout.add_widget(project_label)
-            project_layout.add_widget(project_desc_float)
-            project_card.add_widget(project_layout)
-            self.project_grid.add_widget(project_card)
+            self.add_project_card(project)
+
+    def add_project_card(self, project: Project):
+        project_card = MD3Card(padding=0, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1,1,1,1), on_release=self.released)
+        project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
+        project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint=self.center_center)
+        project_desc_float = FloatLayout(top=dp(15))
+        project_desc_label = MDLabel(text=project.desc, adaptive_width=True, font_style="Overline", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
+        project_desc_float.add_widget(project_desc_label)
+        project_layout.add_widget(project_label)
+        project_layout.add_widget(project_desc_float)
+        project_card.add_widget(project_layout)
+        self.project_grid.add_widget(project_card)
 
     def add_today(self):
         self.get_today()
@@ -135,6 +145,13 @@ class TimebotTasksScreen(MDScreen):
         self.weekday = weekday
         self.day = self.app.day.get({'begin_date': begin_date, 'weekday': weekday})[0]
 
+    def load_new_day(self):
+        add_new_timecard = self.weekday == 'Saturday'
+        if add_new_timecard:
+            self.app.api.add_current_timecard()
+        self.get_today()
+        self.fill_weekday_box()
+
     def fill_weekday_box(self):
         self.weekday_box.clear_widgets()
         self.add_heading()
@@ -142,27 +159,37 @@ class TimebotTasksScreen(MDScreen):
         self.add_task_grid()
         self.add_last_task_button()
         self.fill_task_grid()
-        if hasattr(self, 'show_event'):
-            Clock.unschedule(self.show_event)
-        self.show_event = Clock.schedule_interval(self.check_active, 1)
+        self.schedule_check_active_event()
+
+    def schedule_check_active_event(self):
+        if self.check_active_event:
+            Clock.unschedule(self.check_active_event)
+        self.check_active_event = Clock.schedule_interval(self.check_active, 1)
 
     def check_active(self, *args):
         today, begin_date, weekday = self.app.utils.get_begin_date()
         is_same_day = self.weekday == weekday
-        if hasattr(self, 'task_view') and self.task_view.children:
-            task = self.task_view.children[0]
-            labels = list(reversed([c for c in task.children if isinstance(c, MDLabel)]))
-            if labels and labels[1].text == '(active)' and self.tasks:
-                if not is_same_day:
-                    last_task = self.app.api.get_last_task(dayid=day.dayid)
-                    self.app.api.update_task(last_task, {'end': '0000'})
-                    self.app.api.switch_or_start_task(last_task.code)
-                else:
-                    last = self.app.utils.data_to_dict('task', [task.as_dict() for task in self.tasks])[-1]
-                    labels[2].text = last['total']
-        if not is_same_day:
-            self.get_today()
-            self.fill_weekday_box()
+        has_tasks = hasattr(self, 'task_view') and self.task_view.children
+        if has_tasks:
+            self.update_active_task(is_same_day)
+        elif not is_same_day:
+            self.load_new_day()
+
+    def update_active_task(self, is_same_day: bool):
+        last_task_row = self.task_view.children[0]
+        task_row_labels = list(reversed([c for c in last_task_row.children if isinstance(c, MDLabel)]))
+        is_last_task_active = self.tasks and task_row_labels and task_row_labels[1].text == '(active)'
+        if is_last_task_active:
+            last_task = self.tasks[-1]
+            if not is_same_day:
+                self.app.api.update_task(last_task, {'end': '2359'})
+                self.load_new_day()
+                self.app.api.switch_or_start_task(last_task.code)
+            else:
+                last_dict = self.app.utils.data_row_to_dict('task', last_task.as_dict())
+                task_row_labels[2].text = last_dict['total']
+        elif not is_same_day:
+            self.load_new_day()
 
     def add_heading(self):
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
@@ -338,11 +365,9 @@ class TimebotTasksScreen(MDScreen):
         time_dialog.open()
 
     def get_begin_time(self, *args):
-        print(args)
         self.custom_dialog.content_cls.ids.begin.text = self.app.utils.db_format_time(args[0])
 
     def get_end_time(self, *args):
-        print(args)
         self.custom_dialog.content_cls.ids.end.text = self.app.utils.db_format_time(args[0])
 
     def released(self, instance):
@@ -398,7 +423,3 @@ class TimebotTasksScreen(MDScreen):
     def continue_task(self, instance):
         self.app.api.resume_task()
         self.fill_task_grid()
-
-
-class MD3Card(MDCard, RoundedRectangularElevationBehavior):
-    pass

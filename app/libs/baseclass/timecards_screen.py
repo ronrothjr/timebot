@@ -57,6 +57,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.today = self.app.utils.get_begin_date()
         self.scroller = ScrollView()
         self.view = MDList(spacing=dp(10))
+        self.check_active_event = None
         self.custom_dialog = None
         self.timesheets_modal_open = False
         self.timesheets_modal = self.add_timesheets_modal()
@@ -67,14 +68,42 @@ class TimebotTimecardsScreen(MDScreen):
         if self.today[2]:
             self.refresh_totals_and_tasks(self.today[2])
 
+    def schedule_check_active_event(self):
+        if self.check_active_event:
+            Clock.unschedule(self.check_active_event)
+        self.check_active_event = Clock.schedule_interval(self.check_active, 1)
+
+    def check_active(self, *args):
+        if self.today[2]:
+            self.update_active_task_and_totals()
+            self.set_hours()
+
+    def update_active_task_and_totals(self):
+        today, begin_date, weekday = self.app.utils.get_begin_date()
+        is_same_day = self.today[2] == weekday
+        weekday_box = self.weekdays[self.today[2]]
+        last_task_row = weekday_box.children[0]
+        task_row_labels = list(reversed([c for c in last_task_row.children if isinstance(c, MDLabel)]))
+        day = next((d for d in self.days if d.weekday == weekday), None)
+        tasks = self.tasks.get(day.dayid)
+        dict_tasks = self.app.utils.data_to_dict('task', [t.as_dict() for t in tasks])
+        self.totals[weekday].text = f'Total: {self.app.api.get_total(tasks=dict_tasks)}'
+        is_last_task_active = tasks and task_row_labels and task_row_labels[1].text == '(active)'
+        if is_last_task_active:
+            last_task = tasks[-1]
+            if not is_same_day:
+                last_task.end = datetime.datetime.time(23, 59)
+            last_dict = self.app.utils.data_row_to_dict('task', last_task.as_dict())
+            task_row_labels[2].text = last_dict['total']
+
     def refresh_totals_and_tasks(self, weekday):
-        self.set_hours()
         day = next((d for d in self.days if d.weekday == weekday), None)
         self.tasks[day.dayid] = self.app.task.get({'dayid': day.dayid})
+        self.set_hours()
         self.fill_weekdays(weekday)
 
     def add_timesheets_modal(self):
-        modal = ModalView(size_hint=(.8, .8), auto_dismiss=True)
+        modal = ModalView(size_hint=(None, .6), width=dp(300), auto_dismiss=True, pos_hint=self.mid_center)
         view = ScrollView()
         timecard_list = MDSelectionList(spacing=dp(12))
         for timecard in list(reversed(self.app.timecard.get())):
@@ -88,7 +117,6 @@ class TimebotTimecardsScreen(MDScreen):
         return modal
 
     def selected_timecard(self, instance):
-        toast(f'loading {instance.text}')
         begin_date = instance.text.split(': ')[1].split(' - ')[0]
         today = self.app.utils.get_begin_date()
         self.today = (self.today[0], self.today[1], today[2] if self.today[1] == begin_date else None)
@@ -115,6 +143,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.add_widget(self.scroller)
         self.get_timecard_data(self.today[1])
         self.load_timesheet_data()
+        self.schedule_check_active_event()
 
     def load_timesheet_data(self):
         self.view.clear_widgets()

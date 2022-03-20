@@ -69,6 +69,8 @@ class Utils:
     def task_total(task):
         begin = task.get('begin')
         end = task.get('end') if task.get('end') else Utils.db_format_time(datetime.datetime.now().time())
+        if end < begin:
+            end = '2359'
         time_1 = datetime.datetime.strptime(f'{begin[0:2]}:{begin[-2:]}:00',"%H:%M:%S")
         time_2 = datetime.datetime.strptime(f'{end[0:2]}:{end[-2:]}:00',"%H:%M:%S")
         diff: datetime.timedelta = time_2 - time_1
@@ -131,18 +133,23 @@ class Utils:
         return rows
 
     @staticmethod
-    def data_to_dict(table_name: str, data: list, exclude_undefined: bool=False):
-        table = Utils.get_schema()['tables'][table_name]
+    def data_to_dict(table_name: str, dict_list: list, exclude_undefined: bool=False):
         rows = []
-        columns = [name for name, value in table.items() if 'display' in value]
-        for row_data in data:
-            dict_data = {}
-            for name in columns:
-                value = Utils.get_data_from_schema(name, table, row_data)
-                if not exclude_undefined or exclude_undefined and str(value) not in ['', 'None']:
-                    dict_data[name] = value
+        for row_data in dict_list:
+            dict_data = Utils.data_row_to_dict(table_name, row_data, exclude_undefined)
             rows.append(dict_data)
         return rows
+
+    @staticmethod
+    def data_row_to_dict(table_name: str, row_data: dict, exclude_undefined: bool=False):
+        dict_data = {}
+        table = Utils.get_schema()['tables'][table_name]
+        for column_name, value in table.items():
+            if 'display' in value:
+                 data_value = Utils.get_data_from_schema(column_name, table, row_data)
+                 if not exclude_undefined or exclude_undefined and str(data_value) not in ['', 'None']:
+                    dict_data[column_name] = data_value
+        return dict_data
 
     @staticmethod
     def get_begin_date():
