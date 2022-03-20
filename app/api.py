@@ -154,7 +154,7 @@ class API:
                 for weekday in Utils.weekdays:
                     now, task, day_obj, day_tasks = API.get_today(weekday, dayid)
                     tasks += [e.as_dict() for e in day_tasks]
-            tasks = Utils.data_to_dict(table_name='task', data=tasks)
+            tasks = Utils.data_to_dict(table_name='task', dict_list=tasks)
         unbilled = os.environ["UNBILLED_PROJECT_CODE"]
         for task in tasks:
             if '-' not in task['total'] and task['code'] != unbilled:
