@@ -21,6 +21,8 @@ def watcher(test_path, project_path=None):
         files = os.listdir(project_path)
         changed = False
         for f in files:
+            if '.db' in f:
+                continue
             full_path = os.path.join(project_path, f)
             mod_time = os.stat(full_path).st_mtime
             if full_path not in f_dict:

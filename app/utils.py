@@ -1,4 +1,5 @@
 import os, datetime
+from pathlib import Path
 from db import Sqlite3DB, DatabaseSchema
 
 class Utils:
@@ -30,7 +31,7 @@ class Utils:
         return data
 
     @staticmethod
-    def get_schema():
+    def get_schema(folder: str=''):
         tables = {
             'project': {
                 'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'id': True, 'dp': 30},
@@ -63,7 +64,7 @@ class Utils:
                 'section': {'name': 'section', 'display': 'Section', 'type': 'TEXT', 'dp': 80},
             }
         }
-        return {'db_name': 'app.db', 'tables': tables}
+        return {'db_name': os.path.join(folder if folder else os.environ.get('TIMEBOT_ROOT', ''), 'app.db'), 'tables': tables}
 
     @staticmethod
     def task_total(task):

@@ -87,7 +87,7 @@ class TimebotTimecardsScreen(MDScreen):
         day = next((d for d in self.days if d.weekday == weekday), None)
         tasks = self.tasks.get(day.dayid)
         dict_tasks = self.app.utils.data_to_dict('task', [t.as_dict() for t in tasks])
-        self.totals[weekday].text = f'Total: {self.app.api.get_total(tasks=dict_tasks)}'
+        self.totals[weekday].text = f'Total: {self.app.api.get_total(tasks=dict_tasks)}' if tasks else 'Total: 0:00'
         is_last_task_active = tasks and task_row_labels and task_row_labels[1].text == '(active)'
         if is_last_task_active:
             last_task = tasks[-1]
