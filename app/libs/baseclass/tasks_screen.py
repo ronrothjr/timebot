@@ -182,7 +182,7 @@ class TimebotTasksScreen(MDScreen):
         if is_last_task_active:
             last_task = self.tasks[-1]
             if not is_same_day:
-                self.app.api.update_task(last_task, {'end': '2359'})
+                self.app.task.update(last_task, {'end': '2359'})
                 self.load_new_day()
                 self.app.api.switch_or_start_task(last_task.code)
             else:
