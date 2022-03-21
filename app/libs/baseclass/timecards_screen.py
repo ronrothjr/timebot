@@ -119,7 +119,7 @@ class TimebotTimecardsScreen(MDScreen):
     def selected_timecard(self, instance):
         begin_date = instance.text.split(': ')[1].split(' - ')[0]
         today = self.app.utils.get_begin_date()
-        self.today = (self.today[0], self.today[1], today[2] if self.today[1] == begin_date else None)
+        self.today = (self.today[0], begin_date, today[2] if self.today[1] == begin_date else None)
         self.timesheets_modal.dismiss()
         self.get_timecard_data(begin_date)
         self.load_timesheet_data()
@@ -234,7 +234,7 @@ class TimebotTimecardsScreen(MDScreen):
     def add_new_task(self, instance):
         code = os.environ["DEFAULT_PROJECT_CODE"]
         weekday: str = instance.parent.children[3].text
-        self.app.api.switch_or_start_task(code=code, weekday=weekday)
+        self.app.api.switch_or_start_task(code=code, weekday=weekday, begin_date=self.today[1])
         self.refresh_totals_and_tasks(weekday)
 
     def expand_weekday(self, instance):
@@ -372,7 +372,7 @@ class TimebotTimecardsScreen(MDScreen):
         begin = self.custom_dialog.content_cls.ids.begin.text
         end = self.custom_dialog.content_cls.ids.end.text
         code = self.custom_dialog.content_cls.ids.project_label.text
-        error = self.app.api.update_task(self.original_values, begin, end, code, weekday)
+        error = self.app.api.update_task(self.original_values, begin, end, code, weekday, begin_date=self.today[1])
         if error:
             self.custom_dialog.content_cls.ids.error.text = error
         else:

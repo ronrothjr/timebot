@@ -131,14 +131,19 @@ class API:
         project.remove(code)
 
     @staticmethod
-    def get_today(task_weekday=None, dayid: int=None):
+    def get_today(task_weekday=None, dayid: int=None, begin_date_orig: str=None):
         today, now, begin_date, weekday, schema = API.get_now()
         day = Service(Day, Sqlite3DB, schema)
         task = Service(Task, Sqlite3DB, schema)
         if dayid:
             day_obj: Day = day.get(dayid)
         else:
-            day_obj: Day = day.get({'begin_date': begin_date, 'weekday': task_weekday if task_weekday else weekday})[0]
+            query = {
+                'begin_date': begin_date_orig if begin_date_orig else begin_date,
+                'weekday': task_weekday if task_weekday else weekday
+            }
+            print(query)
+            day_obj: Day = day.get(query)[0]
         tasks = task.get({'dayid': day_obj.dayid})
         return now, task, day_obj, tasks
 
@@ -170,16 +175,12 @@ class API:
         return timecard
 
     @staticmethod
-    def switch_or_start_task(code: str='', weekday: str=None):
+    def switch_or_start_task(code: str='', weekday: str=None, begin_date: str=None):
         t, n, b, w, s = API.get_now()
-        is_today = weekday is None or w == weekday
-        now, task, day_obj, tasks = API.get_today(weekday)
+        is_today = weekday is None and begin_date is None or w == weekday and b == begin_date
+        now, task, day_obj, tasks = API.get_today(weekday, begin_date_orig=begin_date)
         now_str = Utils.db_format_time(now)
-        print([e.as_dict() for e in tasks])
-        print(day_obj.weekday)
-        if is_today:
-            API.update_or_remove_tasks(tasks, task, code, now_str)
-        tasks = task.get({'dayid': day_obj.dayid})
+        API.update_or_remove_tasks(tasks, task, code, now_str)
         last = API.get_last_task(weekday)
         last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
         last_end_str = Utils.db_format_time(last.end) if last and last.end else ''
@@ -233,7 +234,7 @@ class API:
         return last
 
     @staticmethod
-    def update_task(original, begin: str, end: str, code: str, weekday=None):
+    def update_task(original, begin: str, end: str, code: str, weekday=None, begin_date=None):
         print(begin, end, code, weekday)
         has_valid_time_lengths = len(begin) == 3 or len(begin) == 4
         if not has_valid_time_lengths:
@@ -266,7 +267,7 @@ class API:
         has_valid_project_code = project_obj
         if not has_valid_project_code:
             return f'invalid project code: {code}'
-        now, task, day_obj, tasks = API.get_today(weekday)
+        now, task, day_obj, tasks = API.get_today(weekday, begin_date_orig=begin_date)
         task_obj, task_dict, previous_task, previous_obj, next_task, next_obj = None, None, None, None, None, None
         for obj in tasks:
             obj_dict = obj.as_dict()
