@@ -42,25 +42,29 @@ class MD3Card(MDCard, RoundedRectangularElevationBehavior):
     pass
 
 
-class Reorienter(MDBoxLayout):
+class Orienter(MDBoxLayout):
 
     def __init__(self, **kw):
-        super(Reorienter, self).__init__(**kw)
+        super(Orienter, self).__init__(**kw)
+        self.callback = None
+        self.orientation = 'vertical'
         self.size = (0.9, 1)
         self.pos_hint = {"center_x": .5, "top": 1}
         self.spacing = dp(10)
-        self.reorient()
+        self.orient()
 
     def on_size(self, *args):
-        self.reorient()
+        self.orient()
 
-    def reorient(self):
+    def orient(self):
         if self.width > self.height:
-            self.orientation = 'horizontal'
+            orientation = 'horizontal'
         else:
-            self.orientation = 'vertical'
-        if hasattr(self, 'callback'):
-            self.callback(self)
+            orientation = 'vertical'
+        if orientation != self.orientation:
+            self.orientation = orientation
+            if hasattr(self, 'callback'):
+                self.callback(self)
 
 
 class TimebotTasksScreen(MDScreen):
@@ -73,29 +77,29 @@ class TimebotTasksScreen(MDScreen):
         self.today_width = dp(360)
         self.task_width = dp(340)
         self.check_active_event = None
-        self.reorienter = Reorienter()
-        self.add_widget(self.reorienter)
-        self.reorienter.reorient()
+        self.orienter = Orienter()
+        self.add_widget(self.orienter)
+        self.orienter.orient()
         self.add_project_grid()
         self.add_today()
-        self.reorienter.callback = self.reorient
-        self.reorienter.reorient()
+        self.orienter.callback = self.orient
+        self.orienter.orient()
         self.project_modal_open = False
         self.project_modal = self.add_project_modal()
         # self.rotate()
 
-    def on_enter(self):
-        if hasattr(self, 'reorienter'):
-            self.show_project_grid()
-            self.fill_task_grid()
-
-    def reorient(self, reorienter):
-        if reorienter.orientation == 'vertical':
+    def orient(self, orienter):
+        if orienter.orientation == 'vertical':
             self.project_scroller.size_hint_y = None
             self.project_scroller.height = dp(230)
         else:
             self.project_scroller.size_hint_y = 1
         self.scroll_to_last()
+
+    def on_enter(self):
+        if hasattr(self, 'orienter'):
+            self.show_project_grid()
+            self.fill_task_grid()
 
     def rotate(self):
         rotation = Window.rotation
@@ -113,7 +117,7 @@ class TimebotTasksScreen(MDScreen):
         self.project_grid = MDGridLayout(cols=2, padding=dp(10), spacing=dp(20), adaptive_size=True, size_hint=(1, None), pos_hint=self.top_center)
         self.project_view.add_widget(self.project_grid)
         self.project_scroller.add_widget(self.project_view)
-        self.reorienter.add_widget(self.project_scroller)
+        self.orienter.add_widget(self.project_scroller)
         self.show_project_grid()
 
     def show_project_grid(self):
@@ -137,7 +141,7 @@ class TimebotTasksScreen(MDScreen):
     def add_today(self):
         self.get_today()
         self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, spacing=dp(5), pos_hint=self.top_center)
-        self.reorienter.add_widget(self.weekday_box)
+        self.orienter.add_widget(self.weekday_box)
         self.fill_weekday_box()
 
     def get_today(self):
