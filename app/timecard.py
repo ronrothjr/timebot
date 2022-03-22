@@ -22,7 +22,7 @@ class Timecard:
                 self.add_days(args[1].get('days'))
 
     def default_task(self):
-        return {0: {'begin': '0800', 'end': '1600', 'code': os.environ["DEFAULT_PROJECT_CODE"]}}
+        return {0: {'begin': '0800', 'end': '1600', 'code': os.environ.get("DEFAULT_PROJECT_CODE", "DRG-000099")}}
 
     def as_dict(self):
         items = {'begin_date': str(self.begin_date), 'end_date': str(self.end_date), 'days': self.days_as_dict()}

@@ -3,7 +3,7 @@ from timecard import Timecard
 from utils import Utils
 
 
-class TestUntils(unittest.TestCase):
+class TestUtils(unittest.TestCase):
 
     def test_get_tuples_from_data(self):
         today = datetime.datetime.now()
@@ -12,7 +12,7 @@ class TestUntils(unittest.TestCase):
             'days': {
                 'Monday': {
                     'dayid': 0, 'begin_date': begin_date, 'weekday': 'Monday', 'tasks': {
-                        0: {'dayid': 0, 'entryid': 0, 'begin': '0900', 'end': '1600', 'code': os.environ["DEFAULT_PROJECT_CODE"]}
+                        0: {'dayid': 0, 'entryid': 0, 'begin': '0900', 'end': '1600', 'code': os.environ.get("DEFAULT_PROJECT_CODE", "DRG-000099")}
                     }
                 }
             }
@@ -26,5 +26,5 @@ class TestUntils(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    os.environ["DEFAULT_PROJECT_CODE"] = '403001'
+    os.environ["DEFAULT_PROJECT_CODE"] = 'DRG-000099'
     unittest.main()
