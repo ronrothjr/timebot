@@ -197,7 +197,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.heading_info_box.children[0].text = f'Total: {self.app.api.get_total(tasks=dict_tasks)}'
 
     def add_timesheet_box(self):
-        self.timesheet_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, pos_hint=self.top_center)
+        self.timesheet_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, padding=0, spacing=0, pos_hint=self.top_center)
         self.orienter.add_widget(self.timesheet_box)
 
     def add_horizontal_task_view(self):
@@ -206,9 +206,8 @@ class TimebotTimecardsScreen(MDScreen):
             self.orienter.add_widget(self.weekday_task_layout)
 
     def add_heading(self):
-        heading_height = (self.heading_height + self.header_height if self.mode == 'vertical' else self.heading_height) + 20
-        self.heading_box = MDBoxLayout(orientation='vertical', size_hint=(None, None), width=self.task_width, height=dp(heading_height), padding=0, spacing=0, pos_hint=self.top_center)
-        self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=[dp(10), dp(10), dp(10), dp(10)], spacing=0, pos_hint=self.top_center)
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
+        self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=[dp(10), 0, 0, 0], spacing=0, pos_hint=self.top_center)
         self.heading_box.add_widget(self.heading_info_box)
         self.timesheet_box.add_widget(self.heading_box)
 
@@ -231,7 +230,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.heading_info_box.add_widget(hours_label)
 
     def add_column_headers(self):
-        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center)
+        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center, padding=[dp(10), 0, 0, 0])
         task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
         task_column_box.add_widget(task_edit)
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
