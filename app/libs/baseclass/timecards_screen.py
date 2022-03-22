@@ -264,11 +264,11 @@ class TimebotTimecardsScreen(MDScreen):
         print(f'{day.weekday}: {len(dict_tasks)}')
         if dict_tasks:
             for task in dict_tasks:
-                self.add_task(task, weekday_box)
+                self.add_task_row(task, weekday_box)
         else:
             weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
 
-    def add_task(self, task, weekday_box):
+    def add_task_row(self, task, weekday_box):
         task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
         task_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
         task_row_box.add_widget(task_edit)
