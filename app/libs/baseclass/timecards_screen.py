@@ -226,7 +226,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def add_horizontal_task_view(self):
         if self.mode == 'horizontal':
-            self.weekday_task_layout = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.weekday_width, pos_hint=self.top_left)
+            self.weekday_task_layout = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.weekday_width, pos_hint=self.top_left)
             self.orienter.add_widget(self.weekday_task_layout)
 
     def add_column_headers(self):
@@ -254,7 +254,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def add_weekday_task_scroller(self):
         if self.mode == 'horizontal':
-            self.weekday_task_scroller = ScrollView(bar_width=0, size_hint=(0.9, 1), pos_hint=self.top_center)
+            self.weekday_task_scroller = ScrollView(bar_width=0, size_hint=(1, 1), pos_hint=self.top_center)
             self.weekday_task_view = MDList(adaptive_height=True, spacing=0, pos_hint=self.top_center)
             self.weekday_task_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.weekday_width, pos_hint=self.top_center, md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
             self.weekday_task_view.add_widget(self.weekday_task_box)
