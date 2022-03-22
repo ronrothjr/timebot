@@ -94,10 +94,11 @@ class TimebotTimecardsScreen(MDScreen):
         Clock.schedule_once(self.load_current_timesheet, 2)
 
     def orient(self, orienter):
-        if orienter.orientation == 'vertical':
-            self.load_timesheet_data(orienter.orientation)
+        self.mode = orienter.orientation
+        if self.mode == 'vertical':
+            self.load_timesheet_data()
         else:
-            self.load_timesheet_data(orienter.orientation)
+            self.load_timesheet_data()
 
     def on_enter(self):
         if self.today[2]:
@@ -175,8 +176,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.load_timesheet_data()
         self.schedule_check_active_event()
 
-    def load_timesheet_data(self, orientation: str='vertical'):
-        self.mode = orientation
+    def load_timesheet_data(self):
         self.orienter.clear_widgets()
         self.add_timesheet_box()
         self.add_horizontal_task_view()
