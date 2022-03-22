@@ -95,10 +95,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def orient(self, orienter):
         self.mode = orienter.orientation
-        if self.mode == 'vertical':
-            self.load_timesheet_data()
-        else:
-            self.load_timesheet_data()
+        self.load_timesheet_data()
 
     def on_enter(self):
         if self.today[2]:
@@ -230,7 +227,8 @@ class TimebotTimecardsScreen(MDScreen):
         self.heading_info_box.add_widget(hours_label)
 
     def add_column_headers(self):
-        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center, padding=[dp(10), 0, 0, 0])
+        header_padding = [dp(10), 0, 0, 0] if self.mode == 'vertical' else 0
+        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center, padding=header_padding)
         task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
         task_column_box.add_widget(task_edit)
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
