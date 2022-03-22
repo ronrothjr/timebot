@@ -179,10 +179,10 @@ class TimebotTimecardsScreen(MDScreen):
         self.mode = orientation
         self.orienter.clear_widgets()
         self.add_timesheet_box()
+        self.add_horizontal_task_view()
         self.add_heading()
         self.add_timecard_selector()
         self.add_hours_label()
-        self.add_horizontal_task_view()
         self.add_column_headers()
         self.add_weekdays_box()
         self.add_weekday_task_scroller()
@@ -197,12 +197,17 @@ class TimebotTimecardsScreen(MDScreen):
         self.heading_info_box.children[0].text = f'Total: {self.app.api.get_total(tasks=dict_tasks)}'
 
     def add_timesheet_box(self):
-        self.timesheet_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, padding=[dp(10), dp(10), dp(10), dp(10)], spacing=dp(10), pos_hint=self.top_center)
+        self.timesheet_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, pos_hint=self.top_center)
         self.orienter.add_widget(self.timesheet_box)
 
+    def add_horizontal_task_view(self):
+        if self.mode == 'horizontal':
+            self.weekday_task_layout = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.weekday_width, pos_hint=self.top_left)
+            self.orienter.add_widget(self.weekday_task_layout)
+
     def add_heading(self):
-        heading_height = 80 if self.mode == 'vertical' else 44
-        self.heading_box = MDBoxLayout(orientation='vertical', size_hint=(None, None), width=self.task_width, height=dp(heading_height), padding=[dp(10), dp(10), dp(10), dp(10)], spacing=0, pos_hint=self.top_center)
+        heading_height = (self.heading_height + self.header_height if self.mode == 'vertical' else self.heading_height) + 20
+        self.heading_box = MDBoxLayout(orientation='vertical', size_hint=(None, None), width=self.task_width, height=dp(heading_height), padding=0, spacing=0, pos_hint=self.top_center)
         self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=[dp(10), dp(10), dp(10), dp(10)], spacing=0, pos_hint=self.top_center)
         self.heading_box.add_widget(self.heading_info_box)
         self.timesheet_box.add_widget(self.heading_box)
@@ -224,11 +229,6 @@ class TimebotTimecardsScreen(MDScreen):
     def add_hours_label(self):
         hours_label = MDLabel(adaptive_height=True, text='Total: ', size_hint=(None, None), width=dp(100), halign="center", font_style="Body1")
         self.heading_info_box.add_widget(hours_label)
-
-    def add_horizontal_task_view(self):
-        if self.mode == 'horizontal':
-            self.weekday_task_layout = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.weekday_width, pos_hint=self.top_left)
-            self.orienter.add_widget(self.weekday_task_layout)
 
     def add_column_headers(self):
         task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center)
