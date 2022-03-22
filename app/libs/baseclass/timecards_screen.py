@@ -201,7 +201,8 @@ class TimebotTimecardsScreen(MDScreen):
         self.orienter.add_widget(self.timesheet_box)
 
     def add_heading(self):
-        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding=[dp(10), dp(10), dp(10), dp(10)], spacing=0, pos_hint=self.top_center)
+        heading_height = 80 if self.mode == 'vertical' else 44
+        self.heading_box = MDBoxLayout(orientation='vertical', size_hint=(None, None), width=self.task_width, height=dp(heading_height), padding=[dp(10), dp(10), dp(10), dp(10)], spacing=0, pos_hint=self.top_center)
         self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=[dp(10), dp(10), dp(10), dp(10)], spacing=0, pos_hint=self.top_center)
         self.heading_box.add_widget(self.heading_info_box)
         self.timesheet_box.add_widget(self.heading_box)
