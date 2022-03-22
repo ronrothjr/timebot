@@ -86,8 +86,6 @@ class TimebotTimecardsScreen(MDScreen):
         self.add_widget(self.orienter)
         self.orienter.orient()
         self.orienter.callback = self.orient
-        self.scroller = ScrollView()
-        self.view = MDList(spacing=dp(10))
         self.check_active_event = None
         self.custom_dialog = None
         self.timesheets_modal_open = False
@@ -173,36 +171,22 @@ class TimebotTimecardsScreen(MDScreen):
 
     def load_current_timesheet(self, *args):
         self.orienter.clear_widgets()
-        self.scroller.bar_width = 0
-        self.scroller.size_hint = (0.9, 1)
-        self.scroller.pos_hint = self.top_center
-        self.scroller.add_widget(self.view)
-        self.orienter.add_widget(self.scroller)
         self.get_timecard_data(self.today[1])
         self.load_timesheet_data()
         self.schedule_check_active_event()
 
     def load_timesheet_data(self, orientation: str='vertical'):
         self.mode = orientation
-        self.view.clear_widgets()
+        self.orienter.clear_widgets()
+        self.add_timesheet_box()
         self.add_heading()
-        self.weekdays_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None), pos_hint=self.top_center)
+        self.add_timecard_selector()
+        self.add_hours_label()
+        self.add_horizontal_task_view()
+        self.add_column_headers()
+        self.add_weekdays_box()
+        self.add_weekday_task_scroller()
         self.show_weekdays()
-        self.view.add_widget(self.weekdays_box)
-        if self.mode == 'horizontal':
-            self.add_horizontal_task_view()
-        else:
-            if hasattr(self, 'weekday_task_view'):
-                self.orienter.remove_widget(self.weekday_task_view)
-
-    def add_horizontal_task_view(self):
-        self.weekday_task_view = ScrollView()
-        self.weekday_task_view.bar_width = 0
-        self.weekday_task_view.size_hint = (0.9, 1)
-        self.weekday_task_view.pos_hint = self.top_center
-        weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.weekday_width, pos_hint=self.top_left, md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
-        self.weekday_task_view.add_widget(weekday_box)
-        self.orienter.add_widget(self.weekday_task_view)
 
     def set_hours(self, tasks: List[dict]=None):
         tasks = []
@@ -212,17 +196,17 @@ class TimebotTimecardsScreen(MDScreen):
         dict_tasks = self.app.utils.data_to_dict('task', tasks)
         self.heading_info_box.children[0].text = f'Total: {self.app.api.get_total(tasks=dict_tasks)}'
 
-    def add_heading(self):
-        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
-        self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=0, spacing=0, pos_hint=self.top_center)
-        self.heading_info_box.add_widget(self.get_timecard_selector())
-        hours_label = MDLabel(adaptive_height=True, text='Total: ', size_hint=(None, None), width=dp(100), halign="center", font_style="Body1")
-        self.heading_info_box.add_widget(hours_label)
-        self.heading_box.add_widget(self.heading_info_box)
-        self.add_column_headers(self.heading_box)
-        self.view.add_widget(self.heading_box)
+    def add_timesheet_box(self):
+        self.timesheet_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, padding=[dp(10), dp(10), dp(10), dp(10)], spacing=dp(10), pos_hint=self.top_center)
+        self.orienter.add_widget(self.timesheet_box)
 
-    def get_timecard_selector(self):
+    def add_heading(self):
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint_x=None, width=self.task_width, padding=[dp(10), dp(10), dp(10), dp(10)], spacing=0, pos_hint=self.top_center)
+        self.heading_info_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.heading_height, padding=[dp(10), dp(10), dp(10), dp(10)], spacing=0, pos_hint=self.top_center)
+        self.heading_box.add_widget(self.heading_info_box)
+        self.timesheet_box.add_widget(self.heading_box)
+
+    def add_timecard_selector(self):
         timecard_selector = MDCard(padding=0, radius=[dp(7), dp(7), dp(7), dp(7)], size_hint=(None, None), width=dp(230), height=dp(30), on_release=self.choose_timesheet, line_color=(1,1,1,1))
         timecard_layout = MDRelativeLayout(size=timecard_selector.size, pos_hint=self.center_center)
         timecard_label = MDLabel(adaptive_height=True, text=f"Week of: {self.timecard.begin_date} - {self.timecard.end_date}", size_hint=(None, None), width=dp(200), height=dp(30), pos_hint={"center_x": .45, "center_y": .5}, font_style="Body2")
@@ -230,13 +214,22 @@ class TimebotTimecardsScreen(MDScreen):
         select_icon = MDIconButton(icon='chevron-down', user_font_size="20sp", pos_hint={"center_x": .95, "center_y": .5})
         timecard_layout.add_widget(select_icon)
         timecard_selector.add_widget(timecard_layout)
-        return timecard_selector
+        self.heading_info_box.add_widget(timecard_selector)
 
     def choose_timesheet(self, instance):
         self.timesheets_modal_open = True
         self.timesheets_modal.open()
 
-    def add_column_headers(self, heading_box):
+    def add_hours_label(self):
+        hours_label = MDLabel(adaptive_height=True, text='Total: ', size_hint=(None, None), width=dp(100), halign="center", font_style="Body1")
+        self.heading_info_box.add_widget(hours_label)
+
+    def add_horizontal_task_view(self):
+        if self.mode == 'horizontal':
+            self.weekday_task_layout = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.weekday_width, pos_hint=self.top_left)
+            self.orienter.add_widget(self.weekday_task_layout)
+
+    def add_column_headers(self):
         task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center)
         task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
         task_column_box.add_widget(task_edit)
@@ -246,7 +239,27 @@ class TimebotTimecardsScreen(MDScreen):
             task_column_box.add_widget(task_label)
         task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
         task_column_box.add_widget(task_delete)
-        heading_box.add_widget(task_column_box)
+        if self.mode == 'vertical':
+            self.heading_box.add_widget(task_column_box)
+        else:
+            self.weekday_task_layout.add_widget(task_column_box)
+
+    def add_weekdays_box(self):
+        self.weekdays_scroller = ScrollView(bar_width = 0, size_hint = (1, 1), pos_hint = self.top_center)
+        self.weekdays_view = MDList(adaptive_height=True, spacing=0, pos_hint=self.top_center)
+        self.weekdays_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None), pos_hint=self.top_center, spacing=dp(10), padding=[dp(10), dp(10), dp(10), dp(10)])
+        self.weekdays_view.add_widget(self.weekdays_box)
+        self.weekdays_scroller.add_widget(self.weekdays_view)
+        self.timesheet_box.add_widget(self.weekdays_scroller)
+
+    def add_weekday_task_scroller(self):
+        if self.mode == 'horizontal':
+            self.weekday_task_scroller = ScrollView(bar_width=0, size_hint=(0.9, 1), pos_hint=self.top_center)
+            self.weekday_task_view = MDList(adaptive_height=True, spacing=0, pos_hint=self.top_center)
+            self.weekday_task_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.weekday_width, pos_hint=self.top_center, md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
+            self.weekday_task_view.add_widget(self.weekday_task_box)
+            self.weekday_task_scroller.add_widget(self.weekday_task_view)
+            self.weekday_task_layout.add_widget(self.weekday_task_scroller)
 
     def show_weekdays(self):
         self.weekdays_box.clear_widgets()
@@ -281,27 +294,12 @@ class TimebotTimecardsScreen(MDScreen):
         else:
             weekday_tasks.add_widget(MDLabel(text='', size_hint=(1, None), height=5))
         weekday_box.add_widget(weekday_tasks)
-        self.view.add_widget(weekday_box)
+        self.weekdays_box.add_widget(weekday_box)
         return weekday_tasks
 
-    def add_new_task(self, instance):
-        code = os.environ["DEFAULT_PROJECT_CODE"]
-        weekday: str = instance.parent.children[3].text
-        self.app.api.switch_or_start_task(code=code, weekday=weekday, begin_date=self.today[1])
-        self.refresh_totals_and_tasks(weekday)
-
-    def expand_weekday(self, instance):
-        weekday = instance.parent.parent.children[3].text
-        self.fill_weekdays(weekday)
-        box = self.weekdays[weekday]
-        values = (True, None, box.height, 1, False)
-        (box.adaptive_height, box.size_hint_y, box.height, box.opacity, box.disabled) = values
-        remove_exander = self.mode == 'vertical'
-        if remove_exander:
-            expander = self.expanders[weekday]
-            expander.clear_widgets()
-
     def fill_weekdays(self, weekday:str=None):
+        if self.mode == 'horizontal':
+            debug = 'debug here'
         for day in self.days:
             tasks = self.tasks[day.dayid]
             dict_tasks = self.app.utils.data_to_dict('task', [task.as_dict() for task in tasks])
@@ -315,9 +313,11 @@ class TimebotTimecardsScreen(MDScreen):
 
     def fill_weekday(self, day, dict_tasks, event):
         is_expanding_weekday = self.mode == 'vertical'
-        weekday_box = self.weekdays[day.weekday] if is_expanding_weekday else self.weekday_task_view.children[0]
+        if is_expanding_weekday:
+            weekday_box = self.weekdays[day.weekday]
+        else:
+            weekday_box = self.weekday_task_box
         weekday_box.clear_widgets()
-        print(f'{day.weekday}: {len(dict_tasks)}')
         if dict_tasks:
             for task in dict_tasks:
                 self.add_task_row(task, weekday_box)
@@ -336,6 +336,24 @@ class TimebotTimecardsScreen(MDScreen):
         task_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_task, pos_hint=self.center_center)
         task_row_box.add_widget(task_delete)
         weekday_box.add_widget(task_row_box)
+
+    def add_new_task(self, instance):
+        code = os.environ["DEFAULT_PROJECT_CODE"]
+        weekday: str = instance.parent.children[3].text
+        self.app.api.switch_or_start_task(code=code, weekday=weekday, begin_date=self.today[1])
+        self.refresh_totals_and_tasks(weekday)
+
+    def expand_weekday(self, instance):
+        weekday = instance.parent.parent.children[3].text
+        print(weekday)
+        self.fill_weekdays(weekday)
+        box = self.weekdays[weekday]
+        values = (True, None, box.height, 1, False)
+        (box.adaptive_height, box.size_hint_y, box.height, box.opacity, box.disabled) = values
+        remove_exander = self.mode == 'vertical'
+        if remove_exander:
+            expander = self.expanders[weekday]
+            expander.clear_widgets()
 
     def edit_task(self, instance):
         parent_labels = [c.text for c in instance.parent.parent.parent.children[1].children if isinstance(c, MDLabel)]
