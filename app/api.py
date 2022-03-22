@@ -175,52 +175,87 @@ class API:
         return timecard
 
     @staticmethod
-    def switch_or_start_task(code: str='', weekday: str=None, begin_date: str=None):
+    def switch_or_start_task(code: str='', weekday: str=None, begin: str=None, end: str=None,  begin_date: str=None):
+        info = API.get_last_task_info(code, weekday, begin_date)
+        API.update_or_remove_tasks(info, code)
+        if info['add_break']:
+            API.add_break({'task': info['task'], 'dayid': info['dayid'], 'begin': info['last_end_str'], 'end': info['now_str']})
+        if info['add_new_to_end']:
+             info['task'].add({
+                'entryid': 0,
+                'dayid': info['dayid'],
+                'begin': begin if begin else info['last_end_str'],
+                'end': end if end else None,
+                'code': code
+            })
+        if info['add_new_now']:
+            info['task'].add({
+                'entryid': 0,
+                'dayid': info['dayid'],
+                'begin': begin if begin else info['now_str'],
+                'end': end if end else None,
+                'code': code
+            })
+
+    @staticmethod
+    def get_last_task_info(code, weekday, begin_date):
         t, n, b, w, s = API.get_now()
         is_today = weekday is None and begin_date is None or w == weekday and b == begin_date
-        now, task, day_obj, tasks = API.get_today(weekday, begin_date_orig=begin_date)
+        now, task, day, tasks = API.get_today(weekday, begin_date_orig=begin_date)
         now_str = Utils.db_format_time(now)
-        API.update_or_remove_tasks(tasks, task, code, now_str)
         last = API.get_last_task(weekday)
         last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
         last_end_str = Utils.db_format_time(last.end) if last and last.end else ''
         has_break = last_end_str and last_begin_str != now_str
         has_break_code = code != '' and last_end_str and last_end_str < now_str
         is_new_task = code != '' and not last
-        if is_today and has_break_code:
-            unbilled_project_code = Service(Setting).get('unbilled_project_code')
-            unbilled = unbilled_project_code.value if unbilled_project_code else os.environ["UNBILLED_PROJECT_CODE"]
-            new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': last_end_str, 'end': now_str, 'code': unbilled}
-            task.add(new_task)
+        add_break = is_today and has_break_code
         is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
         is_same_after_break = has_break and code == last.code
-        if not is_today:
-            if last.end:
-                new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': Utils.db_format_time(last.end), 'end': None, 'code': code}
-                task.add(new_task)
-        elif is_new_task or is_code_changed or is_same_after_break:
-            new_task = {'entryid': 0, 'dayid': day_obj.dayid, 'begin': now_str, 'end': None, 'code': code}
-            task.add(new_task)
+        add_new_to_end = not is_today and last.end
+        add_new_now = is_today and (is_new_task or is_code_changed or is_same_after_break)
+        return {
+            'now_str': now_str,
+            'dayid': day.dayid,
+            'task': task,
+            'tasks': tasks,
+            'last_end_str': last_end_str,
+            'add_break': add_break,
+            'add_new_to_end': add_new_to_end,
+            'add_new_now': add_new_now
+        }
 
     @staticmethod
-    def update_or_remove_tasks(tasks, task, code, now_str):
-        for task_obj in tasks:
-            in_progress = task_obj.end is None
-            code_change = code != '' and task_obj.code != code
-            begin_str = Utils.db_format_time(task_obj.begin)
-            end_str = Utils.db_format_time(task_obj.end) if not in_progress else ''
-            is_current = begin_str < now_str
+    def update_or_remove_tasks(info, code):
+        for task in info['tasks']:
+            in_progress = task.end is None
+            code_change = code != '' and task.code != code
+            begin_str = Utils.db_format_time(task.begin)
+            end_str = Utils.db_format_time(task.end) if not in_progress else ''
+            is_current = begin_str < info['now_str']
             is_task_end_request = is_current and in_progress
-            is_task_to_end = not in_progress and end_str > now_str
+            is_task_to_end = not in_progress and end_str > info['now_str']
             is_current_code_change = is_current and code_change and is_task_to_end
             if is_task_end_request or is_current_code_change:
-                task.update(task_obj, {'end': now_str})
-            is_future = begin_str > now_str
+                info['task'].update(task, {'end': info['now_str']})
+            is_future = begin_str > info['now_str']
             if is_future:
-                task.remove(task_obj.entryid)
-            in_progress = task_obj.end is None
-            begin_str = Utils.db_format_time(task_obj.begin)
-            end_str = Utils.db_format_time(task_obj.end) if not in_progress else ''
+                info['task'].remove(task.entryid)
+            in_progress = task.end is None
+            begin_str = Utils.db_format_time(task.begin)
+            end_str = Utils.db_format_time(task.end) if not in_progress else ''
+
+    @staticmethod
+    def add_break(info):
+        unbilled_project_code = Service(Setting).get('unbilled_project_code')
+        unbilled = unbilled_project_code.value if unbilled_project_code else os.environ.get("UNBILLED_PROJECT_CODE", '0000')
+        info['task'].add({
+            'entryid': 0,
+            'dayid': info['dayid'],
+            'begin': info['begin'],
+            'end': info['end'],
+            'code': unbilled
+        })
 
     @staticmethod
     def get_last_task(weekday: str=None, dayid: int=None):

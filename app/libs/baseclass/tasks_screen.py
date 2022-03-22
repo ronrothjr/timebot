@@ -184,7 +184,7 @@ class TimebotTasksScreen(MDScreen):
             if not is_same_day:
                 self.app.task.update(last_task, {'end': '2359'})
                 self.load_new_day()
-                self.app.api.switch_or_start_task(last_task.code)
+                self.app.api.switch_or_start_task(last_task.code, begin='0000')
             else:
                 last_dict = self.app.utils.data_row_to_dict('task', last_task.as_dict())
                 task_row_labels[2].text = last_dict['total']
