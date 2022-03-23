@@ -209,19 +209,22 @@ class TimebotTimecardsScreen(MDScreen):
         self.heading_info_box.add_widget(hours_label)
 
     def add_column_headers(self):
-        header_padding = [dp(10), 0, 0, 0] if self.mode == 'vertical' else 0
-        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.header_height, pos_hint=self.top_center)
-        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
-        task_column_box.add_widget(task_edit)
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
-        column_total = 0
+        column_total = 60
         for column in task_column_data:
             column_total += column[1]
+        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.header_height, pos_hint=self.top_center)
+        task_edit_box = MDBoxButton(orientation='horizontal', size_hint=(30 / column_total, None), height=self.header_height, pos_hint=self.center_center, padding=0, spacing=0)
+        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
+        task_edit_box.add_widget(task_edit)
+        task_column_box.add_widget(task_edit_box)
         for column in task_column_data:
-            task_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(column[1] / column_total, None), font_style="Body1")
+            task_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(column[1] / column_total, None), height=self.header_height, font_style="Body1")
             task_column_box.add_widget(task_label)
+        task_delete_box = MDBoxButton(orientation='horizontal', size_hint=(30 / column_total, None), height=self.header_height, pos_hint=self.center_center, padding=0, spacing=0)
         task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
-        task_column_box.add_widget(task_delete)
+        task_delete_box.add_widget(task_delete)
+        task_column_box.add_widget(task_delete_box)
         if self.mode == 'vertical':
             self.heading_box.add_widget(task_column_box)
         else:
@@ -318,20 +321,32 @@ class TimebotTimecardsScreen(MDScreen):
             weekday_box.add_widget(MDLabel(text='', size_hint=(1, None), height=5))
 
     def add_task_row(self, task, weekday_box):
-        task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
-        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center, on_release=self.edit_task)
-        task_row_box.add_widget(task_edit)
+        column_total = 60
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
-        column_total = 0
         for column in task_column_data:
             column_total += column[1]
+        task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
+        task_edit_box = MDBoxButton(orientation='horizontal', size_hint=(30 / column_total, None), height=self.header_height, pos_hint=self.center_center, padding=0, spacing=0, on_release=self.edit_task)
+        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
+        task_edit_box.add_widget(task_edit)
+        task_row_box.add_widget(task_edit_box)
         for column in task_column_data:
             task_column_value = task[column[2]] if task[column[2]] else '(active)'
             task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(column[1] / column_total, None), pos_hint=self.center_center, font_style="Body2")
             task_row_box.add_widget(task_label)
-        task_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_task, pos_hint=self.center_center)
-        task_row_box.add_widget(task_delete)
+        task_delete_box = MDBoxButton(orientation='horizontal', size_hint=(30 / column_total, None), height=self.header_height, pos_hint=self.center_center, padding=0, spacing=0, on_release=self.confirm_delete_task)
+        task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
+        task_delete_box.add_widget(task_delete)
+        task_row_box.add_widget(task_delete_box)
         weekday_box.add_widget(task_row_box)
+
+    # def add_new_task_row(self, weekday_box):
+    #     task_row_box = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=self.task_height, md_bg_color=gch('1a1a1a'), radius=[0, dp(0), dp(20), dp(7)], on_release=self.add_new_task)
+    #     task_row_box.add_widget(MDLabel(text='', size_hint=(.45, None), height=dp(20)))
+    #     add_task_button = MDIconButton(icon='plus', user_font_size="20sp", size_hint=(.5, None), height=dp(20), pos_hint=self.center_center)
+    #     task_row_box.add_widget(add_task_button)
+    #     task_row_box.add_widget(MDLabel(text='', size_hint=(.45, None), height=dp(20)))
+    #     weekday_box.add_widget(task_row_box)
 
     def add_new_task_row(self, weekday_box):
         task_row_box = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=self.task_height, md_bg_color=gch('1a1a1a'), radius=[0, dp(0), dp(20), dp(7)], on_release=self.add_new_task)
@@ -366,7 +381,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def edit_task(self, instance):
         parent_labels = [c.text for c in instance.parent.parent.parent.children[1].children if isinstance(c, MDLabel)]
-        labels = [c.text for c in instance.parent.children if c.text]
+        labels = [c.text for c in instance.parent.children if isinstance(c, MDLabel)]
         edit_dialog = TimebotTimecardEditTaskDialog()
         self.custom_dialog = MDDialog(
             title="Edit Task",
@@ -462,7 +477,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def confirm_delete_task(self, instance):
         parent_labels = [c.text for c in instance.parent.parent.parent.children[1].children if isinstance(c, MDLabel)]
-        labels = [c.text for c in instance.parent.children if c.text]
+        labels = [c.text for c in instance.parent.children if isinstance(c, MDLabel)]
         self.remove_me = [labels[3], labels[2], labels[0], parent_labels[1]]
         confirm_dialog = TimebotTimecardConfirmDeleteTaskDialog()
         self.custom_dialog = MDDialog(
