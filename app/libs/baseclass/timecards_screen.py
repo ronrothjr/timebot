@@ -12,6 +12,7 @@ from kivy.uix.scrollview import ScrollView
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.spinner import MDSpinner
 from kivymd.uix.list import MDList
+from kivy.uix.behaviors import ButtonBehavior
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.button import MDFlatButton, MDIconButton
@@ -37,6 +38,10 @@ class TimebotTimecardConfirmDeleteTaskDialog(MDBoxLayout):
 
 
 class MD3Card(MDCard, RoundedRectangularElevationBehavior):
+    pass
+
+
+class MDBoxButton(ButtonBehavior, MDBoxLayout):
     pass
 
 
@@ -247,7 +252,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def add_weekday(self, weekday):
         weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.weekday_width, pos_hint=self.center_center, md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
-        weekday_heading = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.weekday_width, height=self.header_height, pos_hint=self.top_center, padding=(dp(5), dp(5), dp(5), dp(5)))
+        weekday_heading = MDBoxButton(orientation='horizontal', size_hint=(None, None), width=self.weekday_width, height=self.header_height, pos_hint=self.top_center, padding=(dp(5), dp(5), dp(5), dp(5)), on_release=self.expand_weekday)
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6", size_hint=(None, None), width=dp(110), pos_hint=self.mid_center)
         weekday_heading.add_widget(weekday_label)
         totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width=dp(50), height=self.header_height, pos_hint=self.center_center, font_style="Body2")
@@ -255,7 +260,7 @@ class TimebotTimecardsScreen(MDScreen):
         weekday_heading.add_widget(totals_label)
         add_task = MDIconButton(icon='plus', on_release=self.add_new_task, user_font_size="20sp", pos_hint=self.center_center)
         weekday_heading.add_widget(add_task)
-        expanding_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(20), on_release=self.expand_weekday)
+        expanding_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(20))
         expand_icon = 'chevron-right' if self.mode == 'horizontal' else 'arrow-expand-vertical'
         if self.today[2] != weekday or self.mode == 'horizontal':
             expanding_box.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
@@ -318,7 +323,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.refresh_totals_and_tasks(weekday)
 
     def expand_weekday(self, instance):
-        weekday = instance.parent.children[3].text
+        weekday = instance.children[3].text
         print(weekday)
         self.fill_weekdays(weekday)
         box = self.weekdays[weekday]
