@@ -173,7 +173,8 @@ class API:
     @staticmethod
     def switch_or_start_task(code: str='', weekday: str=None, begin: str=None, end: str=None,  begin_date: str=None):
         info = API.get_last_task_info(code, weekday, begin_date)
-        API.update_or_remove_tasks(info, code)
+        if info['is_today']:
+            API.update_or_remove_tasks(info, code)
         if info['add_break']:
             API.add_break({'task': info['task'], 'dayid': info['dayid'], 'begin': info['last_end_str'], 'end': info['now_str']})
         if info['add_new_to_end']:
@@ -211,6 +212,7 @@ class API:
         add_new_to_end = not is_today and last.end
         add_new_now = is_today and (is_new_task or is_code_changed or is_same_after_break)
         return {
+            'is_today': is_today,
             'now_str': now_str,
             'dayid': day.dayid,
             'task': task,
