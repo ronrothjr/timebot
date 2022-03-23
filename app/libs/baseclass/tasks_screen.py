@@ -114,7 +114,7 @@ class TimebotTasksScreen(MDScreen):
         project_card = MD3Card(padding=0, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1,1,1,1), on_release=self.released)
         project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
         project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint=self.center_center)
-        project_desc_float = FloatLayout(top=dp(10))
+        project_desc_float = FloatLayout(pos_hint={'center_y': 0.25})
         project_desc_label = MDLabel(text=project.desc, adaptive_width=True, font_style="Overline", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         project_desc_float.add_widget(project_desc_label)
         project_layout.add_widget(project_label)

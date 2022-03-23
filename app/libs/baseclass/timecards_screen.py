@@ -15,6 +15,7 @@ from kivymd.uix.spinner import MDSpinner
 from kivymd.uix.list import MDList
 from kivy.uix.behaviors import ButtonBehavior
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.floatlayout import FloatLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.button import MDFlatButton, MDIconButton
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
@@ -43,6 +44,10 @@ class MD3Card(MDCard, RoundedRectangularElevationBehavior):
 
 
 class MDBoxButton(ButtonBehavior, MDBoxLayout):
+    pass
+
+
+class MDFloatButton(ButtonBehavior, FloatLayout):
     pass
 
 
@@ -213,22 +218,51 @@ class TimebotTimecardsScreen(MDScreen):
         column_total = 60
         for column in task_column_data:
             column_total += column[1]
-        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.header_height, pos_hint=self.top_center)
-        task_edit_box = MDBoxButton(orientation='horizontal', size_hint=(30 / column_total, None), height=self.header_height, pos_hint=self.center_center, padding=0, spacing=0)
-        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
-        task_edit_box.add_widget(task_edit)
-        task_column_box.add_widget(task_edit_box)
+        position = 30
+        right = position / column_total
+        print(f'right: {right}')
+        task_column_box = MDBoxLayout(orientation='vertical', size_hint=(None, None), width=self.task_width, height=self.header_height, padding=0, spacing=0, pos_hint=self.top_center)
+        task_column_layout = MDRelativeLayout(size=task_column_box.size, pos_hint=self.top_center)
+        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={'right': right, 'center_y': .5})
+        task_column_layout.add_widget(task_edit)
         for column in task_column_data:
-            task_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(column[1] / column_total, None), height=self.header_height, font_style="Body1")
-            task_column_box.add_widget(task_label)
-        task_delete_box = MDBoxButton(orientation='horizontal', size_hint=(30 / column_total, None), height=self.header_height, pos_hint=self.center_center, padding=0, spacing=0)
-        task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
-        task_delete_box.add_widget(task_delete)
-        task_column_box.add_widget(task_delete_box)
+            position += column[1]
+            right = position / column_total
+            print(f'right: {right}')
+            task_label = MDLabel(adaptive_height=True, adaptive_width=True, text=column[0], pos_hint={'right': right, 'center_y': .5}, font_style="Body1")
+            task_column_layout.add_widget(task_label)
+        position += 30
+        right = position / column_total
+        print(f'right: {right}')
+        task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={'right': right, 'center_y': .5})
+        task_column_layout.add_widget(task_delete)
+        task_column_box.add_widget(task_column_layout)
         if self.mode == 'vertical':
             self.heading_box.add_widget(task_column_box)
         else:
             self.weekday_task_layout.add_widget(task_column_box)
+
+    # def add_column_headers(self):
+    #     task_column_data = self.app.utils.schema_dict_to_tuple('task')
+    #     column_total = 60
+    #     for column in task_column_data:
+    #         column_total += column[1]
+    #     task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.task_width, height=self.header_height, pos_hint=self.top_center)
+    #     task_edit_box = MDBoxButton(orientation='horizontal', size_hint=(30 / column_total, None), height=self.header_height, pos_hint=self.center_center, padding=0, spacing=0)
+    #     task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
+    #     task_edit_box.add_widget(task_edit)
+    #     task_column_box.add_widget(task_edit_box)
+    #     for column in task_column_data:
+    #         task_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(column[1] / column_total, None), height=self.header_height, font_style="Body1")
+    #         task_column_box.add_widget(task_label)
+    #     task_delete_box = MDBoxButton(orientation='horizontal', size_hint=(30 / column_total, None), height=self.header_height, pos_hint=self.center_center, padding=0, spacing=0)
+    #     task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
+    #     task_delete_box.add_widget(task_delete)
+    #     task_column_box.add_widget(task_delete_box)
+    #     if self.mode == 'vertical':
+    #         self.heading_box.add_widget(task_column_box)
+    #     else:
+    #         self.weekday_task_layout.add_widget(task_column_box)
 
     def add_weekdays_box(self):
         self.weekdays_scroller = ScrollView(bar_width = 0, size_hint = (1, 1), pos_hint = self.top_center)
