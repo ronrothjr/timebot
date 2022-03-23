@@ -271,7 +271,7 @@ class TimebotTimecardsScreen(MDScreen):
         return weekday_tasks
 
     def add_expanding_box(self, weekday, weekday_heading):
-        expanding_box = MDBoxLayout(size_hint=(None, None), height=dp(20), width=dp(110), padding=[dp(70), 0, 0, 0], spacing=0)
+        expanding_box = MDBoxLayout(size_hint=(None, None), height=dp(20), width=dp(100), padding=[dp(60), 0, 0, 0], spacing=0)
         expand_icon = 'chevron-down' if self.today[2] == weekday else 'chevron-right'
         expanding_box.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
         self.expanders[weekday] = expanding_box
