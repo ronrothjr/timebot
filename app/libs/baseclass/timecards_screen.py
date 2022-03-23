@@ -25,6 +25,7 @@ from kivymd.uix.list import OneLineListItem
 from kivymd.uix.list import TwoLineListItem
 from .timepicker import MDTimePicker
 from kivymd.toast import toast
+from .orienter import Orienter
 
 
 class TimebotTimecardEditTaskDialog(MDBoxLayout):
@@ -37,31 +38,6 @@ class TimebotTimecardConfirmDeleteTaskDialog(MDBoxLayout):
 
 class MD3Card(MDCard, RoundedRectangularElevationBehavior):
     pass
-
-
-class Orienter(MDBoxLayout):
-
-    def __init__(self, **kw):
-        super(Orienter, self).__init__(**kw)
-        self.callback = None
-        self.orientation = 'vertical'
-        self.size = (0.9, 1)
-        self.pos_hint = {"center_x": .5, "top": 1}
-        self.spacing = dp(10)
-        self.orient()
-
-    def on_size(self, *args):
-        self.orient()
-
-    def orient(self):
-        if self.width > self.height:
-            orientation = 'horizontal'
-        else:
-            orientation = 'vertical'
-        if orientation != self.orientation:
-            self.orientation = orientation
-            if hasattr(self, 'callback'):
-                self.callback(self)
 
 
 class TimebotTimecardsScreen(MDScreen):
@@ -85,7 +61,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.orienter = Orienter()
         self.add_widget(self.orienter)
         self.orienter.orient()
-        self.orienter.callback = self.orient
+        self.orienter.set_callback(self.orient)
         self.check_active_event = None
         self.custom_dialog = None
         self.timesheets_modal_open = False

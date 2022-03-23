@@ -27,6 +27,7 @@ from kivy.uix.modalview import ModalView
 from kivymd.uix.selection import MDSelectionList
 from kivymd.uix.list import TwoLineListItem
 from kivymd.toast import toast
+from .orienter import Orienter
 from project import Project
 
 
@@ -42,31 +43,6 @@ class MD3Card(MDCard, RoundedRectangularElevationBehavior):
     pass
 
 
-class Orienter(MDBoxLayout):
-
-    def __init__(self, **kw):
-        super(Orienter, self).__init__(**kw)
-        self.callback = None
-        self.orientation = 'vertical'
-        self.size = (0.9, 1)
-        self.pos_hint = {"center_x": .5, "top": 1}
-        self.spacing = dp(10)
-        self.orient()
-
-    def on_size(self, *args):
-        self.orient()
-
-    def orient(self):
-        if self.width > self.height:
-            orientation = 'horizontal'
-        else:
-            orientation = 'vertical'
-        if orientation != self.orientation:
-            self.orientation = orientation
-            if hasattr(self, 'callback'):
-                self.callback(self)
-
-
 class TimebotTasksScreen(MDScreen):
 
     def __init__(self, **kw):
@@ -79,16 +55,16 @@ class TimebotTasksScreen(MDScreen):
         self.check_active_event = None
         self.orienter = Orienter()
         self.add_widget(self.orienter)
-        self.orienter.orient()
         self.add_project_grid()
         self.add_today()
-        self.orienter.callback = self.orient
+        self.orienter.set_callback(self.orient)
         self.orienter.orient()
         self.project_modal_open = False
         self.project_modal = self.add_project_modal()
         # self.rotate()
 
     def orient(self, orienter):
+        print(f'orienter.orientation: {orienter.orientation}')
         if orienter.orientation == 'vertical':
             self.project_scroller.size_hint_y = None
             self.project_scroller.height = dp(230)
@@ -110,7 +86,7 @@ class TimebotTasksScreen(MDScreen):
         Clock.schedule_once(partial(rotate, rotation), 1)
 
     def add_project_grid(self):
-        self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, 1), pos_hint = self.top_center)
+        self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, None), height = dp(230), pos_hint = self.top_center)
         self.project_view = MDList(adaptive_height=True, spacing=dp(10), pos_hint=self.top_center)
         project_label = MDLabel(size_hint=(1, None), height=dp(20), halign="center", text="Select a project to record a task", font_style="Body2", pos_hint={"center_x": .5})
         self.project_view.add_widget(project_label)
