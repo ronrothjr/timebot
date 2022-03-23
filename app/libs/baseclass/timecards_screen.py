@@ -331,7 +331,7 @@ class TimebotTimecardsScreen(MDScreen):
         parent_width = weekday_box.parent.parent.parent.width
         print(f'parent_width: {parent_width}')
         print(f'Window.size[0]: {Window.size[0]}')
-        padding = int(self.weekday_width / 2) - int(dp(50) / 2)
+        padding = int(self.weekday_width / 2) - int(dp(50) / 2) - dp(10)
         task_row_box = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=self.task_height, md_bg_color=gch('1a1a1a'), radius=[0, dp(0), dp(20), dp(7)], padding=[padding,0,0,0], on_release=self.add_new_task)
         add_task_button = MDIconButton(icon='plus', user_font_size="20sp", size_hint=(None, None), height=dp(20), width=dp(50), pos_hint=self.center_center)
         task_row_box.add_widget(add_task_button)        
