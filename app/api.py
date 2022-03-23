@@ -207,14 +207,14 @@ class API:
         now_str = Utils.db_format_time(now)
         last = API.get_last_task(weekday)
         last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
-        last_end_str = Utils.db_format_time(last.end) if last and last.end else ''
-        has_break = last_end_str and last_begin_str != now_str
+        last_end_str = Utils.db_format_time(last.end) if last and last.end else now_str
+        has_break = last_end_str and last_end_str != now_str and last_begin_str != now_str
         has_break_code = code != '' and last_end_str and last_end_str < now_str
         is_new_task = code != '' and not last
         add_break = is_today and has_break_code
         is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
         is_same_after_break = has_break and code == last.code
-        add_new_to_end = not is_today and last.end
+        add_new_to_end = not is_today and (not last or last and last.end)
         add_new_now = is_today and (is_new_task or is_code_changed or is_same_after_break)
         return {
             'is_today': is_today,
@@ -323,7 +323,7 @@ class API:
         begin_before_begin = previous_task and begin < previous_task['begin']
         if begin_before_begin:
             return f'Cannot start before the previous task'
-        end_before_end = end and next_task and next_task['end'] and next_task['end'] <= end
+        end_before_end = end and next_task and next_task['end'] and end > next_task['end']
         if end_before_end:
             return f'Cannot end after the next task'
         if task_obj:

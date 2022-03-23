@@ -258,11 +258,11 @@ class TimebotTimecardsScreen(MDScreen):
         totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width=dp(50), height=self.header_height, pos_hint=self.center_center, font_style="Body2")
         self.totals[weekday] = totals_label
         weekday_heading.add_widget(totals_label)
-        add_task_box = MDCard(size_hint=(None, None), height=dp(25), width=dp(50), on_release=self.add_new_task, padding=0, spacing=0)
+        add_task_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(50), padding=0, spacing=0, md_bg_color=gch('242424'), on_release=self.add_new_task)
         add_task = MDIconButton(icon='plus', user_font_size="20sp", pos_hint=self.center_center)
         add_task_box.add_widget(add_task)
         weekday_heading.add_widget(add_task_box)
-        expanding_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(20))
+        expanding_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(50), padding=0, spacing=0, md_bg_color=gch('242424'))
         expand_icon = 'chevron-right' if self.mode == 'horizontal' else 'arrow-expand-vertical'
         if self.today[2] != weekday or self.mode == 'horizontal':
             expanding_box.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
