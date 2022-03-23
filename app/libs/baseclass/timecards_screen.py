@@ -1,4 +1,5 @@
 
+from operator import is_
 import os, datetime
 from functools import partial
 from typing import List
@@ -114,7 +115,7 @@ class TimebotTimecardsScreen(MDScreen):
         day = next((d for d in self.days if d.weekday == weekday), None)
         self.tasks[day.dayid] = self.app.task.get({'dayid': day.dayid})
         self.set_hours()
-        self.fill_weekdays(weekday)
+        self.expand_weekday(weekday, keep_expanded_state=True)
 
     def add_timesheets_modal(self):
         modal = ModalView(size_hint=(None, .6), width=dp(300), auto_dismiss=True, pos_hint=self.mid_center)
@@ -276,9 +277,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.expanders[weekday] = expanding_box
         weekday_heading.add_widget(expanding_box)
 
-    def fill_weekdays(self, weekday:str=None):
-        if self.mode == 'horizontal':
-            debug = 'debug here'
+    def fill_weekdays(self, weekday: str=None, keep_expanded_state: bool=False):
         for day in self.days:
             tasks = self.tasks[day.dayid]
             dict_tasks = self.app.utils.data_to_dict('task', [task.as_dict() for task in tasks])
@@ -290,21 +289,19 @@ class TimebotTimecardsScreen(MDScreen):
                 weekday_box = self.weekday_task_box
                 weekday_box.clear_widgets()
             expand = weekday and day.weekday == weekday
-            Clock.schedule_once(partial(self.fill_weekday, day, dict_tasks, weekday_box, expand, is_expanding_weekday))
+            Clock.schedule_once(partial(self.fill_weekday, day, dict_tasks, weekday_box, expand, is_expanding_weekday, keep_expanded_state))
 
     def fill_weekday_total(self, day, dict_tasks):
         total = self.totals[day.weekday]
         total.text = f'{self.app.api.get_total(tasks=dict_tasks)}' if dict_tasks else "0:00"
 
-    def fill_weekday(self, day, dict_tasks, weekday_box, expand, is_expanding_weekday, event):
+    def fill_weekday(self, day, dict_tasks, weekday_box, expand, is_expanding_weekday, keep_expanded_state, event=None):
         is_expanded = len(weekday_box.children) > (1 if is_expanding_weekday else 0)
-        print(f'day: {day.weekday}')
-        print(f'expand: {expand}')
+        if keep_expanded_state:
+            is_expanded = not is_expanded
         if is_expanding_weekday:
             weekday_box.clear_widgets()
         if expand:
-            print(f'children: {weekday_box.children}')
-            print(f'is_expanded: {is_expanded}')
             if not is_expanded:
                 if dict_tasks:
                     for task in dict_tasks:
@@ -342,9 +339,9 @@ class TimebotTimecardsScreen(MDScreen):
         self.app.api.switch_or_start_task(code=code, weekday=weekday, begin_date=self.today[1])
         self.refresh_totals_and_tasks(weekday)
 
-    def expand_weekday(self, instance):
-        weekday = instance.children[2].text
-        self.fill_weekdays(weekday)
+    def expand_weekday(self, instance, keep_expanded_state: bool=False):
+        weekday = instance if isinstance(instance, str) else instance.children[2].text
+        self.fill_weekdays(weekday, keep_expanded_state)
         Clock.schedule_once(partial(self.update_expanders, weekday))
 
     def update_expanders(self, weekday, event):
