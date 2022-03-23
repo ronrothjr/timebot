@@ -50,7 +50,8 @@ class TimebotTasksScreen(MDScreen):
         self.app = App.get_running_app()
         self.top_center = {"center_x": .5, "top": 1}
         self.center_center = {"center_x": .5, "center_y": .5}
-        self.project_width = dp(340)
+        self.project_width = dp(360)
+        self.project_height = dp(280)
         self.today_width = dp(360)
         self.task_width = dp(340)
         self.check_active_event = None
@@ -66,10 +67,10 @@ class TimebotTasksScreen(MDScreen):
 
     def orient(self, orienter):
         if orienter.orientation == 'vertical':
-            self.project_scroller.size_hint_y = None
-            self.project_scroller.height = dp(230)
+            self.project_box.size_hint_y = None
+            self.project_box.height = self.project_height
         else:
-            self.project_scroller.size_hint_y = 1
+            self.project_box.size_hint_y = 1
         self.scroll_to_last()
 
     def on_enter(self):
@@ -85,10 +86,10 @@ class TimebotTasksScreen(MDScreen):
         Clock.schedule_once(partial(rotate, rotation), 1)
 
     def add_project_grid(self):
-        self.project_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.project_width, height=dp(300), pos_hint=self.top_center)
+        self.project_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.project_width, height=self.project_height, pos_hint=self.top_center)
         self.time_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.project_width, height=dp(40), padding=0, spacing=0, pos_hint=self.top_center)
         current_time = datetime.datetime.now().strftime("%H:%M")
-        current_time_label = MDLabel(text=current_time, size_hint=(None, None), width=self.project_width, height=dp(30), font_style="H3", halign="center")
+        current_time_label = MDLabel(text=current_time, size_hint=(None, None), width=self.project_width, height=dp(40), font_style="H3", halign="center")
         self.time_label = current_time_label
         self.time_box.add_widget(current_time_label)
         self.project_box.add_widget(self.time_box)
