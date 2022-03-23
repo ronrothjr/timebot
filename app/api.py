@@ -176,7 +176,12 @@ class API:
         if info['is_today']:
             API.update_or_remove_tasks(info, code)
         if info['add_break']:
-            API.add_break({'task': info['task'], 'dayid': info['dayid'], 'begin': info['last_end_str'], 'end': info['now_str']})
+            API.add_break({
+                'task': info['task'],
+                'dayid': info['dayid'],
+                'begin': info['last_end_str'],
+                'end': info['now_str']
+            })
         if info['add_new_to_end']:
              info['task'].add({
                 'entryid': 0,
