@@ -210,12 +210,15 @@ class TimebotTimecardsScreen(MDScreen):
 
     def add_column_headers(self):
         header_padding = [dp(10), 0, 0, 0] if self.mode == 'vertical' else 0
-        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center, padding=header_padding)
+        task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.weekday_width, height=self.header_height, pos_hint=self.top_center) #, padding=header_padding)
         task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center)
         task_column_box.add_widget(task_edit)
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
+        column_total = 0
         for column in task_column_data:
-            task_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(None, None), width=dp(column[1]), font_style="Body1")
+            column_total += column[1]
+        for column in task_column_data:
+            task_label = MDLabel(adaptive_height=True, text=column[0], size_hint=(column[1] / column_total, None), font_style="Body1")
             task_column_box.add_widget(task_label)
         task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint=self.center_center)
         task_column_box.add_widget(task_delete)
@@ -319,9 +322,12 @@ class TimebotTimecardsScreen(MDScreen):
         task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center, on_release=self.edit_task)
         task_row_box.add_widget(task_edit)
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
+        column_total = 0
+        for column in task_column_data:
+            column_total += column[1]
         for column in task_column_data:
             task_column_value = task[column[2]] if task[column[2]] else '(active)'
-            task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(None, None), width=dp(column[1]), pos_hint=self.center_center, font_style="Body2")
+            task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(column[1] / column_total, None), pos_hint=self.center_center, font_style="Body2")
             task_row_box.add_widget(task_label)
         task_delete = MDIconButton(icon="close", user_font_size="14sp", on_release=self.confirm_delete_task, pos_hint=self.center_center)
         task_row_box.add_widget(task_delete)
