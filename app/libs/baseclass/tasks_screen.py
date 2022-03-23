@@ -50,6 +50,7 @@ class TimebotTasksScreen(MDScreen):
         self.app = App.get_running_app()
         self.top_center = {"center_x": .5, "top": 1}
         self.center_center = {"center_x": .5, "center_y": .5}
+        self.project_width = dp(340)
         self.today_width = dp(360)
         self.task_width = dp(340)
         self.check_active_event = None
@@ -84,14 +85,22 @@ class TimebotTasksScreen(MDScreen):
         Clock.schedule_once(partial(rotate, rotation), 1)
 
     def add_project_grid(self):
-        self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, None), height = dp(230), pos_hint = self.top_center)
-        self.project_view = MDList(adaptive_height=True, spacing=dp(10), pos_hint=self.top_center)
+        self.project_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, None), width=self.project_width, height=dp(300), pos_hint=self.top_center)
+        self.time_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.project_width, height=dp(40), padding=0, spacing=0, pos_hint=self.top_center)
+        current_time = datetime.datetime.now().strftime("%H:%M")
+        current_time_label = MDLabel(text=current_time, size_hint=(None, None), width=self.project_width, height=dp(30), font_style="H3", halign="center")
+        self.time_label = current_time_label
+        self.time_box.add_widget(current_time_label)
+        self.project_box.add_widget(self.time_box)
         project_label = MDLabel(size_hint=(1, None), height=dp(20), halign="center", text="Select a project to record a task", font_style="Body2", pos_hint={"center_x": .5})
-        self.project_view.add_widget(project_label)
+        self.project_box.add_widget(project_label)
+        self.project_scroller = ScrollView(bar_width = 0, size_hint = (0.9, None), height = dp(200), pos_hint = self.top_center)
+        self.project_view = MDList(adaptive_height=True, spacing=dp(10), pos_hint=self.top_center)
         self.project_grid = MDGridLayout(cols=2, padding=dp(10), spacing=dp(20), adaptive_size=True, size_hint=(1, None), pos_hint=self.top_center)
         self.project_view.add_widget(self.project_grid)
         self.project_scroller.add_widget(self.project_view)
-        self.orienter.add_widget(self.project_scroller)
+        self.project_box.add_widget(self.project_scroller)
+        self.orienter.add_widget(self.project_box)
         self.show_project_grid()
 
     def show_project_grid(self):
@@ -171,15 +180,9 @@ class TimebotTasksScreen(MDScreen):
 
     def add_heading(self):
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
-        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday[0:3], size_hint_x=None, width=dp(50), font_style="H6")
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width=dp(140), font_style="H6")
         timecard: Timecard = self.app.api.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
-        self.time_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width=dp(90), padding=0, spacing=0, pos_hint=self.top_center)
-        current_time = datetime.datetime.now().strftime("%H:%M:%S")
-        current_time_label = MDLabel(adaptive_height=True, text=current_time, size_hint_x=None, width=dp(90), font_style="H6")
-        self.time_label = current_time_label
-        self.time_box.add_widget(current_time_label)
-        self.heading_box.add_widget(self.time_box)
         timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week: {timecard.begin_date} - {timecard.end_date}", font_style="Body2")
         self.heading_box.add_widget(timecard_label)
         if hasattr(self, 'show_time_interval'):
@@ -200,7 +203,7 @@ class TimebotTasksScreen(MDScreen):
         self.weekday_box.add_widget(self.task_column_box)
 
     def show_time(self, *args):
-        self.time_label.text = datetime.datetime.now().strftime("%H:%M:%S")
+        self.time_label.text = datetime.datetime.now().strftime("%H:%M")
 
     def add_task_grid(self):
         self.task_scroller = ScrollView(bar_width = 6, size_hint = (None, 1), width=self.task_width, pos_hint = self.top_center)

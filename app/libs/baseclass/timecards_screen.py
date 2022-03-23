@@ -48,7 +48,7 @@ class MDBoxButton(ButtonBehavior, MDBoxLayout):
 class TimebotTimecardsScreen(MDScreen):
 
     top_center = {"center_x": .5, "top": 1}
-    mid_center = {"center_x": .5, "top": .80}
+    mid_center = {"center_x": .5, "top": .9}
     center_center = {"center_x": .5, "center_y": .5}
     top_left = {"left": 1, "top": 1}
     today_width = dp(360)
@@ -258,16 +258,7 @@ class TimebotTimecardsScreen(MDScreen):
         totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width=dp(50), height=self.header_height, pos_hint=self.center_center, font_style="Body2")
         self.totals[weekday] = totals_label
         weekday_heading.add_widget(totals_label)
-        add_task_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(75), padding=0, spacing=0, md_bg_color=gch('242424'), on_release=self.add_new_task)
-        add_task = MDIconButton(icon='plus', user_font_size="20sp", size_hint=(None, None), height=dp(20), width=dp(50), pos_hint=self.center_center)
-        add_task_box.add_widget(add_task)
-        weekday_heading.add_widget(add_task_box)
-        expanding_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(50), padding=0, spacing=0, md_bg_color=gch('242424'))
-        expand_icon = 'chevron-right' if self.mode == 'horizontal' else 'arrow-expand-vertical'
-        if self.today[2] != weekday or self.mode == 'horizontal':
-            expanding_box.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
-        self.expanders[weekday] = expanding_box
-        weekday_heading.add_widget(expanding_box)
+        self.add_expanding_box(weekday, weekday_heading)
         weekday_box.add_widget(weekday_heading)
         weekday_tasks = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(1, None), pos_hint=self.top_center)
         if self.today[2] and self.today[2] == weekday and self.mode == 'vertical':
@@ -278,6 +269,13 @@ class TimebotTimecardsScreen(MDScreen):
         self.weekdays_box.add_widget(weekday_box)
         return weekday_tasks
 
+    def add_expanding_box(self, weekday, weekday_heading):
+        expanding_box = MDBoxLayout(size_hint=(None, None), height=dp(20), width=dp(170), padding=[dp(130), 0, 0, 0], spacing=0)
+        expand_icon = 'chevron-down' if self.today[2] == weekday else 'chevron-right'
+        expanding_box.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
+        self.expanders[weekday] = expanding_box
+        weekday_heading.add_widget(expanding_box)
+
     def fill_weekdays(self, weekday:str=None):
         if self.mode == 'horizontal':
             debug = 'debug here'
@@ -285,29 +283,43 @@ class TimebotTimecardsScreen(MDScreen):
             tasks = self.tasks[day.dayid]
             dict_tasks = self.app.utils.data_to_dict('task', [task.as_dict() for task in tasks])
             self.fill_weekday_total(day, dict_tasks)
-            if weekday and day.weekday == weekday:
-                Clock.schedule_once(partial(self.fill_weekday, day, dict_tasks))
+            is_expanding_weekday = self.mode == 'vertical'
+            if is_expanding_weekday:
+                weekday_box = self.weekdays[day.weekday]
+            else:
+                weekday_box = self.weekday_task_box
+                weekday_box.clear_widgets()
+            expand = weekday and day.weekday == weekday
+            Clock.schedule_once(partial(self.fill_weekday, day, dict_tasks, weekday_box, expand, is_expanding_weekday))
 
     def fill_weekday_total(self, day, dict_tasks):
         total = self.totals[day.weekday]
         total.text = f'{self.app.api.get_total(tasks=dict_tasks)}' if dict_tasks else "0:00"
 
-    def fill_weekday(self, day, dict_tasks, event):
-        is_expanding_weekday = self.mode == 'vertical'
+    def fill_weekday(self, day, dict_tasks, weekday_box, expand, is_expanding_weekday, event):
+        is_expanded = len(weekday_box.children) > (1 if is_expanding_weekday else 0)
+        print(f'day: {day.weekday}')
+        print(f'expand: {expand}')
         if is_expanding_weekday:
-            weekday_box = self.weekdays[day.weekday]
-        else:
-            weekday_box = self.weekday_task_box
-        weekday_box.clear_widgets()
-        if dict_tasks:
-            for task in dict_tasks:
-                self.add_task_row(task, weekday_box)
-        else:
-            weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
+            weekday_box.clear_widgets()
+        if expand:
+            print(f'children: {weekday_box.children}')
+            print(f'is_expanded: {is_expanded}')
+            if not is_expanded:
+                if dict_tasks:
+                    for task in dict_tasks:
+                        self.add_task_row(task, weekday_box)
+                else:
+                    weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
+                self.add_new_task_row(weekday_box)
+            else:
+                weekday_box.add_widget(MDLabel(text='', size_hint=(1, None), height=5))
+        elif is_expanding_weekday:
+            weekday_box.add_widget(MDLabel(text='', size_hint=(1, None), height=5))
 
     def add_task_row(self, task, weekday_box):
         task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
-        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
+        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint=self.center_center, on_release=self.edit_task)
         task_row_box.add_widget(task_edit)
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
         for column in task_column_data:
@@ -318,23 +330,36 @@ class TimebotTimecardsScreen(MDScreen):
         task_row_box.add_widget(task_delete)
         weekday_box.add_widget(task_row_box)
 
+    def add_new_task_row(self, weekday_box):
+        task_row_box = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=self.task_height, md_bg_color=gch('1a1a1a'), radius=[0, dp(0), dp(20), dp(7)], padding=[dp(150)], on_release=self.add_new_task)
+        add_task_button = MDIconButton(icon='plus', user_font_size="20sp", size_hint=(None, None), height=dp(20), width=dp(50), pos_hint=self.center_center)
+        task_row_box.add_widget(add_task_button)        
+        weekday_box.add_widget(task_row_box)
+
     def add_new_task(self, instance):
         code = os.environ["DEFAULT_PROJECT_CODE"]
-        weekday: str = instance.parent.children[3].text
+        weekday: str = instance.parent.parent.children[1].children[2].text
         self.app.api.switch_or_start_task(code=code, weekday=weekday, begin_date=self.today[1])
         self.refresh_totals_and_tasks(weekday)
 
     def expand_weekday(self, instance):
-        weekday = instance.children[3].text
-        print(weekday)
+        weekday = instance.children[2].text
         self.fill_weekdays(weekday)
-        box = self.weekdays[weekday]
-        values = (True, None, box.height, 1, False)
-        (box.adaptive_height, box.size_hint_y, box.height, box.opacity, box.disabled) = values
-        remove_exander = self.mode == 'vertical'
-        if remove_exander:
-            expander = self.expanders[weekday]
+        Clock.schedule_once(partial(self.update_expanders, weekday))
+
+    def update_expanders(self, weekday, event):
+        is_expanding_weekday = self.mode == 'vertical'
+        for day in self.days:
+            if is_expanding_weekday:
+                weekday_box = self.weekdays[day.weekday]
+            else:
+                weekday_box = self.weekday_task_box
+            expander = self.expanders[day.weekday]
+            is_expanded = len(weekday_box.children) > 1
+            is_down_chevron = is_expanding_weekday or not is_expanding_weekday and day.weekday == weekday
+            expand_icon = 'chevron-down' if is_expanded and is_down_chevron else 'chevron-right'
             expander.clear_widgets()
+            expander.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
 
     def edit_task(self, instance):
         parent_labels = [c.text for c in instance.parent.parent.parent.children[1].children if isinstance(c, MDLabel)]
