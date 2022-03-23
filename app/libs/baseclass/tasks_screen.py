@@ -64,7 +64,6 @@ class TimebotTasksScreen(MDScreen):
         # self.rotate()
 
     def orient(self, orienter):
-        print(f'orienter.orientation: {orienter.orientation}')
         if orienter.orientation == 'vertical':
             self.project_scroller.size_hint_y = None
             self.project_scroller.height = dp(230)
@@ -80,7 +79,6 @@ class TimebotTasksScreen(MDScreen):
     def rotate(self):
         rotation = Window.rotation
         def rotate(rotation, *args):
-            print(rotation)
             Window.rotation = rotation
         Clock.schedule_once(partial(rotate, 90), .5)
         Clock.schedule_once(partial(rotate, rotation), 1)
@@ -267,7 +265,6 @@ class TimebotTasksScreen(MDScreen):
         has_tasks = hasattr(self, 'weekday_box') and hasattr(self, 'tasks') and self.tasks
         if is_scrollable and has_tasks and self.task_view.children:
             available = self.weekday_box.height - self.heading_box.height - self.task_column_box.height - self.last_task_box.height
-            print(self.task_scroller.scroll_y, self.weekday_box.height, self.heading_box.height, self.task_column_box.height, self.last_task_box.height, self.task_view.height, available)
             if self.task_view.height > available and self.task_scroller.height != 100:
                 self.task_scroller.scroll_to(self.task_view.children[0])
 

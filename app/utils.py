@@ -165,5 +165,4 @@ class Utils:
     def switch_project_code_task(code: str):
         today, begin_date = Utils.get_begin_date()
         weekday = Utils.weekdays[today.weekday() + 1]
-        print(begin_date, weekday, code)
         

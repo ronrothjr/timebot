@@ -623,7 +623,6 @@ class MDTimePicker(BaseDialogPicker):
         hour = f"{int(hour):02d}"
         minute = f"{int(minute):02d}"
         if self._state != "input":
-            print([hour, minute])
             self._time_input.set_time([hour, minute])
 
     def _get_am_pm(self, selected):

@@ -100,13 +100,11 @@ class API:
             project.add({'code': 'DRG-413005', 'desc': 'Vendor Master Cap', 'show': 1})
             project.add({'code': 'DRG-000099', 'desc': 'UAT', 'show': 0})
         timecards = timecard.get({'begin_date': begin_date})
-        print(f'timecards: {timecards}')
         if not timecards:
             code = os.environ["DEFAULT_PROJECT_CODE"]
             new_timecard = Timecard(begin_date)
             new_timecard.add_days({})
             timecard_dict = new_timecard.as_dict()
-            print(f'new_timecard: {timecard_dict}')
             timecard.add(timecard_dict)
             for weekday, day_obj in timecard_dict.get('days').items():
                 tasks = day_obj.get('tasks', {})
@@ -114,7 +112,6 @@ class API:
                 for new_task in tasks.values():
                     new_task['entryid'] = 0
                     new_task['dayid'] = new_day.dayid
-                    print(new_task)
                     task.add(new_task)
 
     @staticmethod
@@ -142,7 +139,6 @@ class API:
                 'begin_date': begin_date_orig if begin_date_orig else begin_date,
                 'weekday': task_weekday if task_weekday else weekday
             }
-            print(query)
             day_obj: Day = day.get(query)[0]
         tasks = task.get({'dayid': day_obj.dayid})
         return now, task, day_obj, tasks
@@ -270,7 +266,6 @@ class API:
 
     @staticmethod
     def update_task(original, begin: str, end: str, code: str, weekday=None, begin_date=None):
-        print(begin, end, code, weekday)
         has_valid_time_lengths = len(begin) == 3 or len(begin) == 4
         if not has_valid_time_lengths:
             return f'invalid length for begin: {begin}'
@@ -329,26 +324,20 @@ class API:
             if begin_before_prev_end:
                 begin_on_prev_begin = begin == previous_task['begin']
                 if begin_on_prev_begin:
-                    print('deleting previous task')
                     task.remove(previous_obj.entryid)
                 else:
-                    print('updating previous task')
                     task.update(previous_obj, {'end': begin})
             end_after_next_begin = next_task and end and next_task['begin'] != end
             if end_after_next_begin:
                 end_on_next_end = next_task['end'] and end and end == next_task['end']
                 if end_on_next_end:
-                    print('deleting next task')
                     task.remove(next_obj.entryid)
                 else:
-                    print('updating next task')
                     task.update(next_obj, {'begin': end})
-            print('updating current task')
             task.update(task_obj, {'begin': begin, 'end': None if end == '' else end, 'code': code})
 
     @staticmethod
     def remove_task(begin: str, end: str, code: str, weekday: str=None):
-        print(begin, end, code)
         now, task, day_obj, tasks = API.get_today(weekday)
         for task_obj in tasks:
             task_dict = task_obj.as_dict()

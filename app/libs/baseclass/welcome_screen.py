@@ -53,7 +53,6 @@ class TimebotWelcomeScreen(MDScreen):
         }
         self.tour_setting = self.app.api.get_setting('version_tour')
         self.tour = self.tour_setting.value
-        print(self.tour)
 
     def on_enter(self):
         if self.tour == '0.0.0':

@@ -205,7 +205,6 @@ class Sqlite3DB:
         cursor.execute('PRAGMA foreign_keys = ON;')
         cursor.execute('BEGIN;')
         try:
-            print(sql)
             cursor.execute(sql)
             if fetch:
                 self.results = cursor.fetchall()

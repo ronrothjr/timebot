@@ -79,7 +79,7 @@ class TimebotProjectsScreen(MDScreen):
         self.view.add_widget(project_card)
 
     def edit_proj_desc(self, *args):
-        print(args)
+        args
 
     def released(self, instance):
         if instance.icon == 'plus':
@@ -117,7 +117,6 @@ class TimebotProjectsScreen(MDScreen):
             self.custom_dialog.content_cls.ids.desc.text = instance.parent.children[3].children[0].text
             self.custom_dialog.open()
         else:
-            print(instance.icon, instance.parent.children[4].text)
             self.app.api.toggle_project_code(instance.icon, instance.parent.children[4].text)
             self.show_projects()
 
@@ -143,7 +142,6 @@ class TimebotProjectsScreen(MDScreen):
         self.show_projects()
 
     def confirm_delete_project(self, instance):
-        print(instance.icon, )
         self.remove_me = instance.parent.children[4].text
         tasks = self.app.task.get({'code': self.remove_me})
         cascade_delete = self.app.api.get_setting('cascade_delete').value == '1'

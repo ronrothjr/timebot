@@ -255,10 +255,10 @@ class TimebotTimecardsScreen(MDScreen):
         weekday_heading.add_widget(totals_label)
         add_task = MDIconButton(icon='plus', on_release=self.add_new_task, user_font_size="20sp", pos_hint=self.center_center)
         weekday_heading.add_widget(add_task)
-        expanding_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height=dp(20), width=dp(20))
+        expanding_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(20), on_release=self.expand_weekday)
         expand_icon = 'chevron-right' if self.mode == 'horizontal' else 'arrow-expand-vertical'
         if self.today[2] != weekday or self.mode == 'horizontal':
-            expanding_box.add_widget(MDIconButton(icon=expand_icon, on_release=self.expand_weekday, user_font_size="20sp", pos_hint=self.center_center))
+            expanding_box.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
         self.expanders[weekday] = expanding_box
         weekday_heading.add_widget(expanding_box)
         weekday_box.add_widget(weekday_heading)
@@ -318,7 +318,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.refresh_totals_and_tasks(weekday)
 
     def expand_weekday(self, instance):
-        weekday = instance.parent.parent.children[3].text
+        weekday = instance.parent.children[3].text
         print(weekday)
         self.fill_weekdays(weekday)
         box = self.weekdays[weekday]
@@ -405,11 +405,9 @@ class TimebotTimecardsScreen(MDScreen):
         time_dialog.open()
 
     def get_begin_time(self, *args):
-        print(args)
         self.custom_dialog.content_cls.ids.begin.text = self.app.utils.db_format_time(args[0])
 
     def get_end_time(self, *args):
-        print(args)
         self.custom_dialog.content_cls.ids.end.text = self.app.utils.db_format_time(args[0])
 
     def cancel_dialog(self, *args):
