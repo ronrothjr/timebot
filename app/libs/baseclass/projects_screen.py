@@ -39,7 +39,7 @@ class TimebotProjectsScreen(MDScreen):
         self.app = App.get_running_app()
         self.scroller = ScrollView()
         self.scroller.bar_width = 0
-        self.scroller.size_hint = (0.9, 1)
+        self.scroller.size_hint = (1, 1)
         self.scroller.pos_hint = {"center_x": .5, "center_y": .5}
         self.view = MDGridLayout(cols=2, padding=dp(10), spacing=dp(20), adaptive_size=True, size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         self.show_projects()
