@@ -259,7 +259,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.totals[weekday] = totals_label
         weekday_heading.add_widget(totals_label)
         add_task_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(75), padding=0, spacing=0, md_bg_color=gch('242424'), on_release=self.add_new_task)
-        add_task = MDIconButton(icon='plus', user_font_size="20sp", pos_hint=self.center_center)
+        add_task = MDIconButton(icon='plus', user_font_size="20sp", size_hint=(None, None), height=dp(20), width=dp(50), pos_hint=self.center_center)
         add_task_box.add_widget(add_task)
         weekday_heading.add_widget(add_task_box)
         expanding_box = MDCard(size_hint=(None, None), height=dp(20), width=dp(50), padding=0, spacing=0, md_bg_color=gch('242424'))
