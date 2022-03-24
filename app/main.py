@@ -1,4 +1,13 @@
 import os, sys
+if sys.platform=="win32":
+    from kivy.config import Config
+    Config.set('graphics', 'left', '0')
+    Config.set('graphics', 'resizable', '1')
+    Config.set('graphics', 'width', '370')
+    Config.set('graphics', 'height', '832')
+    import ctypes
+    ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 0 )
+
 from pathlib import Path
 from kivy.lang import Builder
 from kivymd.app import MDApp
@@ -16,10 +25,6 @@ from timecard import Timecard
 from day import Day
 from task import Task
 from api import API
-# from kivy.config import Config
-# Config.set('graphics', 'width', '370')
-# Config.set('graphics', 'height', '760')
-# Config.write()
 
 os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
 
@@ -49,6 +54,12 @@ class MDTimebot(MDApp):
         self.utils = Utils
         self.utils.backup_db(os.environ['TIMEBOT_ROOT'])
         self.services()
+        if sys.platform=="win32":
+            import win32gui
+            import win32con
+            current = win32gui.GetForegroundWindow()
+            win32gui.SetWindowPos(current, win32con.HWND_TOPMOST, -11, 0, 370, 832, 1)
+            # win32gui.MoveWindow(current, -10, 0, 370, 872, True)
 
     def services(self):
         self.setting = Service(Setting)
@@ -65,6 +76,7 @@ class MDTimebot(MDApp):
         print(instance.icon)
 
     def build(self):
+        Window.borderless = True
         self.theme_cls.primary_palette = "Green"
         self.theme_cls.theme_style = "Dark"
         FONT_PATH = f"{os.environ['TIMEBOT_ROOT']}/assets/fonts/"

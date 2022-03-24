@@ -42,20 +42,10 @@
                 text: "TASKS"
                 icon: "clock-time-five-outline"
                 on_release:
-                    scr_manager.transition.direction = "right" \
-                    if scr_manager.current in ["PROJECTS", "TIMECARDS", "SHARE", "SETTINGS"] \
-                    else "left"
+                    scr_manager.transition.direction = "left" \
+                    if scr_manager.current in ["WELCOME"] \
+                    else "right"
                     scr_manager.current = "TASKS"
-
-            NavigationItem:
-                id: 'projects'
-                text: "PROJECTS"
-                icon: "apps"
-                on_release:
-                    scr_manager.transition.direction = "right" \
-                    if scr_manager.current in ["TIMECARDS", "SHARE", "SETTINGS"] \
-                    else "left"
-                    scr_manager.current = "PROJECTS"
 
             NavigationItem:
                 id: 'timecards'
@@ -63,18 +53,28 @@
                 icon: "file-table-box-multiple"
                 on_release:
                     scr_manager.transition.direction = "left" \
-                    if scr_manager.current in ["WELCOME", "TASKS", "PROJECTS"] \
+                    if scr_manager.current in ["WELCOME", "TASKS"] \
                     else "right"
                     scr_manager.current = "TIMECARDS"
+
+            NavigationItem:
+                id: 'projects'
+                text: "PROJECTS"
+                icon: "apps"
+                on_release:
+                    scr_manager.transition.direction = "right" \
+                    if scr_manager.current in ["SHARE", "SETTINGS"] \
+                    else "left"
+                    scr_manager.current = "PROJECTS"
 
             NavigationItem:
                 id: 'share'
                 text: "SHARE"
                 icon: "share"
                 on_release:
-                    scr_manager.transition.direction = "left" \
-                    if scr_manager.current in ["WELCOME", "TASKS", "PROJECTS", "TIMECARDS"] \
-                    else "right"
+                    scr_manager.transition.direction = "right" \
+                    if scr_manager.current in ["SETTINGS"] \
+                    else "left"
                     scr_manager.current = "SHARE"
 
             NavigationItem:
@@ -94,11 +94,11 @@
             TimebotTasksScreen:
                 name: "TASKS"
 
-            TimebotProjectsScreen:
-                name: "PROJECTS"
-
             TimebotTimecardsScreen:
                 name: "TIMECARDS"
+
+            TimebotProjectsScreen:
+                name: "PROJECTS"
 
             TimebotShareScreen:
                 name: "SHARE"
