@@ -1,3 +1,4 @@
+import os
 from repository import Repository
 from db import Sqlite3DB, DatabaseSchema
 from utils import Utils
@@ -13,13 +14,20 @@ class Service:
 
     def add(self, *args):
         obj = self.object_class(*args)
-        return self.repository.add(obj)
+        result = self.repository.add(obj)
+        Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None))
+        return result
 
     def get(self, query=None):
-        return self.repository.get(query)
+        result = self.repository.get(query)
+        return result
 
     def update(self, obj, data):
-        return self.repository.update(obj, data)
+        result = self.repository.update(obj, data)
+        Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None))
+        return result
 
     def remove(self, id_value=None):
-        return self.repository.remove(id_value)
+        result = self.repository.remove(id_value)
+        Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None))
+        return result

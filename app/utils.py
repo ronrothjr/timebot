@@ -8,11 +8,14 @@ class Utils:
     weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     @staticmethod
-    def backup_db(local_path) -> None:
+    def backup_db(local_path: str=None) -> None:
         files = Files(local_path)
+        local_path = local_path if local_path else files.local_path
+        ts = files.get_timestamp()
         files.create_path('backup')
+        files.create_path('backup', ts[:8])
         from_path = files.get_path(local_path, 'app.db')
-        to_path = files.get_path(local_path, 'backup', f'app-{files.get_timestamp()}.db')
+        to_path = files.get_path(local_path, 'backup', ts[:8], f'app-{ts}.db')
         files.copy_file(from_path, to_path)
 
     @staticmethod
