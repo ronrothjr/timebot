@@ -281,7 +281,7 @@ class TimebotTasksScreen(MDScreen):
             x = position / column_total
             position += width
             task_column_value = task[task_column[2]] if task[task_column[2]] else '(active)'
-            task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(width / column_total, None), font_style="Body2", pos_hint={'x': x, 'center_y': 0.5})
+            task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(width / column_total, None), font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})
             task_column_layout.add_widget(task_label)
         x = ( position + 10 ) / column_total
         task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5}, on_release=self.confirm_delete_task)
