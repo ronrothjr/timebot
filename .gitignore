@@ -2,6 +2,7 @@ __pycach__
 dist
 build
 kivy_venv
+app/backup
 *.spec
 *.pyc
 *.pyo

@@ -1,4 +1,4 @@
-import os, abc
+import os, abc, shutil, datetime
 
 class FilesInterface(metaclass=abc.ABCMeta):
 
@@ -41,16 +41,24 @@ class FilesInterface(metaclass=abc.ABCMeta):
 
 
 class Files(FilesInterface):
-    def __init__(self):
+    def __init__(self, local_path: str=None):
         # Used this to solve the "Finding Path" bug so I can use this on pc, mac, and linux
         # https://stackoverflow.com/questions/5137497/find-the-current-directory-and-files-directory
-        self.local_path = os.path.dirname(os.path.realpath(__file__))
+        self.local_path = local_path if local_path else os.path.dirname(os.path.realpath(__file__))
         self.path_separator = '\\' if '\\' in self.local_path else '/'
+
+    def get_timestamp(self):
+        return datetime.datetime.now().strftime('%Y%m%d%H%M%S.%f')
+
+    def get_path(self, *args) -> str:
+        path = self.path_separator.join(args)
+        return path
 
     def path_exists(self, path: str) -> bool:
         return os.path.exists(f'{self.local_path}{self.path_separator}{path}')
 
-    def create_path(self, path: str) -> bool:
+    def create_path(self, *args) -> bool:
+        path = self.get_path(*args)
         if not self.path_exists(path):
             os.makedirs(f'{self.local_path}{self.path_separator}{path}')
             return True
@@ -93,3 +101,6 @@ class Files(FilesInterface):
         file_str = records.read()
         records.close()
         return file_str
+
+    def copy_file(self, from_path: str, to_path: str) -> bool:
+        shutil.copyfile(from_path, to_path)

@@ -45,9 +45,10 @@ class MDTimebot(MDApp):
         Window.allow_screensaver = False
         self.title = "Timebot"
         self.icon = f"{os.environ['TIMEBOT_ROOT']}/assets/images/logo.png"
-        self.services()
         self.api = API
         self.utils = Utils
+        self.utils.backup_db(os.environ['TIMEBOT_ROOT'])
+        self.services()
 
     def services(self):
         self.setting = Service(Setting)

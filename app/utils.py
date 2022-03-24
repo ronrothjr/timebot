@@ -1,11 +1,21 @@
 import os, datetime
 from pathlib import Path
 from db import Sqlite3DB, DatabaseSchema
+from files import Files
 
 class Utils:
 
     weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
+    @staticmethod
+    def backup_db(local_path) -> None:
+        files = Files(local_path)
+        files.create_path('backup')
+        from_path = files.get_path(local_path, 'app.db')
+        to_path = files.get_path(local_path, 'backup', f'app-{files.get_timestamp()}.db')
+        files.copy_file(from_path, to_path)
+
+    @staticmethod
     def remove_data(schema=None) -> None:
         schema = schema if schema else Utils.get_schema()
         db = Sqlite3DB(DatabaseSchema(**schema))
