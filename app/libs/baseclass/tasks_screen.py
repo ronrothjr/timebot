@@ -55,30 +55,22 @@ class TimebotTasksScreen(MDScreen):
         self.check_active_event = None
         self.orienter = Orienter()
         self.add_widget(self.orienter)
-        self.orienter.clear_widgets()
-        self.get_today()
-        self.add_project_box()
-        self.add_heading()
-        self.add_time_box()
-        self.add_project_grid()
-        self.show_project_grid()
-        self.add_today()
-        #self.load_task_entry()
+        self.load_task_entry()
         self.orienter.set_callback(self.orient)
         self.orienter.orient()
         self.project_modal_open = False
         self.project_modal = self.add_project_modal()
         # self.rotate()
 
-    #def load_task_entry(self):
-#        self.orienter.clear_widgets()
-#        self.get_today()
-#        self.add_project_box()
-#        self.add_heading()
-#        self.add_time_box()
-#        self.add_project_grid()
-#        self.show_project_grid()
-#        self.add_today()
+    def load_task_entry(self):
+       self.orienter.clear_widgets()
+       self.get_today()
+       self.add_project_box()
+       self.add_heading()
+       self.add_time_box()
+       self.add_project_grid()
+       self.show_project_grid()
+       self.add_today()
 
     def orient(self, orienter):
         if orienter.orientation == 'vertical':
@@ -105,15 +97,17 @@ class TimebotTasksScreen(MDScreen):
         self.day = self.app.day.get({'begin_date': begin_date, 'weekday': weekday})[0]
 
     def add_project_box(self):
-        self.project_box = MDGridLayout(cols=1, adaptive_size=True, size_hint=(1, None), width=self.project_width, pos_hint=self.top_center)
+        self.project_box = MDGridLayout(cols=1, adaptive_size=True, size_hint=(.95, None), pos_hint=self.top_center)
         self.orienter.add_widget(self.project_box)
 
     def add_heading(self):
-        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint_x=None, width=self.today_width, padding=0, spacing=0, pos_hint=self.top_center)
-        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width=dp(140), font_style="H6")
+        widget_spacer = Widget(size_hint_y=None, height=dp(5))
+        self.project_box.add_widget(widget_spacer)
+        self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None), padding=0, spacing=0, pos_hint=self.top_center)
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width=dp(100), font_style="H6")
         timecard: Timecard = self.app.api.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
-        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week: {timecard.begin_date} - {timecard.end_date}", halign='right', font_style="Body2", pos_hint={'top': 1})
+        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week: {timecard.begin_date} - {timecard.end_date}", halign='right', font_style="Body2", pos_hint={'center_y': .5})
         self.heading_box.add_widget(timecard_label)
         if hasattr(self, 'show_time_interval'):
             Clock.unschedule(self.show_time_interval)
@@ -123,9 +117,9 @@ class TimebotTasksScreen(MDScreen):
         self.project_box.add_widget(widget_spacer)
 
     def add_time_box(self):
-        self.time_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), width=self.project_width, height=dp(40), padding=0, spacing=0, pos_hint=self.top_center)
+        self.time_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=dp(40), padding=0, spacing=0, pos_hint=self.top_center)
         current_time = datetime.datetime.now().strftime("%H:%M")
-        current_time_label = MDLabel(text=current_time, size_hint=(None, None), width=self.project_width, height=dp(40), font_style="H3", halign="center")
+        current_time_label = MDLabel(text=current_time, size_hint=(1, None), height=dp(40), font_style="H3", halign="center")
         self.time_label = current_time_label
         self.time_box.add_widget(current_time_label)
         self.project_box.add_widget(self.time_box)
