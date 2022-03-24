@@ -66,6 +66,7 @@ class TimebotTimecardsScreen(MDScreen):
 
     def __init__(self, **kw):
         super(TimebotTimecardsScreen, self).__init__(**kw)
+        self.date = datetime.datetime.now().date()
         self.app = App.get_running_app()
         self.weekday = None
         self.today = self.app.utils.get_begin_date()
@@ -101,12 +102,21 @@ class TimebotTimecardsScreen(MDScreen):
 
     def update_active_task_and_totals(self):
         today, begin_date, weekday = self.app.utils.get_begin_date()
+        date = today.date()
+        is_same_date = self.date == date
+        self.date = date
+        if not is_same_date:
+            Clock.schedule_once(partial(self.load_new_timecard, begin_date), 1)
+            return
         is_same_day = self.today[2] == weekday
-        weekday_box = self.weekdays[self.today[2]]
-        last_task_row = weekday_box.children[0]
-        task_row_labels = list(reversed([c for c in last_task_row.children if isinstance(c, MDLabel)]))
+        if self.mode == 'vertical':
+            weekday_box = self.weekdays[self.today[2]]
+        else:
+            weekday_box = self.weekday_task_layout
+        last_task_row = weekday_box.children[0] if weekday_box.children else None
+        task_row_labels = list(reversed([c for c in last_task_row.children if isinstance(c, MDLabel)])) if last_task_row else []
         day = next((d for d in self.days if d.weekday == weekday), None)
-        tasks = self.tasks.get(day.dayid)
+        tasks = self.tasks.get(day.dayid) if day else []
         dict_tasks = self.app.utils.data_to_dict('task', [t.as_dict() for t in tasks])
         self.totals[weekday].text = f'{self.app.api.get_total(tasks=dict_tasks)}' if tasks else '0:00'
         is_last_task_active = tasks and task_row_labels and task_row_labels[1].text == '(active)'
@@ -142,6 +152,9 @@ class TimebotTimecardsScreen(MDScreen):
         today = self.app.utils.get_begin_date()
         self.today = (self.today[0], begin_date, today[2] if self.today[1] == begin_date else None)
         self.timesheets_modal.dismiss()
+        Clock.schedule_once(partial(self.load_new_timecard, begin_date))
+
+    def load_new_timecard(self, begin_date, event=None):
         self.get_timecard_data(begin_date)
         self.load_timesheet_data()
         self.set_hours()

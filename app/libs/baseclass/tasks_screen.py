@@ -139,6 +139,7 @@ class TimebotTasksScreen(MDScreen):
             self.app.api.add_current_timecard()
         self.get_today()
         self.fill_weekday_box()
+        Clock.schedule_once(self.fill_task_grid, 1)
 
     def fill_weekday_box(self):
         self.weekday_box.clear_widgets()
