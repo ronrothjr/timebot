@@ -194,7 +194,7 @@ class TimebotTasksScreen(MDScreen):
             self.load_new_day()
 
     def update_active_task(self, is_same_day: bool):
-        last_task_row = self.task_view.children[0]
+        last_task_row = self.task_view.children[0].children[0]
         task_row_labels = list(reversed([c for c in last_task_row.children if isinstance(c, MDLabel)]))
         is_last_task_active = self.tasks and task_row_labels and task_row_labels[1].text == '(active)'
         if is_last_task_active:

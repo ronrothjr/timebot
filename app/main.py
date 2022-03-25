@@ -4,7 +4,7 @@ if sys.platform=="win32":
     Config.set('graphics', 'left', '0')
     Config.set('graphics', 'resizable', '1')
     Config.set('graphics', 'width', '370')
-    Config.set('graphics', 'height', '832')
+    Config.set('graphics', 'height', '833')
     import ctypes
     ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 0 )
 
@@ -58,7 +58,7 @@ class MDTimebot(MDApp):
             import win32gui
             import win32con
             current = win32gui.GetForegroundWindow()
-            win32gui.SetWindowPos(current, win32con.HWND_TOPMOST, -11, 0, 370, 832, 1)
+            win32gui.SetWindowPos(current, win32con.HWND_TOPMOST, -11, 0, 370, 833, 1)
             # win32gui.MoveWindow(current, -10, 0, 370, 872, True)
 
     def services(self):
