@@ -171,8 +171,8 @@ class API:
         return timecard
 
     @staticmethod
-    def switch_or_start_task(code: str='', weekday: str=None, begin: str=None, end: str=None,  begin_date: str=None):
-        info = API.get_last_task_info(code, weekday, begin_date)
+    def switch_or_start_task(code: str='', weekday: str=None, begin: str=None, end: str=None,  begin_date: str=None, same_code_override: bool=False):
+        info = API.get_last_task_info(code, weekday, begin_date, same_code_override)
         if info['is_today']:
             API.update_or_remove_tasks(info, code)
         if info['add_break']:
@@ -200,7 +200,7 @@ class API:
             })
 
     @staticmethod
-    def get_last_task_info(code, weekday, begin_date):
+    def get_last_task_info(code, weekday, begin_date, same_code_override: bool=False):
         t, n, b, w, s = API.get_now()
         is_today = weekday is None and begin_date is None or w == weekday and b == begin_date
         now, task, day, tasks = API.get_today(weekday, begin_date_orig=begin_date)
@@ -215,7 +215,7 @@ class API:
         is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
         is_same_after_break = has_break and code == last.code
         add_new_to_end = not is_today and (not last or last and last.end)
-        add_new_now = is_today and (is_new_task or is_code_changed or is_same_after_break)
+        add_new_now = is_today and (is_new_task or (is_code_changed or (same_code_override and not is_code_changed)) or is_same_after_break)
         return {
             'is_today': is_today,
             'now_str': now_str,
