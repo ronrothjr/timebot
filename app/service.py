@@ -27,6 +27,10 @@ class Service:
         Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None))
         return result
 
+    def update_no_backup(self, obj, data):
+        result = self.repository.update(obj, data)
+        return result
+
     def remove(self, id_value=None):
         result = self.repository.remove(id_value)
         Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None))

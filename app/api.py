@@ -171,8 +171,8 @@ class API:
         return timecard
 
     @staticmethod
-    def switch_or_start_task(code: str='', weekday: str=None, begin: str=None, end: str=None,  begin_date: str=None, same_code_override: bool=False):
-        info = API.get_last_task_info(code, weekday, begin_date, same_code_override)
+    def switch_or_start_task(code: str='', weekday: str=None, begin: str=None, end: str=None,  begin_date: str=None, add_new_override: bool=False):
+        info = API.get_last_task_info(code, weekday, begin_date, add_new_override)
         if info['is_today']:
             API.update_or_remove_tasks(info, code)
         if info['add_break']:
@@ -182,6 +182,8 @@ class API:
                 'begin': info['last_end_str'],
                 'end': info['now_str']
             })
+        if add_new_override and info['last_task'] and not info['last_task'].end:
+            info['task'].update(info['last_task'], {'end': info['last_end_str']})
         if info['add_new_to_end']:
              info['task'].add({
                 'entryid': 0,
@@ -200,32 +202,35 @@ class API:
             })
 
     @staticmethod
-    def get_last_task_info(code, weekday, begin_date, same_code_override: bool=False):
+    def get_last_task_info(code, weekday, begin_date, add_new_override: bool=False):
         t, n, b, w, s = API.get_now()
         is_today = weekday is None and begin_date is None or w == weekday and b == begin_date
         now, task, day, tasks = API.get_today(weekday, begin_date_orig=begin_date)
         now_str = Utils.db_format_time(now)
         last = API.get_last_task(weekday)
         last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
-        last_end_str = Utils.db_format_time(last.end) if last and last.end else now_str
+        last_end_str = Utils.db_format_time(last.end) if last and last.end else \
+            (now_str if not last or not add_new_override or now_str > last_begin_str else Utils.db_format_add_time(last_begin_str, 1))
         has_break = last_end_str and last_end_str != now_str and last_begin_str != now_str
         has_break_code = code != '' and last_end_str and last_end_str < now_str
         is_new_task = code != '' and not last
         add_break = is_today and has_break_code
         is_code_changed = code != '' and last and last.code != code and last_begin_str != now_str
         is_same_after_break = has_break and code == last.code
-        add_new_to_end = not is_today and (not last or last and last.end)
-        add_new_now = is_today and (is_new_task or (is_code_changed or (same_code_override and not is_code_changed)) or is_same_after_break)
+        add_new_to_end = add_new_override or (not is_today and (not last or last and last.end))
+        add_new_now = is_today and (is_new_task or is_code_changed or is_same_after_break)
         return {
             'is_today': is_today,
             'now_str': now_str,
             'dayid': day.dayid,
             'task': task,
             'tasks': tasks,
+            'last_task': tasks[-1] if tasks else None,
             'last_end_str': last_end_str,
             'add_break': add_break,
             'add_new_to_end': add_new_to_end,
-            'add_new_now': add_new_now
+            'add_new_now': add_new_now,
+            'add_new_override': add_new_override
         }
 
     @staticmethod
@@ -323,9 +328,9 @@ class API:
         begin_before_begin = previous_task and begin < previous_task['begin']
         if begin_before_begin:
             return f'Cannot start before the previous task'
-        end_before_end = end and next_task and next_task['end'] and end > next_task['end']
-        if end_before_end:
-            return f'Cannot end after the next task'
+        # end_before_end = end and next_task and next_task['end'] and end > next_task['end']
+        # if end_before_end:
+        #     return f'Cannot end after the next task'
         if task_obj:
             begin_before_prev_end = previous_task and previous_task['end'] != begin
             if begin_before_prev_end:
@@ -336,12 +341,23 @@ class API:
                     task.update(previous_obj, {'end': begin})
             end_after_next_begin = next_task and end and next_task['begin'] != end
             if end_after_next_begin:
-                end_on_next_end = next_task['end'] and end and end == next_task['end']
-                if end_on_next_end:
-                    task.remove(next_obj.entryid)
-                else:
-                    task.update(next_obj, {'begin': end})
+                API.move_or_cleanup_next_tasks(task, original, tasks, end)
             task.update(task_obj, {'begin': begin, 'end': None if end == '' else end, 'code': code})
+
+    @staticmethod
+    def move_or_cleanup_next_tasks(task, original, tasks, end):
+        time_diff = None
+        for obj in tasks:
+            obj_dict = obj.as_dict()
+            if obj_dict['begin'] > original[0]:
+                if not time_diff:
+                    time_delta = Utils.get_time_delta(obj_dict['begin'], end)
+                    time_diff = time_delta.seconds / 60
+                if time_diff:
+                    task.update_no_backup(obj, {
+                        'begin': Utils.db_format_add_time(obj_dict['begin'], time_diff), 
+                        'end': Utils.db_format_add_time(obj_dict['end'], time_diff)
+                    })
 
     @staticmethod
     def remove_task(begin: str, end: str, code: str, weekday: str=None):

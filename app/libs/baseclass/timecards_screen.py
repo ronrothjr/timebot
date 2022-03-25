@@ -370,7 +370,7 @@ class TimebotTimecardsScreen(MDScreen):
     def add_new_task(self, instance):
         code = os.environ["DEFAULT_PROJECT_CODE"]
         weekday: str = self.weekday
-        self.app.api.switch_or_start_task(code=code, weekday=weekday, begin_date=self.today[1], same_code_override=True)
+        self.app.api.switch_or_start_task(code=code, weekday=weekday, begin_date=self.today[1], add_new_override=True)
         self.refresh_totals_and_tasks(weekday)
 
     def expand_weekday(self, instance, keep_expanded_state: bool=False):

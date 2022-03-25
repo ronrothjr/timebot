@@ -102,7 +102,7 @@ class Utils:
         return columns
 
     @staticmethod
-    def obj_format_time(t: str):
+    def obj_format_time(t: str) -> datetime.time:
         obj_time = None
         if t:
             time_str = t
@@ -112,12 +112,42 @@ class Utils:
         return obj_time
 
     @staticmethod
-    def db_format_time(t: datetime.time):
+    def obj_format_date(t: str) -> datetime.datetime:
+        obj_date = None
+        if t:
+            time_str = t
+            hour = int(time_str[0:2])
+            minute = int(time_str[-2:])
+            obj_date = datetime.datetime(1, 1, 1, hour, minute)
+        return obj_date
+
+    @staticmethod
+    def db_format_add_time(t: str, minutes: int):
+        str_time = None
+        if t:
+            time_str = t
+            hour = int(time_str[0:2])
+            minute = int(time_str[-2:])
+            obj_date = datetime.datetime(1, 1, 1, hour, minute)
+            time_delta = datetime.timedelta(minutes=minutes)
+            obj_date += time_delta
+            str_time = Utils.db_format_time(obj_date.time())
+        return str_time
+
+    @staticmethod
+    def db_format_time(t: datetime.time) -> str:
         if t:
             hour = str(t.hour).rjust(2, '0')
             minute = str(t.minute).rjust(2, '0')
             return f'{hour}{minute}'
         return None
+
+    @staticmethod
+    def get_time_delta(t1: str, t2: str) -> datetime.timedelta:
+        obj_time = 0
+        if t1 and t2:
+            obj_time = Utils.obj_format_date(t2) - Utils.obj_format_date(t1)
+        return obj_time
 
     @staticmethod
     def data_to_tuple(table_name: str, data: list):
