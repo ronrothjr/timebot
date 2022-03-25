@@ -27,6 +27,7 @@ from kivymd.uix.list import TwoLineListItem
 from kivymd.toast import toast
 from .orienter import Orienter
 from project import Project
+from timecard import Timecard
 
 
 class TimebotEditTaskDialog(MDBoxLayout):
@@ -204,15 +205,27 @@ class TimebotTasksScreen(MDScreen):
             self.load_new_day()
 
     def add_column_headers(self):
-        self.task_column_box = MDBoxLayout(orientation='horizontal', size_hint=(0, None), height=dp(30), width=self.task_width, padding=0, spacing=0, pos_hint=self.top_center)
-        task_edit = MDIconButton(icon="pencil", size_hint_x=None, width=dp(15), user_font_size="14sp", pos_hint=self.center_center)
-        self.task_column_box.add_widget(task_edit)
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
+        column_total = 40
+        for column in task_column_data:
+            column_total += column[1]
+        position = 0
+        x = 10 / column_total
+        position += 20
+        self.task_column_box = MDBoxLayout(orientation='vertical', size_hint=(.95, None), height=dp(30), padding=0, spacing=0, pos_hint=self.top_center)
+        task_column_layout = MDRelativeLayout(size=self.task_column_box.size, pos_hint=self.top_center)
+        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5})
+        task_column_layout.add_widget(task_edit)
         for task_column in task_column_data:
-            task_label = MDLabel(text=task_column[0], size_hint=(None, None), width=dp(task_column[1]), pos_hint=self.center_center, font_style="Body1")
-            self.task_column_box.add_widget(task_label)
-        task_delete = MDIconButton(icon="close", size_hint_x=None, width=dp(15), user_font_size="14sp", pos_hint=self.center_center)
-        self.task_column_box.add_widget(task_delete)
+            width = task_column[1]
+            x = position / column_total
+            position += width
+            task_label = MDLabel(adaptive_height=True, size_hint=(width / column_total, None), text=task_column[0], font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})
+            task_column_layout.add_widget(task_label)
+        x = ( position + 10 ) / column_total
+        task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5})
+        task_column_layout.add_widget(task_delete)
+        self.task_column_box.add_widget(task_column_layout)
         self.weekday_box.add_widget(self.task_column_box)
 
     def show_time(self, *args):
@@ -252,16 +265,28 @@ class TimebotTasksScreen(MDScreen):
         self.task_view.add_widget(empty_card)
 
     def add_task_row(self, task):
-        task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(None, None), height=dp(50), width=self.task_width, spacing=0, padding=0, md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
-        task_edit = MDIconButton(icon="pencil", size_hint_x=None, width=dp(15),user_font_size="14sp", on_release=self.edit_task, pos_hint=self.center_center)
-        task_row_box.add_widget(task_edit)
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
+        column_total = 40
+        for column in task_column_data:
+            column_total += column[1]
+        position = 0
+        x = 10 / column_total
+        position += 20
+        task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=dp(50), md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
+        task_column_layout = MDRelativeLayout(size=task_row_box.size, pos_hint=self.top_center)
+        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5}, on_release=self.edit_task)
+        task_column_layout.add_widget(task_edit)
         for task_column in task_column_data:
+            width = task_column[1]
+            x = position / column_total
+            position += width
             task_column_value = task[task_column[2]] if task[task_column[2]] else '(active)'
-            task_label = MDLabel(text=task_column_value, size_hint=(None, None), width=dp(task_column[1]), pos_hint=self.center_center, font_style="Body2")
-            task_row_box.add_widget(task_label)
-        task_delete = MDIconButton(icon="close", size_hint_x=None, width=dp(15), user_font_size="14sp", on_release=self.confirm_delete_task, pos_hint=self.center_center)
-        task_row_box.add_widget(task_delete)
+            task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(width / column_total, None), font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})
+            task_column_layout.add_widget(task_label)
+        x = ( position + 10 ) / column_total
+        task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5}, on_release=self.confirm_delete_task)
+        task_column_layout.add_widget(task_delete)
+        task_row_box.add_widget(task_column_layout)
         self.task_view.add_widget(task_row_box)
 
     def show_last_task_button(self):
