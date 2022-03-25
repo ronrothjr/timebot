@@ -328,12 +328,24 @@ class TimebotTasksScreen(MDScreen):
         )
         self.edit_dialog.md_bg_color = self.app.theme_cls.bg_dark
         self.edit_dialog.open()
-        self.edit_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
-        self.edit_dialog.content_cls.ids.end_time.on_release = self.open_end_time
+        # self.edit_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
+        self.edit_dialog.content_cls.ids.begin_time.on_touch_move = self.on_touch_move_begin
+        # self.edit_dialog.content_cls.ids.end_time.on_release = self.open_end_time
+        self.edit_dialog.content_cls.ids.end_time.on_touch_move = self.on_touch_move_end
         self.edit_dialog.content_cls.ids.project_label.text = self.original_values[2]
         self.edit_dialog.content_cls.ids.project_card.on_release = self.choose_project
         self.edit_dialog.content_cls.ids.begin.text = self.original_values[0]
         self.edit_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
+
+    def on_touch_move_begin(self, touch):
+        time_str = self.edit_dialog.content_cls.ids.begin.text
+        time_change = int(touch.dy / 10) * -1
+        self.edit_dialog.content_cls.ids.begin.text = self.app.utils.db_format_add_time(time_str, time_change)
+
+    def on_touch_move_end(self, touch):
+        time_str = self.edit_dialog.content_cls.ids.end.text
+        time_change = int(touch.dy / 10) * -1
+        self.edit_dialog.content_cls.ids.end.text = self.app.utils.db_format_add_time(time_str, time_change) 
 
     def add_project_modal(self):
         modal = ModalView(size_hint=(None, None), height=dp(340), width=dp(280), auto_dismiss=True)
