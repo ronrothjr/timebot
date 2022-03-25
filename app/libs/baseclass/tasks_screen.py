@@ -334,9 +334,11 @@ class TimebotTasksScreen(MDScreen):
         self.edit_end_value = str(self.app.utils.db_format_time(datetime.datetime.now().time()) if self.original_values[1] == '(active)' else self.original_values[1])
         self.edit_dialog.content_cls.ids.begin_time.on_press = self.on_press_begin
         self.edit_dialog.content_cls.ids.begin_time.on_touch_move = self.on_touch_move_begin
+        self.edit_dialog.content_cls.ids.begin_time.on_touch_up = self.on_touch_up_begin
         # self.edit_dialog.content_cls.ids.end_time.on_release = self.open_end_time
         self.edit_dialog.content_cls.ids.end_time.on_press = self.on_press_end
         self.edit_dialog.content_cls.ids.end_time.on_touch_move = self.on_touch_move_end
+        self.edit_dialog.content_cls.ids.end_time.on_touch_up = self.on_touch_up_end
         self.edit_dialog.content_cls.ids.project_label.text = self.original_values[2]
         self.edit_dialog.content_cls.ids.project_card.on_release = self.choose_project
         self.edit_dialog.content_cls.ids.begin.text = self.original_values[0]
@@ -347,20 +349,26 @@ class TimebotTasksScreen(MDScreen):
 
     def on_touch_move_begin(self, touch):
         if self.time_touch == 'begin':
-            time_change = int(touch.dy / 5) * -1
+            time_change = int(touch.oy - touch.pos[1]) / 10
             updated_time_str = self.app.utils.db_format_add_time(self.edit_begin_value, time_change)
-            self.edit_begin_value = updated_time_str
             self.edit_dialog.content_cls.ids.begin.text = updated_time_str
+
+    def on_touch_up_begin(self, *args):
+        if self.time_touch == 'begin':
+            self.edit_begin_value = self.edit_dialog.content_cls.ids.begin.text
 
     def on_press_end(self, *args):
         self.time_touch = 'end'
 
     def on_touch_move_end(self, touch):
         if self.time_touch == 'end':
-            time_change = int(touch.dy / 5) * -1
+            time_change = int(touch.oy - touch.pos[1]) / 10
             updated_time_str = self.app.utils.db_format_add_time(self.edit_end_value, time_change)
-            self.edit_end_value = updated_time_str
             self.edit_dialog.content_cls.ids.end.text = updated_time_str
+
+    def on_touch_up_end(self, *args):
+        if self.time_touch == 'end':
+            self.edit_end_value = self.edit_dialog.content_cls.ids.end.text
 
     def add_project_modal(self):
         modal = ModalView(size_hint=(None, None), height=dp(340), width=dp(280), auto_dismiss=True)
