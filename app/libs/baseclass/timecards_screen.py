@@ -237,7 +237,7 @@ class TimebotTimecardsScreen(MDScreen):
         for column in task_column_data:
             column_total += column[1]
         position = 0
-        x = 10 / column_total
+        x = float("{:.4f}".format(10 / column_total))
         position += 20
         task_column_box = MDBoxLayout(orientation='vertical', size_hint=(.95, None), height=self.header_height, padding=0, spacing=0, pos_hint=self.top_center)
         task_column_layout = MDRelativeLayout(size=task_column_box.size, pos_hint=self.top_center)
@@ -245,7 +245,7 @@ class TimebotTimecardsScreen(MDScreen):
         task_column_layout.add_widget(task_edit)
         for column in task_column_data:
             width = column[1]
-            x = position / column_total
+            x = float("{:.4f}".format(position / column_total))
             position += width
             task_label = MDLabel(adaptive_height=True, size_hint=(width / column_total, None), text=column[0], font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})
             task_column_layout.add_widget(task_label)
@@ -352,7 +352,7 @@ class TimebotTimecardsScreen(MDScreen):
         for column in task_column_data:
             column_total += column[1]
         position = 0
-        x = 10 / column_total
+        x = float("{:.4f}".format(10 / column_total))
         position += 20
         task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
         task_column_layout = MDRelativeLayout(size=task_row_box.size, pos_hint=self.top_center)
@@ -360,7 +360,7 @@ class TimebotTimecardsScreen(MDScreen):
         task_column_layout.add_widget(task_edit)
         for column in task_column_data:
             width = column[1]
-            x = position / column_total
+            x = float("{:.4f}".format(position / column_total))
             position += width
             task_column_value = task[column[2]] if task[column[2]] else '(active)'
             task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(width / column_total, None), font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})

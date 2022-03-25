@@ -144,7 +144,7 @@ class TimebotTasksScreen(MDScreen):
     def add_project_card(self, project: Project):
         project_card = MD3Card(padding=0, radius=[dp(20), dp(7), dp(20), dp(7)], size_hint=(1, None), size=(dp(120), dp(80)), line_color=(1,1,1,1), on_release=self.released)
         project_layout = MDRelativeLayout(size=project_card.size, pos_hint=self.center_center)
-        project_label = MDLabel(text=project.code, adaptive_width=True, font_style="Body1", halign="center", size_hint=(1, None), pos_hint=self.center_center)
+        project_label = MDLabel(text=project.code, adaptive_width=True, font_style="H6", halign="center", size_hint=(1, None), pos_hint=self.center_center)
         project_desc_float = FloatLayout(pos_hint={'center_y': 0.25})
         project_desc_label = MDLabel(text=project.desc, adaptive_width=True, font_style="Overline", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
         project_desc_float.add_widget(project_desc_label)
@@ -210,7 +210,7 @@ class TimebotTasksScreen(MDScreen):
         for column in task_column_data:
             column_total += column[1]
         position = 0
-        x = 10 / column_total
+        x = float("{:.4f}".format(10 / column_total))
         position += 20
         self.task_column_box = MDBoxLayout(orientation='vertical', size_hint=(.95, None), height=dp(30), padding=0, spacing=0, pos_hint=self.top_center)
         task_column_layout = MDRelativeLayout(size=self.task_column_box.size, pos_hint=self.top_center)
@@ -218,7 +218,7 @@ class TimebotTasksScreen(MDScreen):
         task_column_layout.add_widget(task_edit)
         for task_column in task_column_data:
             width = task_column[1]
-            x = position / column_total
+            x = float("{:.4f}".format(position / column_total))
             position += width
             task_label = MDLabel(adaptive_height=True, size_hint=(width / column_total, None), text=task_column[0], font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})
             task_column_layout.add_widget(task_label)
@@ -270,7 +270,7 @@ class TimebotTasksScreen(MDScreen):
         for column in task_column_data:
             column_total += column[1]
         position = 0
-        x = 10 / column_total
+        x = float("{:.4f}".format(10 / column_total))
         position += 20
         task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=dp(50), md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)])
         task_column_layout = MDRelativeLayout(size=task_row_box.size, pos_hint=self.top_center)
@@ -278,7 +278,7 @@ class TimebotTasksScreen(MDScreen):
         task_column_layout.add_widget(task_edit)
         for task_column in task_column_data:
             width = task_column[1]
-            x = position / column_total
+            x = float("{:.4f}".format(position / column_total))
             position += width
             task_column_value = task[task_column[2]] if task[task_column[2]] else '(active)'
             task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(width / column_total, None), font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})
