@@ -63,9 +63,9 @@ class Utils:
                 'entryid': {'name': 'entryid', 'type': 'INTEGER', 'id': True},
                 'dayid': {'name': 'dayid', 'type': 'INTEGER', 'dp': 10, 'ref': 'day(dayid)', 'trigger': 'CASCADE'},
                 'begin': {'name': 'begin', 'display': 'In', 'type': 'TEXT', 'dp': 40},
-                'end': {'name': 'end', 'display': 'Out', 'type': 'TEXT', 'dp': 55},
+                'end': {'name': 'end', 'display': 'Out', 'type': 'TEXT', 'dp': 50},
                 'total': {'name': 'total', 'display': 'Elapse', 'type': 'CALCULATED', 'dp': 50, 'calc': Utils.task_total},
-                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 70, 'ref': 'project(code)', 'trigger': 'CASCADE'}
+                'code': {'name': 'code', 'display': 'Code', 'type': 'TEXT', 'dp': 80, 'ref': 'project(code)', 'trigger': 'CASCADE'}
             },
             'setting': {
                 'key': {'name': 'key', 'display': 'Key', 'type': 'TEXT', 'id': True, 'dp': 80},

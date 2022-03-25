@@ -211,12 +211,12 @@ class TimebotTasksScreen(MDScreen):
 
     def add_column_headers(self):
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
-        column_total = 40
+        column_total = 20
         for column in task_column_data:
             column_total += column[1]
         position = 0
         x = float("{:.4f}".format(10 / column_total))
-        position += 20
+        position += 10
         self.task_column_box = MDBoxLayout(orientation='vertical', size_hint=(.95, None), height=dp(30), padding=0, spacing=0, pos_hint=self.top_center)
         task_column_layout = MDRelativeLayout(size=self.task_column_box.size, pos_hint=self.top_center)
         for task_column in task_column_data:
@@ -266,12 +266,12 @@ class TimebotTasksScreen(MDScreen):
 
     def add_task_row(self, task):
         task_column_data = self.app.utils.schema_dict_to_tuple('task')
-        column_total = 40
+        column_total = 20
         for column in task_column_data:
             column_total += column[1]
         position = 0
         x = float("{:.4f}".format(10 / column_total))
-        position += 20
+        position += 10
         task_row_box = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=dp(50), md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)], on_release=self.edit_task)
         task_column_layout = MDRelativeLayout(size=task_row_box.size, pos_hint=self.top_center)
         for task_column in task_column_data:
