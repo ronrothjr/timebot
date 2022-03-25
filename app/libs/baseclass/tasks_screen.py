@@ -362,7 +362,7 @@ class TimebotTasksScreen(MDScreen):
         self.project_modal.open()
 
     def selected(self, instance):
-        self.custom_dialog.content_cls.ids.project_label.text = instance.text
+        self.edit_dialog.content_cls.ids.project_label.text = instance.text
         self.project_modal.dismiss()
 
     def open_begin_time(self, *args):

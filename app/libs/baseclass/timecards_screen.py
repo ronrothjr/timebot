@@ -393,7 +393,6 @@ class TimebotTimecardsScreen(MDScreen):
             expander.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
 
     def edit_task(self, instance):
-        parent_labels = [c.text for c in instance.parent.parent.children[1].children if isinstance(c, MDLabel)]
         labels = [c.text for c in instance.children[0].children if isinstance(c, MDLabel)]
         edit_dialog = TimebotTimecardEditTaskDialog()
         self.edit_dialog = MDDialog(
@@ -415,7 +414,7 @@ class TimebotTimecardsScreen(MDScreen):
         )
         self.edit_dialog.md_bg_color = self.app.theme_cls.bg_dark
         self.edit_dialog.open()
-        self.original_values = [labels[3], labels[2], labels[0], parent_labels[1]]
+        self.original_values = [labels[3], labels[2], labels[0], self.weekday]
         self.edit_dialog.content_cls.ids.weekday.text = f'Weekday: {self.original_values[3]}'
         self.edit_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
         self.edit_dialog.content_cls.ids.end_time.on_release = self.open_end_time
