@@ -1,5 +1,3 @@
-
-from operator import is_
 import os, datetime
 from functools import partial
 from typing import List
@@ -241,17 +239,12 @@ class TimebotTimecardsScreen(MDScreen):
         position += 20
         task_column_box = MDBoxLayout(orientation='vertical', size_hint=(.95, None), height=self.header_height, padding=0, spacing=0, pos_hint=self.top_center)
         task_column_layout = MDRelativeLayout(size=task_column_box.size, pos_hint=self.top_center)
-        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5})
-        task_column_layout.add_widget(task_edit)
         for column in task_column_data:
             width = column[1]
             x = position / column_total
             position += width
             task_label = MDLabel(adaptive_height=True, size_hint=(width / column_total, None), text=column[0], font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})
             task_column_layout.add_widget(task_label)
-        x = ( position + 10 ) / column_total
-        task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5})
-        task_column_layout.add_widget(task_delete)
         task_column_box.add_widget(task_column_layout)
         container.add_widget(task_column_box)
 
@@ -354,10 +347,8 @@ class TimebotTimecardsScreen(MDScreen):
         position = 0
         x = 10 / column_total
         position += 20
-        task_row_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=self.task_height)
+        task_row_box = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=self.task_height, on_release=self.edit_task)
         task_column_layout = MDRelativeLayout(size=task_row_box.size, pos_hint=self.top_center)
-        task_edit = MDIconButton(icon="pencil", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5}, on_release=self.edit_task)
-        task_column_layout.add_widget(task_edit)
         for column in task_column_data:
             width = column[1]
             x = position / column_total
@@ -365,9 +356,6 @@ class TimebotTimecardsScreen(MDScreen):
             task_column_value = task[column[2]] if task[column[2]] else '(active)'
             task_label = MDLabel(adaptive_height=True, text=task_column_value, size_hint=(width / column_total, None), font_style="Body1", pos_hint={'x': x, 'center_y': 0.5})
             task_column_layout.add_widget(task_label)
-        x = ( position + 10 ) / column_total
-        task_delete = MDIconButton(icon="close", user_font_size="14sp", pos_hint={'center_x': x, 'center_y': .5}, on_release=self.confirm_delete_task)
-        task_column_layout.add_widget(task_delete)
         task_row_box.add_widget(task_column_layout)
         weekday_box.add_widget(task_row_box)
 
@@ -405,31 +393,36 @@ class TimebotTimecardsScreen(MDScreen):
             expander.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
 
     def edit_task(self, instance):
-        parent_labels = [c.text for c in instance.parent.parent.parent.parent.children[1].children if isinstance(c, MDLabel)]
-        labels = [c.text for c in instance.parent.children if isinstance(c, MDLabel)]
+        parent_labels = [c.text for c in instance.parent.parent.children[1].children if isinstance(c, MDLabel)]
+        labels = [c.text for c in instance.children[0].children if isinstance(c, MDLabel)]
         edit_dialog = TimebotTimecardEditTaskDialog()
-        self.custom_dialog = MDDialog(
+        self.edit_dialog = MDDialog(
             title="Edit Task",
             type="custom",
             content_cls=edit_dialog,
             radius=[dp(20), dp(7), dp(20), dp(7)],
-            buttons=[
+            buttons=[MDFlatButton(
+                    text="DELETE",
+                    text_color=self.app.theme_cls.primary_color,
+                    on_release=self.confirm_delete_task
+                ),
                 MDFlatButton(
-                    text="SAVE", text_color=self.app.theme_cls.primary_color,
+                    text="SAVE",
+                    text_color=self.app.theme_cls.primary_color,
                     on_release=self.save_task
                 ),
             ],
         )
-        self.custom_dialog.md_bg_color = self.app.theme_cls.bg_dark
-        self.custom_dialog.open()
+        self.edit_dialog.md_bg_color = self.app.theme_cls.bg_dark
+        self.edit_dialog.open()
         self.original_values = [labels[3], labels[2], labels[0], parent_labels[1]]
-        self.custom_dialog.content_cls.ids.weekday.text = f'Weekday: {self.original_values[3]}'
-        self.custom_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
-        self.custom_dialog.content_cls.ids.end_time.on_release = self.open_end_time
-        self.custom_dialog.content_cls.ids.project_label.text = self.original_values[2]
-        self.custom_dialog.content_cls.ids.project_card.on_release = self.choose_project
-        self.custom_dialog.content_cls.ids.begin.text = self.original_values[0]
-        self.custom_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] \
+        self.edit_dialog.content_cls.ids.weekday.text = f'Weekday: {self.original_values[3]}'
+        self.edit_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
+        self.edit_dialog.content_cls.ids.end_time.on_release = self.open_end_time
+        self.edit_dialog.content_cls.ids.project_label.text = self.original_values[2]
+        self.edit_dialog.content_cls.ids.project_card.on_release = self.choose_project
+        self.edit_dialog.content_cls.ids.begin.text = self.original_values[0]
+        self.edit_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1]
 
     def add_project_modal(self):
         modal = ModalView(size_hint=(None, None), height=dp(340), width=dp(280), auto_dismiss=True)
@@ -458,13 +451,13 @@ class TimebotTimecardsScreen(MDScreen):
         self.project_modal.open()
 
     def selected_project(self, instance):
-        self.custom_dialog.content_cls.ids.project_label.text = instance.text
+        self.edit_dialog.content_cls.ids.project_label.text = instance.text
         self.project_modal.dismiss()
 
     def open_begin_time(self, *args):
         time_dialog = MDTimePicker()
         time_dialog.bind(time=self.get_begin_time)
-        begin_time = self.custom_dialog.content_cls.ids.begin.text
+        begin_time = self.edit_dialog.content_cls.ids.begin.text
         begin_time_str = f"{begin_time[0:2]}:{begin_time[2:4]}:00"
         begin_time_time = datetime.datetime.strptime(begin_time_str, '%H:%M:%S').time()
         time_dialog.set_time(begin_time_time)
@@ -473,58 +466,56 @@ class TimebotTimecardsScreen(MDScreen):
     def open_end_time(self, *args):
         time_dialog = MDTimePicker()
         time_dialog.bind(time=self.get_end_time)
-        end_time = self.custom_dialog.content_cls.ids.end.text
+        end_time = self.edit_dialog.content_cls.ids.end.text
         end_time_str = f"{end_time[0:2]}:{end_time[2:4]}:00"
         end_time_time = datetime.datetime.strptime(end_time_str, '%H:%M:%S').time()
         time_dialog.set_time(end_time_time)
         time_dialog.open()
 
     def get_begin_time(self, *args):
-        self.custom_dialog.content_cls.ids.begin.text = self.app.utils.db_format_time(args[0])
+        self.edit_dialog.content_cls.ids.begin.text = self.app.utils.db_format_time(args[0])
 
     def get_end_time(self, *args):
-        self.custom_dialog.content_cls.ids.end.text = self.app.utils.db_format_time(args[0])
+        self.edit_dialog.content_cls.ids.end.text = self.app.utils.db_format_time(args[0])
 
     def cancel_dialog(self, *args):
-        self.custom_dialog.dismiss(force=True)
+        self.edit_dialog.dismiss(force=True)
 
     def save_task(self, *args):
         weekday = self.original_values[3]
-        begin = self.custom_dialog.content_cls.ids.begin.text
-        end = self.custom_dialog.content_cls.ids.end.text
-        code = self.custom_dialog.content_cls.ids.project_label.text
+        begin = self.edit_dialog.content_cls.ids.begin.text
+        end = self.edit_dialog.content_cls.ids.end.text
+        code = self.edit_dialog.content_cls.ids.project_label.text
         error = self.app.api.update_task(self.original_values, begin, end, code, weekday, begin_date=self.today[1])
         if error:
-            self.custom_dialog.content_cls.ids.error.text = error
+            self.edit_dialog.content_cls.ids.error.text = error
         else:
-            self.custom_dialog.dismiss(force=True)
+            self.edit_dialog.dismiss(force=True)
             self.refresh_totals_and_tasks(weekday)
 
     def confirm_delete_task(self, instance):
-        parent_labels = [c.text for c in instance.parent.parent.parent.parent.children[1].children if isinstance(c, MDLabel)]
-        labels = [c.text for c in instance.parent.children if isinstance(c, MDLabel)]
-        self.remove_me = [labels[3], labels[2], labels[0], parent_labels[1]]
         confirm_dialog = TimebotTimecardConfirmDeleteTaskDialog()
-        self.custom_dialog = MDDialog(
+        self.confirm_dialog = MDDialog(
             title="Delete Task",
             type="custom",
             content_cls=confirm_dialog,
             radius=[dp(20), dp(7), dp(20), dp(7)],
             buttons=[
                 MDFlatButton(
-                    text="DELETE", text_color=self.app.theme_cls.primary_color,
+                    text="CONFIRM", text_color=self.app.theme_cls.primary_color,
                     on_release=self.delete_task
                 ),
             ],
         )
-        self.custom_dialog.md_bg_color = self.app.theme_cls.bg_dark
-        self.custom_dialog.content_cls.ids.weekday.text = f'Weekday: {self.remove_me[3]}'
-        self.custom_dialog.content_cls.ids.begin.text = f'Begin: {self.remove_me[0]}'
-        self.custom_dialog.content_cls.ids.end.text = f'End: {"" if self.remove_me[1] == "(active)" else self.remove_me[1]}'
-        self.custom_dialog.content_cls.ids.code.text = f'Code: {self.remove_me[2]}'
-        self.custom_dialog.open()
+        self.confirm_dialog.md_bg_color = self.app.theme_cls.bg_dark
+        self.confirm_dialog.content_cls.ids.weekday.text = f'Weekday: {self.original_values[3]}'
+        self.confirm_dialog.content_cls.ids.begin.text = f'Begin: {self.original_values[0]}'
+        self.confirm_dialog.content_cls.ids.end.text = f'End: {"" if self.original_values[1] == "(active)" else self.original_values[1]}'
+        self.confirm_dialog.content_cls.ids.code.text = f'Code: {self.original_values[2]}'
+        self.confirm_dialog.open()
 
     def delete_task(self, instance):
-        self.custom_dialog.dismiss(force=True)
-        self.app.api.remove_task(*self.remove_me)
-        self.refresh_totals_and_tasks(self.remove_me[3])
+        self.confirm_dialog.dismiss(force=True)
+        self.edit_dialog.dismiss(force=True)
+        self.app.api.remove_task(*self.original_values)
+        self.refresh_totals_and_tasks(self.original_values[3])
