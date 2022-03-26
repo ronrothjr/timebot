@@ -1,0 +1,117 @@
+#: import environ os.environ
+#: import dp kivy.metrics.dp
+
+<TimebotEditTaskDialog>
+    orientation: "vertical"
+    spacing: dp(20)
+    size_hint_y: None
+    height: dp(240)
+
+    MDLabel:
+        id: error
+        text: ""
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 0, 0, 1
+        size_hint: (1, 1)
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_x: None
+        width: dp(140)
+
+        MDTextField:
+            id: begin
+            hint_text: 'Begin Time'
+            size_hint_x: None
+            width: dp(180)
+            font_size: '24sp'
+            font_style: 'H6'
+    
+        MDIconButton:
+            id: begin_time
+            icon: 'timeline-clock-outline'
+            font_size: '24sp'
+            pos_hint: {'center_y': 1}
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        size_hint_x: None
+        width: dp(140)
+
+        MDTextField:
+            id: end
+            hint_text: "End Time"
+            size_hint_x: None
+            width: dp(180)
+            font_size: '24sp'
+            font_style: 'H6'
+    
+        MDIconButton:
+            id: end_time
+            icon: 'timeline-clock-outline'
+            font_size: '24sp'
+            pos_hint: {'center_y': 1}
+    
+    MDBoxLayout:
+        id: project_box
+        orientation: 'horizontal'
+        size_hint: None, None
+        width: dp(100)
+        height: dp(30)
+        padding: 0
+        spacing: 0
+
+        MDCard:
+            id: project_card
+            padding: 0
+            radius: dp(7), dp(7), dp(7), dp(7)
+            size_hint: None, None
+            width: dp(230)
+            height: dp(30)
+            line_color: 1,1,1,1
+            
+            MDRelativeLayout:
+                size_hint: None, None
+                width: dp(230)
+                height: dp(30)
+                pos_hint: {"center_x": .5, "center_y": .5}
+
+                MDLabel:
+                    id: project_label
+                    text: ''
+                    size_hint: None, None
+                    width: dp(200)
+                    height: dp(30)
+                    pos_hint: {"center_x": .45, "center_y": .5}
+                    font_style: "Body1"
+
+                MDIconButton:
+                    icon: 'chevron-down'
+                    user_font_size: "20sp"
+                    pos_hint: {"center_x": .95, "center_y": .5}
+
+<TimebotConfirmDeleteTaskDialog>
+    orientation: "vertical"
+    spacing: dp(12)
+    size_hint_y: None
+    height: dp(200)
+
+    MDLabel:
+        id: error
+        text: "Delete this task?"
+        halign: "center"
+        theme_text_color: "Custom"
+        text_color: 1, 0, 0, 1
+
+    MDLabel:
+        id: begin
+        text: "Begin Time"
+
+    MDLabel:
+        id: end
+        text: "End Time"
+
+    MDLabel:
+        id: code
+        text: "Project Code"

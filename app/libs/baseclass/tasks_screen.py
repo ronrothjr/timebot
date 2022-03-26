@@ -7,6 +7,7 @@ from kivy.core.window import Window
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
+from kivymd.uix.taptargetview import MDTapTargetView
 from kivy.uix.scrollview import ScrollView
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
 from kivymd.uix.screen import MDScreen
@@ -27,16 +28,9 @@ from kivymd.uix.selection import MDSelectionList
 from kivymd.uix.list import TwoLineListItem
 from kivymd.toast import toast
 from .orienter import Orienter
+from .task_edit import TaskEdit
 from project import Project
 from timecard import Timecard
-
-
-class TimebotEditTaskDialog(MDBoxLayout):
-    pass
-
-
-class TimebotConfirmDeleteTaskDialog(MDBoxLayout):
-    pass
 
 
 class MD3Card(MDCard, RoundedRectangularElevationBehavior):
@@ -61,11 +55,10 @@ class TimebotTasksScreen(MDScreen):
         self.check_active_event = None
         self.orienter = Orienter()
         self.add_widget(self.orienter)
+        self.task_edit = TaskEdit(self.task_edit_callback)
         self.load_task_entry()
         self.orienter.set_callback(self.orient)
         self.orienter.orient()
-        self.project_modal_open = False
-        self.project_modal = self.add_project_modal()
         # self.rotate()
 
     def load_task_entry(self):
@@ -157,6 +150,11 @@ class TimebotTasksScreen(MDScreen):
         project_layout.add_widget(project_desc_float)
         project_card.add_widget(project_layout)
         self.project_grid.add_widget(project_card)
+
+    def released(self, instance):
+        self.app.api.switch_or_start_task(instance.children[0].children[1].text)
+        self.fill_task_grid()
+        self.scroll_to_last()
 
     def add_today(self):
         self.weekday_box = MDBoxLayout(adaptive_height=True, orientation='vertical', size_hint=(None, 1), width=self.today_width, spacing=dp(5), pos_hint=self.top_center)
@@ -272,7 +270,7 @@ class TimebotTasksScreen(MDScreen):
         position = 0
         x = float("{:.4f}".format(10 / column_total))
         position += 10
-        task_row_box = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=dp(50), md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)], on_release=self.edit_task)
+        task_row_box = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=dp(50), md_bg_color=gch('242424'), radius=[dp(20), dp(7), dp(20), dp(7)], on_release=self.task_edit.edit_task)
         task_column_layout = MDRelativeLayout(size=task_row_box.size, pos_hint=self.top_center)
         for task_column in task_column_data:
             width = task_column[1]
@@ -284,13 +282,16 @@ class TimebotTasksScreen(MDScreen):
         task_row_box.add_widget(task_column_layout)
         self.task_view.add_widget(task_row_box)
 
+    def task_edit_callback(self):
+        self.fill_task_grid()
+
     def show_last_task_button(self):
         last_task = self.app.api.get_last_task()
         widget_spacer = Widget(size_hint_y=None, height=dp(10))
         self.last_task_box.add_widget(widget_spacer)
         end_task = last_task and not last_task.end
         button_text = 'End Current' if end_task else 'Resume Last'
-        button_action = self.end_task if end_task else self.continue_task
+        button_action = self.task_edit.end_task if end_task else self.task_edit.continue_task
         end_task_button = MDRoundFlatButton(text=f"{button_text} Task", on_release=button_action, pos_hint=self.center_center, line_color=gch('ffffff'))
         self.last_task_box.add_widget(end_task_button)
         widget_spacer = Widget(size_hint_y=None, height=dp(20))
@@ -303,210 +304,3 @@ class TimebotTasksScreen(MDScreen):
             available = self.weekday_box.height - self.heading_box.height - self.task_column_box.height - self.last_task_box.height
             if self.task_view.height > available and self.task_scroller.height != 100:
                 self.task_scroller.scroll_to(self.task_view.children[0])
-
-    def edit_task(self, instance):
-        labels = [c.text for c in instance.children[0].children]
-        self.original_values = [labels[3], labels[2], labels[0]]
-        edit_dialog = TimebotEditTaskDialog()
-        self.edit_dialog = MDDialog(
-            title="Edit Task",
-            type="custom",
-            content_cls=edit_dialog,
-            radius=[dp(20), dp(7), dp(20), dp(7)],
-            buttons=[
-                MDFlatButton(
-                    text="DELETE",
-                    text_color=gch('903030'),
-                    on_release=self.confirm_delete_task
-                ),
-                MDFlatButton(
-                    text="SAVE",
-                    text_color=self.app.theme_cls.primary_color,
-                    on_release=self.save_task
-                ),
-            ],
-        )
-        self.edit_dialog.md_bg_color = self.app.theme_cls.bg_dark
-        self.edit_dialog.open()
-        self.time_touch = ''
-        # self.edit_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
-        self.edit_begin_value = self.app.utils.am_pm_format(self.original_values[0])
-        self.edit_end_value = self.app.utils.am_pm_format(self.app.utils.db_format_time(datetime.datetime.now().time()) if self.original_values[1] == '(active)' else self.original_values[1])
-        self.edit_dialog.content_cls.ids.begin_time.on_press = self.on_press_begin
-        self.edit_dialog.content_cls.ids.begin_time.on_touch_move = self.on_touch_move_begin
-        self.edit_dialog.content_cls.ids.begin_time.on_touch_up = self.on_touch_up_begin
-        # self.edit_dialog.content_cls.ids.end_time.on_release = self.open_end_time
-        self.edit_dialog.content_cls.ids.end_time.on_press = self.on_press_end
-        self.edit_dialog.content_cls.ids.end_time.on_touch_move = self.on_touch_move_end
-        self.edit_dialog.content_cls.ids.end_time.on_touch_up = self.on_touch_up_end
-        self.edit_dialog.content_cls.ids.project_label.text = self.original_values[2]
-        self.edit_dialog.content_cls.ids.project_card.on_release = self.choose_project
-        self.edit_dialog.content_cls.ids.begin.text = self.app.utils.am_pm_format(self.original_values[0])
-        self.edit_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.app.utils.am_pm_format(self.original_values[1])
-
-    def on_press_begin(self, *args):
-        self.time_touch = 'begin'
-        self.set_time_min_max(self.edit_begin_value)
-
-    def set_time_min_max(self, time_str: str):
-        time_min = datetime.datetime.strptime('01/01/0001 00:00', '%m/%d/%Y %H:%M')
-        time_max = datetime.datetime.strptime('01/01/0001 23:59', '%m/%d/%Y %H:%M')
-        obj_time = datetime.datetime.strptime(f'01/01/0001 {time_str}', '%m/%d/%Y %I:%M %p') if time_str else None
-        self.change_min = int((time_min - obj_time).total_seconds() / 60) if time_str else None
-        self.change_max= int((time_max - obj_time).total_seconds() / 60) if time_str else None
-
-    def on_touch_move_begin(self, touch):
-        if self.time_touch == 'begin':
-            time_change = int((touch.oy - touch.pos[1]) / 20)
-            if self.change_min is not None and time_change < self.change_min:
-                time_change = self.change_min
-            if self.change_min is not None and time_change > self.change_max:
-                time_change = self.change_max
-            if time_change == 0:
-                return
-            updated_time_str = self.app.utils.db_format_add_time(self.edit_begin_value, time_change)
-            end = self.edit_dialog.content_cls.ids.end.text
-            end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end))
-            if end and updated_time_str >= end:
-                updated_time_str = self.app.utils.db_format_add_time(end, -1)
-            updated_time_str = self.app.utils.am_pm_format(updated_time_str)
-            self.edit_dialog.content_cls.ids.begin.text = updated_time_str
-
-    def on_touch_up_begin(self, *args):
-        if self.time_touch == 'begin':
-            self.edit_begin_value = self.edit_dialog.content_cls.ids.begin.text
-
-    def on_press_end(self, *args):
-        self.time_touch = 'end'
-        self.set_time_min_max(self.edit_end_value)
-
-    def on_touch_move_end(self, touch):
-        if self.time_touch == 'end':
-            time_change = int((touch.oy - touch.pos[1]) / 20)
-            if self.change_min is not None and time_change < self.change_min:
-                time_change = self.change_min
-            if self.change_min is not None and time_change > self.change_max:
-                time_change = self.change_max
-            if time_change == 0:
-                return
-            updated_time_str = self.app.utils.db_format_add_time(self.edit_end_value, time_change)
-            begin = self.edit_dialog.content_cls.ids.begin.text
-            begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
-            if updated_time_str <= begin:
-                updated_time_str = self.app.utils.db_format_add_time(begin, 1)
-            updated_time_str = self.app.utils.am_pm_format(updated_time_str)
-            self.edit_dialog.content_cls.ids.end.text = updated_time_str
-
-    def on_touch_up_end(self, *args):
-        if self.time_touch == 'end':
-            self.edit_end_value = self.edit_dialog.content_cls.ids.end.text
-
-    def add_project_modal(self):
-        modal = ModalView(size_hint=(None, None), height=dp(340), width=dp(280), auto_dismiss=True)
-        modal_box = MDBoxLayout(orientation="vertical", size_hint=(1,1), pos_hint=self.top_center, padding=[dp(5),dp(5),dp(5),dp(5)])
-        modal_text = MDLabel(text="Select a project code:", size_hint=(None, None), height=dp(50), width=dp(200), pos_hint=self.top_center, font_style="H6")
-        modal_box.add_widget(modal_text)
-        view = ScrollView()
-        self.project_list = MDSelectionList(spacing=dp(12))
-        view.add_widget(self.project_list)
-        modal_box.add_widget(view)
-        modal.add_widget(modal_box)
-        return modal
-
-    def choose_project(self, *args):
-        self.project_list.clear_widgets()
-        projects: List[Project] = sorted(self.app.project.get(), key=(lambda p: p.code))
-        for project in projects:
-            self.project_list.add_widget(TwoLineListItem(
-                text=project.code,
-                secondary_text=project.desc,
-                _no_ripple_effect=True,
-                on_release=self.selected,
-                secondary_font_style="Body2"
-            ))
-        self.project_modal_open = True
-        self.project_modal.open()
-
-    def selected(self, instance):
-        self.edit_dialog.content_cls.ids.project_label.text = instance.text
-        self.project_modal.dismiss()
-
-    def open_begin_time(self, *args):
-        time_dialog = MDTimePicker()
-        time_dialog.bind(time=self.get_begin_time)
-        begin_time = self.edit_dialog.content_cls.ids.begin.text
-        begin_time_str = f"{begin_time[0:2]}:{begin_time[2:4]}:00"
-        begin_time_time = datetime.datetime.strptime(begin_time_str, '%H:%M:%S').time()
-        time_dialog.set_time(begin_time_time)
-        time_dialog.open()
-
-    def open_end_time(self, *args):
-        time_dialog = MDTimePicker()
-        time_dialog.bind(time=self.get_end_time)
-        end_time = self.edit_dialog.content_cls.ids.end.text
-        end_time_str = f"{end_time[0:2]}:{end_time[2:4]}:00"
-        end_time_time = datetime.datetime.strptime(end_time_str, '%H:%M:%S').time()
-        time_dialog.set_time(end_time_time)
-        time_dialog.open()
-
-    def get_begin_time(self, *args):
-        self.edit_dialog.content_cls.ids.begin.text = self.app.utils.db_format_time(args[0])
-
-    def get_end_time(self, *args):
-        self.edit_dialog.content_cls.ids.end.text = self.app.utils.db_format_time(args[0])
-
-    def released(self, instance):
-        self.app.api.switch_or_start_task(instance.children[0].children[1].text)
-        self.fill_task_grid()
-        self.scroll_to_last()
-
-    def cancel_dialog(self, *args):
-        self.edit_dialog.dismiss(force=True)
-
-    def save_task(self, *args):
-        begin = self.edit_dialog.content_cls.ids.begin.text
-        begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
-        end = self.edit_dialog.content_cls.ids.end.text
-        end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end)) if end else ''
-        code = self.edit_dialog.content_cls.ids.project_label.text
-        error = self.app.api.update_task(self.original_values, begin, end, code)
-        if error:
-            self.edit_dialog.content_cls.ids.error.text = error
-        else:
-            self.edit_dialog.dismiss(force=True)
-            self.fill_task_grid()
-
-    def confirm_delete_task(self, instance):
-        confirm_dialog = TimebotConfirmDeleteTaskDialog()
-        self.confirm_dialog = MDDialog(
-            title="Delete Task",
-            type="custom",
-            content_cls=confirm_dialog,
-            radius=[dp(20), dp(7), dp(20), dp(7)],
-            buttons=[
-                MDFlatButton(
-                    text="CONFIRM",
-                    text_color=self.app.theme_cls.primary_color,
-                    on_release=self.delete_task
-                ),
-            ],
-        )
-        self.confirm_dialog.md_bg_color = self.app.theme_cls.bg_dark
-        self.confirm_dialog.content_cls.ids.begin.text = f'Begin: {self.original_values[0]}'
-        self.confirm_dialog.content_cls.ids.end.text = f'End: {self.original_values[1]}'
-        self.confirm_dialog.content_cls.ids.code.text = f'Code: {self.original_values[2]}'
-        self.confirm_dialog.open()
-
-    def delete_task(self, instance):
-        self.confirm_dialog.dismiss(force=True)
-        self.edit_dialog.dismiss(force=True)
-        self.app.api.remove_task(*self.original_values)
-        self.fill_task_grid()
-
-    def end_task(self, instance):
-        self.app.api.switch_or_start_task()
-        self.fill_task_grid()
-
-    def continue_task(self, instance):
-        self.app.api.resume_task()
-        self.fill_task_grid()

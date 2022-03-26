@@ -108,7 +108,7 @@ class Utils:
         h = int(t[0:2])
         if ':' in t:
             m = int(t[3:5])
-            if 'PM' in t:
+            if 'PM' in t and h != 12:
                 h += 12
             if 'AM' in t and h == 12:
                 h -= 12
