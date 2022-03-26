@@ -350,15 +350,10 @@ class TimebotTasksScreen(MDScreen):
 
     def set_time_min_max(self, time_str: str):
         time_min = datetime.datetime.strptime('01/01/0001 00:00', '%m/%d/%Y %H:%M')
-        print(time_min)
         time_max = datetime.datetime.strptime('01/01/0001 23:59', '%m/%d/%Y %H:%M')
-        print(time_max)
         obj_time = datetime.datetime.strptime(f'01/01/0001 {time_str}', '%m/%d/%Y %I:%M %p') if time_str else None
-        print(obj_time)
         self.change_min = int((time_min - obj_time).total_seconds() / 60) if time_str else None
         self.change_max= int((time_max - obj_time).total_seconds() / 60) if time_str else None
-        print(f'self.change_min: {self.change_min}')
-        print(f'self.change_max: {self.change_max}')
 
     def on_touch_move_begin(self, touch):
         if self.time_touch == 'begin':
@@ -369,7 +364,6 @@ class TimebotTasksScreen(MDScreen):
                 time_change = self.change_max
             if time_change == 0:
                 return
-            print(f'time_change: {time_change}')
             updated_time_str = self.app.utils.db_format_add_time(self.edit_begin_value, time_change)
             end = self.edit_dialog.content_cls.ids.end.text
             end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end))
@@ -393,6 +387,8 @@ class TimebotTasksScreen(MDScreen):
                 time_change = self.change_min
             if self.change_min is not None and time_change > self.change_max:
                 time_change = self.change_max
+            if time_change == 0:
+                return
             updated_time_str = self.app.utils.db_format_add_time(self.edit_end_value, time_change)
             begin = self.edit_dialog.content_cls.ids.begin.text
             begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
