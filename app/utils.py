@@ -85,8 +85,10 @@ class Utils:
         end = task.get('end') if task.get('end') else Utils.db_format_time(datetime.datetime.now().time())
         if end < begin:
             end = '2359'
-        time_1 = datetime.datetime.strptime(f'{begin[0:2]}:{begin[-2:]}:00',"%H:%M:%S")
-        time_2 = datetime.datetime.strptime(f'{end[0:2]}:{end[-2:]}:00',"%H:%M:%S")
+        h, m = Utils.get_int_from_time_str(begin)
+        time_1 = datetime.datetime(1, 1, 1, h, m)
+        h, m = Utils.get_int_from_time_str(end)
+        time_2 = datetime.datetime(1, 1, 1, h, m)
         diff: datetime.timedelta = time_2 - time_1
         minutes = int(diff.total_seconds() / 60)
         time_str = f'{int(minutes / 60)}:{str(minutes % 60).rjust(2, "0")}'
@@ -102,33 +104,49 @@ class Utils:
         return columns
 
     @staticmethod
+    def get_int_from_time_str(t: str) -> (int, int):
+        h = int(t[0:2])
+        if ':' in t:
+            m = int(t[3:5])
+            if 'PM' in t:
+                h += 12
+            if 'AM' in t and h == 12:
+                h -= 12
+        else:
+            m = int(t[-2:])
+        return h, m
+
+    @staticmethod
     def obj_format_time(t: str) -> datetime.time:
         obj_time = None
         if t:
-            time_str = t
-            hour = int(time_str[0:2])
-            minute = int(time_str[-2:])
-            obj_time = datetime.time(hour, minute)
+            h, m = Utils.get_int_from_time_str(t)
+            obj_time = datetime.time(h, m)
         return obj_time
 
     @staticmethod
     def obj_format_date(t: str) -> datetime.datetime:
         obj_date = None
         if t:
-            time_str = t
-            hour = int(time_str[0:2])
-            minute = int(time_str[-2:])
-            obj_date = datetime.datetime(1, 1, 1, hour, minute)
+            h, m = Utils.get_int_from_time_str(t)
+            obj_date = datetime.datetime(1, 1, 1, h, m)
         return obj_date
+
+    @staticmethod
+    def am_pm_format(t: str):
+        str_time = None
+        if t:
+            h, m = Utils.get_int_from_time_str(t)
+            obj_date = datetime.datetime(1, 1, 1, h, m)
+            str_time = obj_date.strftime("%I:%M %p")
+        return str_time
 
     @staticmethod
     def db_format_add_time(t: str, minutes: int):
         str_time = None
         if t:
-            time_str = t
-            hour = int(time_str[0:2])
-            minute = int(time_str[-2:])
-            obj_date = datetime.datetime(1, 1, 1, hour, minute)
+            h, m = Utils.get_int_from_time_str(t)
+            obj_date = datetime.datetime(1, 1, 1, h, m)
             time_delta = datetime.timedelta(minutes=minutes)
             obj_date += time_delta
             str_time = Utils.db_format_time(obj_date.time())

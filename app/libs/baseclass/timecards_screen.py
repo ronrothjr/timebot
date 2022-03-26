@@ -111,7 +111,7 @@ class TimebotTimecardsScreen(MDScreen):
             weekday_box = self.weekdays[self.today[2]]
         else:
             weekday_box = self.weekday_task_layout
-        last_task_row = weekday_box.children[1].children[0] if len(weekday_box.children) > 1 else None
+        last_task_row = weekday_box.children[1].children[0] if len(weekday_box.children) > 1 and weekday_box.children[1].children else None
         task_row_labels = list(reversed([c for c in last_task_row.children if isinstance(c, MDLabel)])) if last_task_row else []
         day = next((d for d in self.days if d.weekday == weekday), None)
         tasks = self.tasks.get(day.dayid) if day else []

@@ -330,8 +330,8 @@ class TimebotTasksScreen(MDScreen):
         self.edit_dialog.open()
         self.time_touch = ''
         # self.edit_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
-        self.edit_begin_value = str(self.original_values[0])
-        self.edit_end_value = str(self.app.utils.db_format_time(datetime.datetime.now().time()) if self.original_values[1] == '(active)' else self.original_values[1])
+        self.edit_begin_value = self.app.utils.am_pm_format(self.original_values[0])
+        self.edit_end_value = self.app.utils.am_pm_format(self.app.utils.db_format_time(datetime.datetime.now().time()) if self.original_values[1] == '(active)' else self.original_values[1])
         self.edit_dialog.content_cls.ids.begin_time.on_press = self.on_press_begin
         self.edit_dialog.content_cls.ids.begin_time.on_touch_move = self.on_touch_move_begin
         self.edit_dialog.content_cls.ids.begin_time.on_touch_up = self.on_touch_up_begin
@@ -341,16 +341,41 @@ class TimebotTasksScreen(MDScreen):
         self.edit_dialog.content_cls.ids.end_time.on_touch_up = self.on_touch_up_end
         self.edit_dialog.content_cls.ids.project_label.text = self.original_values[2]
         self.edit_dialog.content_cls.ids.project_card.on_release = self.choose_project
-        self.edit_dialog.content_cls.ids.begin.text = self.original_values[0]
-        self.edit_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.original_values[1] 
+        self.edit_dialog.content_cls.ids.begin.text = self.app.utils.am_pm_format(self.original_values[0])
+        self.edit_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.app.utils.am_pm_format(self.original_values[1])
 
     def on_press_begin(self, *args):
         self.time_touch = 'begin'
+        self.set_time_min_max(self.edit_begin_value)
+
+    def set_time_min_max(self, time_str: str):
+        time_min = datetime.datetime.strptime('01/01/0001 00:00', '%m/%d/%Y %H:%M')
+        print(time_min)
+        time_max = datetime.datetime.strptime('01/01/0001 23:59', '%m/%d/%Y %H:%M')
+        print(time_max)
+        obj_time = datetime.datetime.strptime(f'01/01/0001 {time_str}', '%m/%d/%Y %I:%M %p') if time_str else None
+        print(obj_time)
+        self.change_min = int((time_min - obj_time).total_seconds() / 60) if time_str else None
+        self.change_max= int((time_max - obj_time).total_seconds() / 60) if time_str else None
+        print(f'self.change_min: {self.change_min}')
+        print(f'self.change_max: {self.change_max}')
 
     def on_touch_move_begin(self, touch):
         if self.time_touch == 'begin':
-            time_change = int(touch.oy - touch.pos[1]) / 10
+            time_change = int((touch.oy - touch.pos[1]) / 20)
+            if self.change_min is not None and time_change < self.change_min:
+                time_change = self.change_min
+            if self.change_min is not None and time_change > self.change_max:
+                time_change = self.change_max
+            if time_change == 0:
+                return
+            print(f'time_change: {time_change}')
             updated_time_str = self.app.utils.db_format_add_time(self.edit_begin_value, time_change)
+            end = self.edit_dialog.content_cls.ids.end.text
+            end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end))
+            if end and updated_time_str >= end:
+                updated_time_str = self.app.utils.db_format_add_time(end, -1)
+            updated_time_str = self.app.utils.am_pm_format(updated_time_str)
             self.edit_dialog.content_cls.ids.begin.text = updated_time_str
 
     def on_touch_up_begin(self, *args):
@@ -359,11 +384,21 @@ class TimebotTasksScreen(MDScreen):
 
     def on_press_end(self, *args):
         self.time_touch = 'end'
+        self.set_time_min_max(self.edit_end_value)
 
     def on_touch_move_end(self, touch):
         if self.time_touch == 'end':
-            time_change = int(touch.oy - touch.pos[1]) / 10
+            time_change = int((touch.oy - touch.pos[1]) / 20)
+            if self.change_min is not None and time_change < self.change_min:
+                time_change = self.change_min
+            if self.change_min is not None and time_change > self.change_max:
+                time_change = self.change_max
             updated_time_str = self.app.utils.db_format_add_time(self.edit_end_value, time_change)
+            begin = self.edit_dialog.content_cls.ids.begin.text
+            begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
+            if updated_time_str <= begin:
+                updated_time_str = self.app.utils.db_format_add_time(begin, 1)
+            updated_time_str = self.app.utils.am_pm_format(updated_time_str)
             self.edit_dialog.content_cls.ids.end.text = updated_time_str
 
     def on_touch_up_end(self, *args):
@@ -434,7 +469,9 @@ class TimebotTasksScreen(MDScreen):
 
     def save_task(self, *args):
         begin = self.edit_dialog.content_cls.ids.begin.text
+        begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
         end = self.edit_dialog.content_cls.ids.end.text
+        end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end)) if end else ''
         code = self.edit_dialog.content_cls.ids.project_label.text
         error = self.app.api.update_task(self.original_values, begin, end, code)
         if error:
