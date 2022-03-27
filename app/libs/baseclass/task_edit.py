@@ -1,4 +1,5 @@
 import datetime
+import pydash as _
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
 from typing import List
@@ -134,8 +135,6 @@ class TaskEdit():
                 time_change = self.change_max
             if time_change == 0:
                 return
-            print(f'self.edit_end_value: {self.edit_end_value}')
-            print(f'time_change: {time_change}')
             updated_time_str = self.app.utils.db_format_add_time(self.edit_end_value, time_change)
             begin = self.edit_dialog.content_cls.ids.begin.text
             begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
@@ -206,17 +205,18 @@ class TaskEdit():
         self.edit_dialog.dismiss(force=True)
 
     def save_task(self, *args):
-        begin = self.edit_dialog.content_cls.ids.begin.text
+        ids = self.edit_dialog.content_cls.ids
+        begin = ids.begin.text
         begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
-        end = self.edit_dialog.content_cls.ids.end.text
+        end = ids.end.text
         end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end)) if end else ''
-        code = self.edit_dialog.content_cls.ids.project_label.text
+        code = ids.project_label.text
         error = self.app.api.update_task(self.original_values, begin, end, code)
         if error:
             self.edit_dialog.content_cls.ids.error.text = error
         else:
             self.edit_dialog.dismiss(force=True)
-            self.callback()
+            self.callback('save', self.original_values, begin, end, code)
 
     def confirm_delete_task(self, instance):
         confirm_dialog = TimebotConfirmDeleteTaskDialog()
@@ -242,13 +242,4 @@ class TaskEdit():
     def delete_task(self, instance):
         self.confirm_dialog.dismiss(force=True)
         self.edit_dialog.dismiss(force=True)
-        self.app.api.remove_task(*self.original_values)
-        self.callback()
-
-    def end_task(self, instance):
-        self.app.api.switch_or_start_task()
-        self.callback()
-
-    def continue_task(self, instance):
-        self.app.api.resume_task()
-        self.callback()
+        self.callback('delete', self.original_values)

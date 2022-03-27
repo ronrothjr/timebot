@@ -117,7 +117,7 @@ class TimebotTasksScreen(MDScreen):
 
     def add_time_box(self):
         self.time_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=dp(40), padding=0, spacing=0, pos_hint=self.top_center)
-        current_time = datetime.datetime.now().strftime("%H:%M")
+        current_time = self.app.utils.am_pm_format(datetime.datetime.now().strftime("%H:%M"))
         current_time_label = MDLabel(text=current_time, size_hint=(1, None), height=dp(40), font_style="H3", halign="center")
         self.time_label = current_time_label
         self.time_box.add_widget(current_time_label)
@@ -227,7 +227,7 @@ class TimebotTasksScreen(MDScreen):
         self.weekday_box.add_widget(self.task_column_box)
 
     def show_time(self, *args):
-        self.time_label.text = datetime.datetime.now().strftime("%H:%M")
+        self.time_label.text = self.app.utils.am_pm_format(datetime.datetime.now().strftime("%H:%M"))
 
     def add_task_grid(self):
         self.task_scroller = ScrollView(bar_width = 6, size_hint = (None, 1), width=self.task_width, pos_hint = self.top_center)
@@ -282,7 +282,11 @@ class TimebotTasksScreen(MDScreen):
         task_row_box.add_widget(task_column_layout)
         self.task_view.add_widget(task_row_box)
 
-    def task_edit_callback(self):
+    def task_edit_callback(self, action, original, begin: str=None, end: str=None, code: str=None):
+        if action == 'save':
+            self.app.api.update_task(original, begin, end, code)
+        elif action == 'delete':
+            self.app.api.remove_task(*original)
         self.fill_task_grid()
 
     def show_last_task_button(self):
@@ -291,11 +295,19 @@ class TimebotTasksScreen(MDScreen):
         self.last_task_box.add_widget(widget_spacer)
         end_task = last_task and not last_task.end
         button_text = 'End Current' if end_task else 'Resume Last'
-        button_action = self.task_edit.end_task if end_task else self.task_edit.continue_task
+        button_action = self.end_task if end_task else self.continue_task
         end_task_button = MDRoundFlatButton(text=f"{button_text} Task", on_release=button_action, pos_hint=self.center_center, line_color=gch('ffffff'))
         self.last_task_box.add_widget(end_task_button)
         widget_spacer = Widget(size_hint_y=None, height=dp(20))
         self.last_task_box.add_widget(widget_spacer)
+
+    def end_task(self, instance):
+        self.app.api.switch_or_start_task()
+        self.fill_task_grid()
+
+    def continue_task(self, instance):
+        self.app.api.resume_task()
+        self.fill_task_grid()
 
     def scroll_to_last(self):
         is_scrollable = hasattr(self, 'task_scroller') and hasattr(self, 'task_view')

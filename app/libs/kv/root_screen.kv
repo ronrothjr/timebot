@@ -38,14 +38,14 @@
                     scr_manager.current = "WELCOME"
 
             NavigationItem:
-                id: 'entry'
-                text: "TASKS"
+                id: 'today'
+                text: "TODAY"
                 icon: "clock-time-five-outline"
                 on_release:
                     scr_manager.transition.direction = "left" \
                     if scr_manager.current in ["WELCOME"] \
                     else "right"
-                    scr_manager.current = "TASKS"
+                    scr_manager.current = "TODAY"
 
             NavigationItem:
                 id: 'timecards'
@@ -53,7 +53,7 @@
                 icon: "file-table-box-multiple"
                 on_release:
                     scr_manager.transition.direction = "left" \
-                    if scr_manager.current in ["WELCOME", "TASKS"] \
+                    if scr_manager.current in ["WELCOME", "TODAY"] \
                     else "right"
                     scr_manager.current = "TIMECARDS"
 
@@ -92,7 +92,7 @@
                 name: "WELCOME"
 
             TimebotTasksScreen:
-                name: "TASKS"
+                name: "TODAY"
 
             TimebotTimecardsScreen:
                 name: "TIMECARDS"

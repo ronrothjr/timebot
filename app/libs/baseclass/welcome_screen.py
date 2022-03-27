@@ -22,7 +22,7 @@ class TimebotWelcomeScreen(MDScreen):
             '0.0.0': [
                 {
                     'name': 'entry_tip',
-                    'title': 'This is the Entry screen',
+                    'title': 'This is the Today screen',
                     'desc': None,
                     'card_desc': 'Go here to record and edit tasks for today',
                     'widget_pos': 'center',

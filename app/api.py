@@ -173,7 +173,7 @@ class API:
     @staticmethod
     def switch_or_start_task(code: str='', weekday: str=None, begin: str=None, end: str=None,  begin_date: str=None, add_new_override: bool=False):
         info = API.get_last_task_info(code, weekday, begin_date, add_new_override)
-        if info['is_today']:
+        if info['is_today'] and not add_new_override:
             API.update_or_remove_tasks(info, code)
         if info['add_break']:
             API.add_break({
@@ -184,7 +184,7 @@ class API:
             })
         if add_new_override and info['last_task'] and not info['last_task'].end:
             info['task'].update(info['last_task'], {'end': info['last_end_str']})
-        if info['add_new_to_end']:
+        if info['add_new_to_end'] and not info['add_break']:
              info['task'].add({
                 'entryid': 0,
                 'dayid': info['dayid'],
@@ -192,7 +192,7 @@ class API:
                 'end': end if end else None,
                 'code': code
             })
-        if info['add_new_now']:
+        elif info['add_new_now']:
             info['task'].add({
                 'entryid': 0,
                 'dayid': info['dayid'],
@@ -207,7 +207,7 @@ class API:
         is_today = weekday is None and begin_date is None or w == weekday and b == begin_date
         now, task, day, tasks = API.get_today(weekday, begin_date_orig=begin_date)
         now_str = Utils.db_format_time(now)
-        last = API.get_last_task(weekday)
+        last = API.get_last_task(weekday, day.dayid)
         last_begin_str = Utils.db_format_time(last.begin) if last and last.begin else ''
         last_end_str = Utils.db_format_time(last.end) if last and last.end else \
             (now_str if not last or not add_new_override or now_str > last_begin_str else Utils.db_format_add_time(last_begin_str, 1))
@@ -360,8 +360,8 @@ class API:
                     })
 
     @staticmethod
-    def remove_task(begin: str, end: str, code: str, weekday: str=None):
-        now, task, day_obj, tasks = API.get_today(weekday)
+    def remove_task(begin: str, end: str, code: str, weekday: str=None, begin_date=None):
+        now, task, day_obj, tasks = API.get_today(weekday, begin_date_orig=begin_date)
         for task_obj in tasks:
             task_dict = task_obj.as_dict()
             if task_dict['begin'] == begin:
