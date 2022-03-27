@@ -217,6 +217,7 @@ class TaskEdit():
         else:
             self.edit_dialog.dismiss(force=True)
             self.callback('save', self.original_values, begin, end, code)
+            toast('Saved task')
 
     def confirm_delete_task(self, instance):
         confirm_dialog = TimebotConfirmDeleteTaskDialog()
@@ -243,3 +244,4 @@ class TaskEdit():
         self.confirm_dialog.dismiss(force=True)
         self.edit_dialog.dismiss(force=True)
         self.callback('delete', self.original_values)
+        toast('Deleted task')

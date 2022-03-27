@@ -273,7 +273,7 @@ class TimebotTimecardsScreen(MDScreen):
         weekday_heading = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center, padding=(dp(15), dp(5), dp(5), dp(5)), on_release=self.expand_weekday)
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6", size_hint=(None, None), width=dp(150), pos_hint=self.center_center)
         weekday_heading.add_widget(weekday_label)
-        totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width=dp(60), height=self.header_height, pos_hint=self.center_center, font_style="H6")
+        totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width=dp(50), height=self.header_height, pos_hint=self.center_center, font_style="Body1")
         self.totals[weekday] = totals_label
         weekday_heading.add_widget(totals_label)
         self.add_expanding_box(weekday, weekday_heading)
@@ -288,7 +288,7 @@ class TimebotTimecardsScreen(MDScreen):
         return weekday_tasks
 
     def add_expanding_box(self, weekday, weekday_heading):
-        expanding_box = MDBoxLayout(size_hint=(None, None), height=dp(20), width=dp(80), padding=[dp(60), 0, 0, 0], spacing=0)
+        expanding_box = MDBoxLayout(size_hint=(None, None), height=dp(20), width=dp(100), padding=[dp(60), 0, 0, 0], spacing=0)
         expand_icon = 'chevron-down' if self.today[2] == weekday else 'chevron-right'
         expanding_box.add_widget(MDIconButton(icon=expand_icon, user_font_size="20sp", pos_hint=self.center_center))
         self.expanders[weekday] = expanding_box
