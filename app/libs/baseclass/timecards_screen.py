@@ -215,7 +215,7 @@ class TimebotTimecardsScreen(MDScreen):
         self.timesheets_modal.open()
 
     def add_hours_label(self):
-        hours_label = MDLabel(adaptive_height=True, text=' ', size_hint=(None, None), width=dp(100), halign="center", font_style="Body1")
+        hours_label = MDLabel(adaptive_height=True, text=' ', size_hint=(None, None), width=dp(100), halign="center", font_style="H6")
         self.heading_info_box.add_widget(hours_label)
 
     def add_column_headers(self):
@@ -273,7 +273,7 @@ class TimebotTimecardsScreen(MDScreen):
         weekday_heading = MDBoxButton(orientation='horizontal', size_hint=(1, None), height=self.header_height, pos_hint=self.top_center, padding=(dp(15), dp(5), dp(5), dp(5)), on_release=self.expand_weekday)
         weekday_label = MDLabel(adaptive_height=True, text=weekday, font_style="H6", size_hint=(None, None), width=dp(150), pos_hint=self.center_center)
         weekday_heading.add_widget(weekday_label)
-        totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width=dp(50), height=self.header_height, pos_hint=self.center_center, font_style="Body2")
+        totals_label = MDLabel(adaptive_height=True, text='', size_hint=(None, None), width=dp(50), height=self.header_height, pos_hint=self.center_center, font_style="Body1")
         self.totals[weekday] = totals_label
         weekday_heading.add_widget(totals_label)
         self.add_expanding_box(weekday, weekday_heading)
@@ -324,7 +324,7 @@ class TimebotTimecardsScreen(MDScreen):
                     for task in dict_tasks:
                         self.add_task_row(task, weekday_box)
                 else:
-                    weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height=self.header_height, pos_hint=self.center_center, font_style="Body2"))
+                    weekday_box.add_widget(MDLabel(text='No tasks entered', size_hint=(1, None), halign='center', height=self.header_height, pos_hint=self.center_center, font_style="Body1"))
                 self.weekday = day.weekday
                 self.add_new_task_row(weekday_box)
             else:
@@ -352,7 +352,12 @@ class TimebotTimecardsScreen(MDScreen):
         task_row_box.add_widget(task_column_layout)
         weekday_box.add_widget(task_row_box)
 
-    def task_edit_callback(self):
+    def task_edit_callback(self, action, original, begin: str=None, end: str=None, code: str=None):
+        if action == 'save':
+            self.app.api.update_task(original, begin, end, code, self.weekday, begin_date=self.today[1])
+        elif action == 'delete':
+            original += [self.weekday, self.today[1]]
+            self.app.api.remove_task(*original)
         self.refresh_totals_and_tasks(self.weekday)
 
     def add_new_task_row(self, weekday_box):
@@ -365,9 +370,13 @@ class TimebotTimecardsScreen(MDScreen):
 
     def add_new_task(self, instance):
         code = os.environ["DEFAULT_PROJECT_CODE"]
-        weekday: str = self.weekday
-        self.app.api.switch_or_start_task(code=code, weekday=weekday, begin_date=self.today[1], add_new_override=True)
-        self.refresh_totals_and_tasks(weekday)
+        self.app.api.switch_or_start_task(
+            code=code,
+            weekday=self.weekday,
+            begin_date=self.today[1],
+            add_new_override=True
+        )
+        self.refresh_totals_and_tasks(self.weekday)
 
     def expand_weekday(self, instance, keep_expanded_state: bool=False):
         weekday = instance if isinstance(instance, str) else instance.children[2].text

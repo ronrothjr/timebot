@@ -65,7 +65,7 @@ class TimebotProjectsScreen(MDScreen):
             project_layout.add_widget(project_icon_add)
         else:
             project_label = MDLabel(text=project['code'], adaptive_width=True, font_style="H6", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
-            project_desc_float = FloatLayout(pos_hint={'center_y': 0.10})
+            project_desc_float = FloatLayout(pos_hint={'center_y': 0.05})
             project_desc_label = MDLabel(text=project['desc'], adaptive_width=True, font_style="Overline", halign="center", size_hint=(1, None), pos_hint={"center_x": .5, "center_y": .5})
             project_desc_float.add_widget(project_desc_label)
             project_icon_close = MDIconButton(icon='close', pos_hint={"center_x": .95, "center_y": 1}, on_release=self.confirm_delete_project)
