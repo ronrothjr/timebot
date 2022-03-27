@@ -18,5 +18,11 @@ class Task:
         self.code = task.get('code', default_code)
 
     def as_dict(self):
-        items = {'entryid': self.entryid, 'dayid': self.dayid, 'begin': Utils.db_format_time(self.begin), 'end': Utils.db_format_time(self.end), 'code': self.code}
+        items = {
+            'entryid': self.entryid,
+            'dayid': self.dayid,
+            'begin': Utils.db_format_time(self.begin),
+            'end': Utils.db_format_time(self.end),
+            'code': self.code
+        }
         return items
