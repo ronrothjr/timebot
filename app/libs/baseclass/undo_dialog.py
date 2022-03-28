@@ -6,6 +6,7 @@ from kivy.utils import get_color_from_hex as gch
 from typing import List
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.properties import ObjectProperty
 from kivymd.uix.taptargetview import MDTapTargetView
 from kivy.uix.scrollview import ScrollView
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -20,7 +21,6 @@ from kivymd.toast import toast
 
 class TimebotUndoDialog(MDBoxLayout):
     pass
-
 
 class TaskUndo():
 
@@ -41,21 +41,18 @@ class TaskUndo():
         self.undo_dialog.md_bg_color = self.app.theme_cls.bg_dark
         self.undo_dialog.open()
         if action == 'undo':
-            Clock.schedule_once(partial(self.add_undo_list, action), 0.5)
+            self.add_data(action)
     
-    def add_undo_list(self, action, *args):
+    def add_data(self, action, *args):
         self.backup_files = []
         for file in self.app.utils.get_backup_list(os.environ["TIMEBOT_ROOT"], 20):
             self.backup_files.append(file)
         for file in self.backup_files:
             p = file['n'].split('.')
-            file['day_time'] = f'{p[0][8:10]}/{p[0][10:12]} {p[0][12:14]}:{p[0][14:16]}:{p[0][16:18]}'
-            file['desc'] = p[2].replace('_', ' ') if p[2] != 'db' else ''
-            self.undo_dialog.content_cls.ids.undo_list.add_widget(OneLineListItem(
-                text=f'{file["day_time"]} - {file["desc"]}',
-                on_press=self.selected,
-                secondary_font_style="Body2"
-            ))
+            file['text'] = f'{p[0][8:10]}/{p[0][10:12]} {p[0][12:14]}:{p[0][14:16]}:{p[0][16:18]} - {p[2].replace("_", " ")if p[2] != "db" else ""}'
+            file['on_press'] = self.selected
+            self.undo_dialog.content_cls.ids.undo_list.data.append(file)
+ 
 
     def selected(self, *args):
         print(args)
