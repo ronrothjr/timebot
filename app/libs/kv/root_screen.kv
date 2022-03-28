@@ -1,5 +1,6 @@
 #: import environ os.environ
 #: import gch kivy.utils.get_color_from_hex
+#: import dp kivy.metrics.dp
 
 #: import StiffScrollEffect kivymd.effects.stiffscroll.StiffScrollEffect
 
@@ -105,3 +106,20 @@
 
             TimebotSettingsScreen:
                 name: "SETTINGS"
+
+        MDBoxLayout:
+            pos_hint: {'top': .05, 'right': 1}
+            size_hint: 1, None
+            height: dp(50)
+            
+            MDIconButton:
+                id: 'undo'
+                icon: 'undo'
+            
+            MDLabel:
+                size_hint: (1, dp(50))
+            
+            MDIconButton:
+                id: 'redo'
+                icon: 'redo'
+            
