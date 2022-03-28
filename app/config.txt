@@ -3,16 +3,8 @@
         "key": "default_project_code",
         "title": "Default Project Code",
         "type": "string",
-        "value": "DRG-403009",
-        "desc": "The default code to assign new tasks in a timecard",
-        "section": "Timecards"
-    },
-    {
-        "key": "unbilled_project_code",
-        "title": "Unbilled Project Code",
-        "type": "string",
         "value": "DRG-000099",
-        "desc": "The code to assign to any unbilled tasks",
+        "desc": "The default code to assign new tasks in a timecard",
         "section": "Timecards"
     },
     {
@@ -37,5 +29,13 @@
         ],
         "desc": "Change to take the tour of changes for a specific release",
         "section": "About"
+    },
+    {
+        "key": "unbilled_project_code",
+        "title": "Unbilled Project Code",
+        "type": "string",
+        "value": "DRG-000099",
+        "desc": "The code to assign to any unbilled tasks",
+        "section": "Timecards"
     }
 ]
