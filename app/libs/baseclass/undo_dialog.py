@@ -53,7 +53,7 @@ class TaskUndo():
             file['desc'] = p[2].replace('_', ' ') if p[2] != 'db' else ''
             self.undo_dialog.content_cls.ids.undo_list.add_widget(OneLineListItem(
                 text=f'{file["day_time"]} - {file["desc"]}',
-                on_release=self.selected,
+                on_press=self.selected,
                 secondary_font_style="Body2"
             ))
 
