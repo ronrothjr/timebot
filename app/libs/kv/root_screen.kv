@@ -11,7 +11,6 @@
 #: import TimebotTasksScreen libs.baseclass.tasks_screen.TimebotTasksScreen
 #: import TimebotProjectsScreen libs.baseclass.projects_screen.TimebotProjectsScreen
 #: import TimebotTimecardsScreen libs.baseclass.timecards_screen.TimebotTimecardsScreen
-#: import TimebotShareScreen libs.baseclass.share_screen.TimebotShareScreen
 #: import TimebotSettingsScreen libs.baseclass.settings_screen.TimebotSettingsScreen
 
 
@@ -64,19 +63,19 @@
                 icon: "apps"
                 on_release:
                     scr_manager.transition.direction = "right" \
-                    if scr_manager.current in ["SHARE", "SETTINGS"] \
-                    else "left"
-                    scr_manager.current = "PROJECTS"
-
-            NavigationItem:
-                id: 'share'
-                text: "SHARE"
-                icon: "share"
-                on_release:
-                    scr_manager.transition.direction = "right" \
                     if scr_manager.current in ["SETTINGS"] \
                     else "left"
-                    scr_manager.current = "SHARE"
+                    scr_manager.current = "PROJECTS"
+            
+            NavigationItem:
+                id: 'undo'
+                text: ""
+                icon: 'undo'
+            
+            NavigationItem:
+                id: 'redo'
+                text: ""
+                icon: 'redo'
 
             NavigationItem:
                 id: 'settings'
@@ -101,25 +100,6 @@
             TimebotProjectsScreen:
                 name: "PROJECTS"
 
-            TimebotShareScreen:
-                name: "SHARE"
-
             TimebotSettingsScreen:
                 name: "SETTINGS"
-
-        MDBoxLayout:
-            pos_hint: {'top': .05, 'right': 1}
-            size_hint: 1, None
-            height: dp(50)
-            
-            MDIconButton:
-                id: 'undo'
-                icon: 'undo'
-            
-            MDLabel:
-                size_hint: (1, dp(50))
-            
-            MDIconButton:
-                id: 'redo'
-                icon: 'redo'
             

@@ -15,7 +15,8 @@ class Service:
     def add(self, *args):
         obj = self.object_class(*args)
         result = self.repository.add(obj)
-        Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None))
+        if self.repository.name == 'task':
+            Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None), 'Add_task')
         return result
 
     def get(self, query=None):
@@ -24,7 +25,8 @@ class Service:
 
     def update(self, obj, data):
         result = self.repository.update(obj, data)
-        Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None))
+        if self.repository.name == 'task':
+            Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None), 'Update_task')
         return result
 
     def update_no_backup(self, obj, data):
@@ -33,5 +35,6 @@ class Service:
 
     def remove(self, id_value=None):
         result = self.repository.remove(id_value)
-        Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None))
+        if self.repository.name == 'task':
+            Utils.backup_db(os.environ.get('TIMEBOT_ROOT', None), 'Remove_task')
         return result

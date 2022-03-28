@@ -1,0 +1,20 @@
+#: import environ os.environ
+#: import dp kivy.metrics.dp
+
+<TimebotUndoDialog>
+    orientation: "vertical"
+    spacing: dp(20)
+    size_hint_y: None
+    height: dp(240)
+
+    MDBoxLayout:
+        orientation: "vertical"
+        size_hint: (1,1)
+        pos_hint: {"center_x": .5, "top": 1}
+        padding: [dp(5),dp(5),dp(5),dp(5)]
+        
+        ScrollView:
+        
+            MDSelectionList:
+                id: undo_list
+                spacing: dp(5)

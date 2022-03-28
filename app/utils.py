@@ -1,5 +1,6 @@
 import os, datetime
 from pathlib import Path
+from tracemalloc import StatisticDiff
 from db import Sqlite3DB, DatabaseSchema
 from files import Files
 
@@ -8,15 +9,31 @@ class Utils:
     weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     @staticmethod
-    def backup_db(local_path: str=None) -> None:
+    def backup_db(local_path: str=None, desc: str='') -> None:
         files = Files(local_path)
         local_path = local_path if local_path else files.local_path
         ts = files.get_timestamp()
         files.create_path('backup')
         files.create_path('backup', ts[:8])
         from_path = files.get_path(local_path, 'app.db')
-        to_path = files.get_path(local_path, 'backup', ts[:8], f'app-{ts}.db')
+        to_path = files.get_path(local_path, 'backup', ts[:8], f'app-{ts}.{desc}.db')
         files.copy_file(from_path, to_path)
+
+    @staticmethod
+    def get_backup_list(local_path: str=None, fetch_count: int=10):
+        count = 0
+        files = Files(local_path)
+        local_path = local_path if local_path else files.local_path
+        backup_path = files.get_path(local_path, 'backup')
+        backup_list = []
+        days = list(reversed(files.get_paths(backup_path)))
+        for d in days:
+            if count < fetch_count:
+                backups = list(reversed([{'d': d, 'n': n, 'p': f'{files.get_path(d, n)}'} for n in files.get_files(d)]))
+                remaining_to_fetch = fetch_count - count
+                backup_list += backups[0:remaining_to_fetch]
+                count = len(backup_list)
+        return backup_list
 
     @staticmethod
     def remove_data(schema=None) -> None:
@@ -104,7 +121,7 @@ class Utils:
         return columns
 
     @staticmethod
-    def get_int_from_time_str(t: str) -> (int, int):
+    def get_int_from_time_str(t: str):
         h = int(t[0:2])
         if ':' in t:
             m = int(t[3:5])

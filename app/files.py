@@ -70,6 +70,13 @@ class Files(FilesInterface):
             return True
         return False
 
+    def get_paths(self, path: str) -> list:
+        return [x[0] for x in os.walk(path) if path != x[0]]
+
+    def get_files(self, path: str) -> list:
+        fetched = [f for f in os.listdir(path)]
+        return fetched
+
     def get_local_path(self, file_name: str):
         dirs = file_name.split(self.path_separator)
         if len(dirs) > 1:

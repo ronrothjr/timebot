@@ -52,7 +52,6 @@ class MDTimebot(MDApp):
         self.icon = f"{os.environ['TIMEBOT_ROOT']}/assets/images/logo.png"
         self.api = API
         self.utils = Utils
-        self.utils.backup_db(os.environ['TIMEBOT_ROOT'])
         self.services()
         if sys.platform=="win32":
             import win32gui

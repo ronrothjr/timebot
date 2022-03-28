@@ -11,8 +11,9 @@ from kivy.metrics import dp
 from kivy.properties import ColorProperty, NumericProperty, StringProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
-
 from kivymd.theming import ThemableBehavior
+from kivymd.toast import toast
+from .undo_dialog import TaskUndo
 
 
 class NavigationItem(ThemableBehavior, ButtonBehavior, BoxLayout):
@@ -27,6 +28,9 @@ class NavigationItem(ThemableBehavior, ButtonBehavior, BoxLayout):
         super().__init__(**kwargs)
 
     def on_release(self):
+        if not self.text and self.icon:
+            TaskUndo().open(self.icon)
+            return
         for button in self.parent.children:
             if button == self:
                 continue
