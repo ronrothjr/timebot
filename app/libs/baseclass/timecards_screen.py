@@ -97,7 +97,9 @@ class TimebotTimecardsScreen(MDScreen):
         is_same_date = self.date == date
         self.date = date
         if not is_same_date:
+            self.today = self.app.utils.get_begin_date()
             Clock.schedule_once(partial(self.load_new_timecard, begin_date), 1)
+            Clock.schedule_once(self.set_hours, 1)
             return
         is_same_day = self.today[2] == weekday
         if self.mode == 'vertical':
