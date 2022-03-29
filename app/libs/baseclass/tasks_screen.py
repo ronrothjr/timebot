@@ -17,16 +17,9 @@ from kivymd.uix.floatlayout import  FloatLayout
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDIconButton
 from kivymd.uix.card import MDCard
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDFlatButton, MDRoundFlatButton
+from kivymd.uix.button import MDRoundFlatButton
 from kivy.uix.behaviors import ButtonBehavior
-from .timepicker import MDTimePicker
-from kivy.uix.modalview import ModalView
-from kivymd.uix.selection import MDSelectionList
-from kivymd.uix.list import TwoLineListItem
-from kivymd.toast import toast
 from .orienter import Orienter
 from .task_edit import TaskEdit
 from project import Project

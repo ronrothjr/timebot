@@ -1,4 +1,5 @@
 import os
+from functools import partial
 import pydash as _
 from kivy.metrics import dp
 from kivy.app import App
@@ -6,6 +7,7 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.behaviors import ButtonBehavior
+from kivy.clock import Clock
 from kivymd.toast import toast
 
 
@@ -55,8 +57,11 @@ class TaskUndo():
 
     def selected(self, text):
         file = next((x for x in self.backup_files if x['text'] == text), None)
-        self.app.utils.restore_db(file, os.environ["TIMEBOT_ROOT"])
-        self.manager.get_screen('TODAY').refresh()
-        self.manager.get_screen('TIMECARDS').refresh()
-        self.manager.get_screen('PROJECTS').refresh()
-        self.undo_dialog.dismiss(force=True)
+        toast(f'Restoring {file["text"]}')
+        def restore(self):
+            self.app.utils.restore_db(file, os.environ["TIMEBOT_ROOT"])
+            self.manager.get_screen('TODAY').refresh()
+            self.manager.get_screen('TIMECARDS').refresh()
+            self.manager.get_screen('PROJECTS').refresh()
+            self.undo_dialog.dismiss(force=True)
+        Clock.schedule_once(partial(restore, self))

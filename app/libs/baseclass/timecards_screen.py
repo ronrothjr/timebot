@@ -4,12 +4,9 @@ from typing import List
 from kivy.utils import get_color_from_hex as gch
 from kivy.metrics import dp
 from kivy.app import App
-from kivy.core.window import Window
 from kivy.clock import Clock
-from kivy.uix.widget import Widget
 from kivy.uix.scrollview import ScrollView
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.spinner import MDSpinner
 from kivymd.uix.list import MDList
 from kivy.uix.behaviors import ButtonBehavior
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -17,15 +14,11 @@ from kivymd.uix.floatlayout import FloatLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.button import MDFlatButton, MDIconButton
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
-from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.uix.card import MDCard
 from kivy.uix.modalview import ModalView
 from kivymd.uix.selection import MDSelectionList
 from kivymd.uix.list import OneLineListItem
-from kivymd.uix.list import TwoLineListItem
-from .timepicker import MDTimePicker
-from kivymd.toast import toast
 from .orienter import Orienter
 from .task_edit import TaskEdit
 

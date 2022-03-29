@@ -1,13 +1,10 @@
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
 from typing import List
-from kivy.core.window import Window
 from kivy.app import App
 from kivy.uix.scrollview import ScrollView
-from kivymd.effects.stiffscroll import StiffScrollEffect
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.list import MDList
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.floatlayout import FloatLayout
 from kivymd.uix.relativelayout import MDRelativeLayout

@@ -11,7 +11,6 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.label import MDLabel
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
-from .timepicker import MDTimePicker
 from kivy.uix.modalview import ModalView
 from kivymd.uix.selection import MDSelectionList
 from kivymd.uix.list import TwoLineListItem
@@ -61,13 +60,11 @@ class TaskEdit():
         self.edit_dialog.md_bg_color = self.app.theme_cls.bg_dark
         self.edit_dialog.open()
         self.time_touch = ''
-        # self.edit_dialog.content_cls.ids.begin_time.on_release = self.open_begin_time
         self.edit_begin_value = self.app.utils.am_pm_format(self.original_values[0])
         self.edit_end_value = self.app.utils.am_pm_format(self.app.utils.db_format_time(datetime.datetime.now().time()) if self.original_values[1] == '(active)' else self.original_values[1])
         self.edit_dialog.content_cls.ids.begin_time.on_press = self.on_press_begin
         self.edit_dialog.content_cls.ids.begin_time.on_touch_move = self.on_touch_move_begin
         self.edit_dialog.content_cls.ids.begin_time.on_touch_up = self.on_touch_up_begin
-        # self.edit_dialog.content_cls.ids.end_time.on_release = self.open_end_time
         self.edit_dialog.content_cls.ids.end_time.on_press = self.on_press_end
         self.edit_dialog.content_cls.ids.end_time.on_touch_move = self.on_touch_move_end
         self.edit_dialog.content_cls.ids.end_time.on_touch_up = self.on_touch_up_end
@@ -176,30 +173,6 @@ class TaskEdit():
     def selected(self, instance):
         self.edit_dialog.content_cls.ids.project_label.text = instance.text
         self.project_modal.dismiss()
-
-    def open_begin_time(self, *args):
-        time_dialog = MDTimePicker()
-        time_dialog.bind(time=self.get_begin_time)
-        begin_time = self.edit_dialog.content_cls.ids.begin.text
-        begin_time_str = f"{begin_time[0:2]}:{begin_time[2:4]}:00"
-        begin_time_time = datetime.datetime.strptime(begin_time_str, '%H:%M:%S').time()
-        time_dialog.set_time(begin_time_time)
-        time_dialog.open()
-
-    def open_end_time(self, *args):
-        time_dialog = MDTimePicker()
-        time_dialog.bind(time=self.get_end_time)
-        end_time = self.edit_dialog.content_cls.ids.end.text
-        end_time_str = f"{end_time[0:2]}:{end_time[2:4]}:00"
-        end_time_time = datetime.datetime.strptime(end_time_str, '%H:%M:%S').time()
-        time_dialog.set_time(end_time_time)
-        time_dialog.open()
-
-    def get_begin_time(self, *args):
-        self.edit_dialog.content_cls.ids.begin.text = self.app.utils.db_format_time(args[0])
-
-    def get_end_time(self, *args):
-        self.edit_dialog.content_cls.ids.end.text = self.app.utils.db_format_time(args[0])
 
     def cancel_dialog(self, *args):
         self.edit_dialog.dismiss(force=True)
