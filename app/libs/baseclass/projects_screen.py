@@ -47,6 +47,9 @@ class TimebotProjectsScreen(MDScreen):
         self.scroller.add_widget(self.view)
         self.add_widget(self.scroller)
 
+    def refresh(self):
+        self.show_projects()
+
     def on_enter(self):
         self.show_projects()
 

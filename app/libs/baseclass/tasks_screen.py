@@ -33,11 +33,11 @@ from project import Project
 from timecard import Timecard
 
 
-class MD3Card(MDCard, RoundedRectangularElevationBehavior):
+class MDBoxButton(ButtonBehavior, MDBoxLayout):
     pass
 
 
-class MDBoxButton(ButtonBehavior, MDBoxLayout):
+class MD3Card(MDCard, RoundedRectangularElevationBehavior):
     pass
 
 
@@ -60,6 +60,9 @@ class TimebotTasksScreen(MDScreen):
         self.orienter.set_callback(self.orient)
         self.orienter.orient()
         # self.rotate()
+
+    def refresh(self):
+        self.load_task_entry()
 
     def load_task_entry(self):
        self.orienter.clear_widgets()

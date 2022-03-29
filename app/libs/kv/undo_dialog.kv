@@ -1,6 +1,15 @@
 #: import environ os.environ
 #: import dp kivy.metrics.dp
 
+<MDLabelButton>
+    text: root.text
+    size_hint: 1, None
+    height: dp(50)
+    font_style: "Body1"
+    pos_hint: {"right": 1, "top": 1}
+    on_release:
+        root.selected(root.text)
+
 <TimebotUndoDialog>
     orientation: "vertical"
     spacing: dp(20)
@@ -16,19 +25,14 @@
         RecycleView:
             id: undo_list
             size_hint: 1, 0.9
-            viewclass: "ListItem"
+            viewclass: "MDLabelButton"
 
             RecycleBoxLayout:
                 id: items_box
                 orientation: "vertical"
-                padding: 0
+                padding: dp(5)
+                spacing: dp(10)
                 default_size_hint: 1, None
-                default_height: dp(30)
+                default_height: dp(50)
                 size_hint: 1, None
                 height: self.minimum_height
-
-<ListItem@OneLineListItem>
-    text: root.text
-    on_press: root.on_press
-    size_hint: 1, None
-    height: dp(30)

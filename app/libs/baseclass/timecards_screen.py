@@ -73,6 +73,9 @@ class TimebotTimecardsScreen(MDScreen):
         self.timesheets_modal = self.add_timesheets_modal()
         Clock.schedule_once(self.load_current_timesheet, 2)
 
+    def refresh(self):
+        self.load_current_timesheet()
+
     def orient(self, orienter):
         self.mode = orienter.orientation
         self.load_timesheet_data()

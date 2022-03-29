@@ -29,7 +29,8 @@ class NavigationItem(ThemableBehavior, ButtonBehavior, BoxLayout):
 
     def on_release(self):
         if not self.text and self.icon:
-            TaskUndo().open(self.icon)
+            manager = self.parent.parent.parent.children[0]
+            TaskUndo(manager).open(self.icon)
             return
         for button in self.parent.children:
             if button == self:

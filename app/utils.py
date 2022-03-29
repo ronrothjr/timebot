@@ -36,6 +36,14 @@ class Utils:
         return backup_list
 
     @staticmethod
+    def restore_db(file: dict, local_path):
+        files = Files(local_path)
+        local_path = local_path if local_path else files.local_path
+        from_path = files.get_path(file['d'], file['n'])
+        to_path = files.get_path(local_path, 'app.db')
+        files.copy_file(from_path, to_path)
+
+    @staticmethod
     def remove_data(schema=None) -> None:
         schema = schema if schema else Utils.get_schema()
         db = Sqlite3DB(DatabaseSchema(**schema))
