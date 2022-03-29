@@ -54,10 +54,10 @@ class TimebotWelcomeScreen(MDScreen):
                     'order': 3
                 },
                 {
-                    'name': 'share_tip',
-                    'title': 'This is the Share screen',
+                    'name': 'undo_tip',
+                    'title': 'This is the Undo button',
                     'desc': None,
-                    'card_desc': 'You can export your timesheet and send it along to your chosen external application',
+                    'card_desc': 'You can restore your timesheets to a previous point in time',
                     'widget_pos': 'center',
                     'title_pos': 'left_bottom',
                     'version': '0.0.0',
@@ -120,7 +120,7 @@ class TimebotWelcomeScreen(MDScreen):
         if self.tap < len(self.tap_text[self.tour]):
             tip = self.tap_text[self.tour][self.tap]
             if tip['card_desc']:
-                self.place_card(['card_desc'])
+                self.place_card(tip['card_desc'])
             tap_settings = {
                 'widget': self.tap_items[self.tap].children[1],
                 'title_text': tip['title'],
