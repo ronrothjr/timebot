@@ -24,8 +24,12 @@ class TimebotRootScreen(MDScreen):
         index = tabs.index(mgr.current)
         if change > 50:
             index += 1 if index < size else -size
+            if bar.get_button(index).icon == 'undo':
+                index += 1
         elif change < -50:
             index += -1 if index >= 0 else size
+            if bar.get_button(index).icon == 'undo':
+                index -= 1
             
         button = bar.get_button(index)
         button.dispatch("on_release")
