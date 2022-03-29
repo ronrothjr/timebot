@@ -75,7 +75,7 @@ class TaskEdit():
         self.edit_dialog.content_cls.ids.project_card.on_release = self.choose_project
         self.edit_dialog.content_cls.ids.begin.text = self.app.utils.am_pm_format(self.original_values[0])
         self.edit_dialog.content_cls.ids.end.text = '' if self.original_values[1] == '(active)' else self.app.utils.am_pm_format(self.original_values[1])
-        Clock.schedule_once(self.edit_tap_target, 1)
+        # Clock.schedule_once(self.edit_tap_target, 1)
 
     def edit_tap_target(self, *args):
         tap_target_view = MDTapTargetView(
