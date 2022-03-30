@@ -17,7 +17,7 @@ from kivy.properties import (
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.utils import get_color_from_hex
-from kivymd.color_definitions import colors, palette
+from kivymd.color_definitions import colors, palette, hue
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.label import MDLabel
 from kivy.event import EventDispatcher
@@ -172,6 +172,9 @@ class AKPieChart(ThemableBehavior, BoxLayout):
     color_mode = OptionProperty(
         "colors", options=["primary_color", "accent_color"]
     )  # not solved
+    color_palette = OptionProperty(
+        "palette", options=palette
+    )
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -217,10 +220,16 @@ class AKPieChart(ThemableBehavior, BoxLayout):
                 else:
                     alpha = 1
 
-                if self.color_mode == "colors":
+                if self.color_palette != "palette":
+                    euh = list(reversed(hue))
+                    color = get_color_from_hex(
+                        colors[self.color_palette][euh[color_item + 4]]
+                    )
+                elif self.color_mode == "colors":
                     color = get_color_from_hex(
                         colors[palette[color_item]]["500"]
                     )
+                
 
                 c = Color(rgb=color, a=alpha)
                 if self.starting_animation:

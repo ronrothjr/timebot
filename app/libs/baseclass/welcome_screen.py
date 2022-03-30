@@ -62,6 +62,7 @@ class TimebotWelcomeScreen(MDScreen):
             pos_hint={"center_x": 0.5, "center_y": 0.5},
             size_hint=[None, None],
             size=(dp(300), dp(300)),
+            color_palette="Green"
         )
         self.chart_box.add_widget(piechart)
 
