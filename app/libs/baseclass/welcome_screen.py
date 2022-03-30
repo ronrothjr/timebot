@@ -1,15 +1,19 @@
-import pydash
+import os, pydash
 from kivy.utils import get_color_from_hex as gch 
 from kivy.metrics import dp
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.properties import ObjectProperty
 from kivymd.uix.screen import MDScreen
+from kivy.uix.scrollview import ScrollView
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.taptargetview import MDTapTargetView
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
+from .piechart import AKPieChart
 
 
 class TimebotWelcomeScreen(MDScreen):
@@ -17,6 +21,7 @@ class TimebotWelcomeScreen(MDScreen):
     def __init__(self, **kw):
         super(TimebotWelcomeScreen, self).__init__(**kw)
         self.app = App.get_running_app()
+        self.add_chart()
         self.tap = 0
         self.tap_text = {
             '0.0.0': [
@@ -91,7 +96,66 @@ class TimebotWelcomeScreen(MDScreen):
         self.tour_setting = self.app.api.get_setting('version_tour')
         self.tour = self.tour_setting.value
 
+    def get_items(self):
+        today, begin_date, weekday = self.app.utils.get_begin_date()
+        self.timecard = self.app.timecard.get(begin_date)
+        self.days = self.app.day.get({'begin_date': self.timecard.begin_date})
+        dayids = [day.dayid for day in self.days]
+        tasks = [t.as_dict() for t in self.app.task.get({'dayid': dayids})]
+        data_rows = self.app.utils.data_to_dict('task', tasks)
+        totals = {}
+        for d in data_rows:
+            if d['code'] != os.environ["UNBILLED_PROJECT_CODE"]:
+                t = d['total'].split(':')
+                total = ( int(t[0]) * 60 ) + int(t[1])
+                if d['code'] not in totals:
+                    totals[d['code']] = 0
+                totals[d['code']] += total
+        total = 0
+        for t in totals.values():
+            total += t
+        items = {}
+        for k, v in totals.items():
+            items[k] = float("{:.4f}".format(v / total)) * 100
+        total = 0.0
+        for t in items.values():
+            total += t
+        print(items)
+        print(total)
+        items[list(items.keys())[0]] += 100.0 - total
+        print(items)
+        return items
+
+    def add_chart(self):
+        chart_view = MDBoxLayout(orientation="vertical")
+        chart_title = MDLabel(text='This Week', font_style="H6", size_hint=(1, None), height=dp(50), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
+        chart_view.add_widget(chart_title)
+        self.chart_box = MDBoxLayout(
+            adaptive_height=True,
+            padding=dp(24),
+            orientation="vertical"
+        )
+        chart_view.add_widget(self.chart_box)
+        chart_scroller = ScrollView()
+        chart_view.add_widget(chart_scroller)
+        self.add_widget(chart_view)
+        items = self.get_items()
+        self.piechart = AKPieChart(
+            items=[items],
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+            size_hint=[None, None],
+            size=(dp(300), dp(300)),
+        )
+        self.chart_box.add_widget(self.piechart)
+
+    def update_chart(self):
+        self.piechart.items = [{"Python": 70, "Dart": 10, "C#": 10, "Css": 10}]
+
+    def remove_chart(self):
+        self.chart_box.remove_widget(self.piechart)
+
     def on_enter(self):
+        self.chart_box.items = self.get_items()
         if self.tour == '0.0.0':
             self.take_tour_0_0_0()
             options = self.tour_setting.options.split(',')

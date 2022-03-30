@@ -99,7 +99,7 @@ class TimebotTasksScreen(MDScreen):
         widget_spacer = Widget(size_hint_y=None, height=dp(5))
         self.project_box.add_widget(widget_spacer)
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None), padding=0, spacing=0, pos_hint=self.top_center)
-        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width=dp(100), font_style="H6")
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width=dp(110), font_style="H6")
         timecard: Timecard = self.app.api.get_current_timecard()
         self.heading_box.add_widget(weekday_label)
         timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week: {timecard.begin_date} - {timecard.end_date}", halign='right', font_style="Body2", pos_hint={'center_y': .5})

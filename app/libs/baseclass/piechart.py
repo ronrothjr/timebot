@@ -1,0 +1,434 @@
+# drawn from
+#     https://github.com/kivymd-extensions/akivymd/blob/main/kivymd_extensions/akivymd/uix/charts.py
+
+from math import cos, radians, sin
+from kivy.animation import Animation
+from kivy.clock import Clock
+from kivy.graphics import Color, Ellipse, Line, RoundedRectangle
+from kivy.properties import (
+    BooleanProperty,
+    ColorProperty,
+    ListProperty,
+    NumericProperty,
+    ObjectProperty,
+    OptionProperty,
+    StringProperty,
+)
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.relativelayout import RelativeLayout
+from kivy.utils import get_color_from_hex
+from kivymd.color_definitions import colors, palette
+from kivymd.theming import ThemableBehavior
+from kivymd.uix.label import MDLabel
+from kivy.event import EventDispatcher
+
+
+class DrawTools(EventDispatcher):
+    target_canvas = ObjectProperty()
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        Clock.schedule_once(self._update)
+        self.register_event_type("on_select")
+
+    def _update(self, *args):
+        if not self.target_canvas:
+            self.target_canvas = self.canvas
+
+    @staticmethod
+    def draw_shape(
+        id,
+        canvas,
+        shape_name="rectangle",
+        radius=None,
+        pos=None,
+        texture=None,
+        center_pos=None,
+        color=[0, 0, 0, 1],
+        size=[10, 10],
+        points=None,
+        line_width=2,
+    ):
+        """
+        shapes: rectangle, roundedRectangle, circle
+        """
+
+        canvas.add(Color(group=id, rgba=color))
+
+        if shape_name != "line":
+            shape = RoundedRectangle(
+                group=id,
+                size=size,
+                pos=[
+                    center_pos[0] - size[0] / 2,
+                    center_pos[1] - size[1] / 2,
+                ]
+                if center_pos
+                else pos,
+            )
+        if shape_name == "line":
+            shape = Line(
+                points=points,
+                width=line_width,
+            )
+        elif shape_name == "rectangle":
+            shape.radius = [
+                0,
+            ]
+        elif shape_name == "roundedRectangle":
+            shape.radius = radius
+        elif shape_name == "circle":
+            shape.radius = [
+                size[1] / 2,
+            ]
+        else:
+            raise Exception(f"Invalid shape name {shape}")
+
+        if texture:
+            shape.texture = texture
+
+        canvas.add(shape)
+        return True
+
+    def on_select(self, *args):
+        pass
+
+    def on_touch_down(self, touch):
+        pos = touch.pos
+        if not self.collide_point(*pos):
+            return False
+        pos = self.to_local(*pos, relative=True)
+        i = self.check_collission(pos)
+        if i != -1:
+            self.dispatch("on_select", i, *touch.pos)
+        return True
+
+    def on_touch_move(self, touch):
+        pos = touch.pos
+        if not self.collide_point(*pos):
+            return False
+        pos = self.to_local(*pos, relative=True)
+        i = self.check_collission(pos)
+        if i:
+            self.dispatch("on_select", i, *touch.pos)
+        return True
+
+    def check_collission(self, touch_pos: list):
+        children = self.target_canvas.children
+        i = 0
+        for child in children:
+            # touchable instructions must be a subclass of RoundedRectangle
+            if not issubclass(child.__class__, RoundedRectangle):
+                continue
+            pos = child.pos
+            size = child.size
+            x, y = pos
+            w, h = size
+
+            if (x <= touch_pos[0] <= x + w) and (y <= touch_pos[1] <= y + h):
+                return i
+            i += 1
+        return -1
+
+
+def point_on_circle(degree, center, dis):
+    """
+    Finding the x,y coordinates on circle, based on given angle
+    """
+
+    if 0 <= degree <= 90:
+        degree = 90 - degree
+    elif 90 < degree < 360:
+        degree = 450 - degree
+
+    radius = dis
+    angle = radians(degree)
+
+    x = center[0] + (radius * cos(angle))
+    y = center[1] + (radius * sin(angle))
+
+    return [x, y]
+
+
+class PieChartNumberLabel(MDLabel):
+    percent = NumericProperty(0)
+    title = StringProperty("")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Clock.schedule_once(lambda x: self._update())
+
+    def _update(self):
+        self.x -= self.width / 2
+        self.y -= self.height / 2
+
+
+class AKPieChart(ThemableBehavior, BoxLayout):
+    items = ListProperty()
+    order = BooleanProperty(True)
+    starting_animation = BooleanProperty(True)
+    transition = StringProperty("out_cubic")
+    duration = NumericProperty(1)
+    color_mode = OptionProperty(
+        "colors", options=["primary_color", "accent_color"]
+    )  # not solved
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def _format_items(self, items):
+        percentage_sum = 0
+        for k, v in items[0].items():
+            percentage_sum += v
+
+        if percentage_sum != 100:
+            raise Exception("Sum of percenages must be 100")
+
+        new_items = {}
+        for k, v in items[0].items():
+            new_items[k] = 360 * v / 100
+
+        if self.order:
+            new_items = {
+                k: v
+                for k, v in sorted(new_items.items(), key=lambda item: item[1])
+            }
+
+        return new_items
+
+    def _make_chart(self, items):
+        self.size = (min(self.size), min(self.size))
+        if not items:
+            raise Exception("Items cannot be empty.")
+
+        items = self._format_items(items)
+        angle_start = 0
+        color_item = 0
+        circle_center = [
+            self.pos[0] + self.size[0] / 2,
+            self.pos[1] + self.size[1] / 2,
+        ]
+
+        for title, value in items.items():
+            with self.canvas.before:
+
+                if self.starting_animation:
+                    alpha = 0
+                else:
+                    alpha = 1
+
+                if self.color_mode == "colors":
+                    color = get_color_from_hex(
+                        colors[palette[color_item]]["500"]
+                    )
+
+                c = Color(rgb=color, a=alpha)
+                if self.starting_animation:
+                    e = Ellipse(
+                        pos=self.pos,
+                        size=self.size,
+                        angle_start=angle_start,
+                        angle_end=angle_start + 0.01,
+                    )
+
+                    anim = Animation(
+                        size=self.size,
+                        angle_end=angle_start + value,
+                        duration=self.duration,
+                        t=self.transition,
+                    )
+                    anim_opcity = Animation(a=1, duration=self.duration * 0.5)
+
+                    anim_opcity.start(c)
+                    anim.start(e)
+                else:
+                    Ellipse(
+                        pos=self.pos,
+                        size=self.size,
+                        angle_start=angle_start,
+                        angle_end=angle_start + value,
+                    )
+            color_item += 1
+            angle_start += value
+
+        angle_start = 0
+        for title, value in items.items():
+            with self.canvas.after:
+                label_pos = point_on_circle(
+                    (angle_start + angle_start + value) / 2,
+                    circle_center,
+                    self.size[0] / 3,
+                )
+                number_anim = PieChartNumberLabel(
+                    x=label_pos[0], y=label_pos[1], title=title
+                )
+                Animation(percent=value * 100 / 360).start(number_anim)
+
+            angle_start += value
+
+    def _clear_canvas(self):
+        try:
+            self.canvas.before.clear()
+            self.canvas.after.clear()
+        except BaseException:
+            pass
+
+    def on_pos(self, *args):
+        self._clear_canvas()
+        Clock.schedule_once(lambda x: self._make_chart(self.items))
+
+    def on_items(self, *args):
+        self._clear_canvas()
+        Clock.schedule_once(lambda x: self._make_chart(self.items))
+
+
+class AKChartLabel(MDLabel):
+    _owner = ObjectProperty()
+    _mypos = ListProperty([0, 0])
+
+
+class AKChartBase(DrawTools, ThemableBehavior, RelativeLayout):
+    x_values = ListProperty([])
+    x_labels = ListProperty([])
+    y_values = ListProperty([])
+    y_labels = ListProperty([])
+    bg_color = ColorProperty(None, allownone=True)
+    radius = ListProperty(None, alllownone=True)
+    anim = BooleanProperty(True)
+    d = NumericProperty(1)
+    t = StringProperty("out_quad")
+    labels = BooleanProperty(True)
+    labels_color = ColorProperty([1, 1, 1, 1])
+    label_size = NumericProperty("15dp")
+    bars_color = ColorProperty([1, 1, 1, 1])
+    line_width = NumericProperty("2dp")
+    lines_color = ColorProperty([1, 1, 1, 1])
+    lines = BooleanProperty(True)
+    trim = BooleanProperty(True)
+    _loaded = NumericProperty(1)
+    _labels_y_box = ObjectProperty()
+    _labels_x_box = ObjectProperty()
+    _canvas = ObjectProperty()
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self._myinit = True
+        self.bind(
+            _loaded=lambda *args: self._update(anim=True),
+        )
+        Clock.schedule_once(self.update)
+
+    def _get_normalized_cor(self, val, mode, f_update=1):
+        x_values = self.x_values
+        y_values = self.y_values
+        trim = self.trim
+        padding = self.padding
+        size = self.size
+        min_x = min(x_values) if trim else 0
+        max_x = max(x_values)
+        min_y = min(y_values) if trim else 0
+        max_y = max(y_values)
+        x_distance = (max_x - min_x) if trim else max_x
+        y_distance = (max_y - min_y) if trim else max_y
+
+        if mode == "x":
+            _min = min_x
+            _distance = x_distance
+            _size = size[0]
+            f_update = 1
+        else:
+            _min = min_y
+            _distance = y_distance
+            _size = size[1]
+
+        res = ((val - _min) / _distance) * (
+            _size - self._bottom_line_y() - padding
+        )
+        return f_update * res + self._bottom_line_y()
+
+    def do_layout(self, *args, **kwargs):
+        super().do_layout(*args, **kwargs)
+        self._update()
+
+    def update(self, *args):
+        self._myinit = True
+        if self.anim:
+            self._loaded = 0
+            anim = Animation(_loaded=1, t=self.t, d=self.d)
+            anim.start(self)
+        else:
+            self._update()
+            self._update()
+
+    def _update(self, anim=False, *args):
+        x_values = self.x_values
+        y_values = self.y_values
+        x_labels = self.x_labels
+        y_labels = self.y_labels
+        canvas = self._canvas.canvas
+        canvas.clear()
+        canvas.after.clear()
+        if self._myinit:
+            self._labels_y_box.clear_widgets()
+            self._labels_x_box.clear_widgets()
+
+        dis = self._bottom_line_y()
+        self.draw_shape(
+            "line",
+            shape_name="line",
+            canvas=canvas,
+            points=[
+                [dis, dis],
+                [self.width - dis, dis],
+            ],
+            line_width=self.line_width,
+            color=self.lines_color,
+        )
+
+        if not x_values or not y_values:
+            raise Exception("x_values and y_values cannot be empty")
+
+        if len(x_values) != len(y_values):
+            raise Exception("x_values and y_values must have equal length")
+
+        if (
+            ((len(x_labels) != len(y_values)) and len(x_labels) > 0)
+            or (len(y_labels) != len(y_values))
+            and len(y_labels) > 0
+        ):
+            raise Exception(
+                "x_values and y_values and x_labels must have equal length"
+            )
+
+    def _bottom_line_y(self):
+        return self.label_size * 2
+
+    def draw_label(self, text_x, text_y, center_pos_x, center_pos_y, idx):
+        labels_y_box = self._labels_y_box
+        labels_x_box = self._labels_x_box
+        if self._myinit:
+            label_y = AKChartLabel(
+                text=text_y,
+                center=center_pos_y,
+                _owner=self,
+                height=self.label_size * 2,
+            )
+            label_y.font_size = self.label_size
+            label_x = AKChartLabel(
+                text=text_x,
+                center=center_pos_x,
+                _owner=self,
+                height=self.label_size * 2,
+            )
+            label_x.font_size = self.label_size
+            labels_y_box.add_widget(label_y)
+            labels_x_box.add_widget(label_x)
+        else:
+            child_y = labels_y_box.children[idx]
+            child_x = labels_x_box.children[idx]
+            child_y.center_x = center_pos_y[0]
+            child_y.y = center_pos_y[1]
+            child_x.center_x = center_pos_x[0]
+            child_x.y = center_pos_x[1]
+
+
