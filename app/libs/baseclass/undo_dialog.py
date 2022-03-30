@@ -58,8 +58,10 @@ class TaskUndo():
     def selected(self, text):
         file = next((x for x in self.backup_files if x['text'] == text), None)
         toast(f'Restoring {file["text"]}')
-        def restore(self):
+        def restore(self, *args):
             self.app.utils.restore_db(file, os.environ["TIMEBOT_ROOT"])
+            
+            self.manager.get_screen('WELCOME').refresh()
             self.manager.get_screen('TODAY').refresh()
             self.manager.get_screen('TIMECARDS').refresh()
             self.manager.get_screen('PROJECTS').refresh()

@@ -21,7 +21,7 @@ class TimebotWelcomeScreen(MDScreen):
     def __init__(self, **kw):
         super(TimebotWelcomeScreen, self).__init__(**kw)
         self.app = App.get_running_app()
-        self.add_chart()
+        self.add_chart_box()
         self.tap = 0
         self.tap_text = {
             '0.0.0': [
@@ -96,13 +96,16 @@ class TimebotWelcomeScreen(MDScreen):
         self.tour_setting = self.app.api.get_setting('version_tour')
         self.tour = self.tour_setting.value
 
+    def refresh(self):
+        self.add_chart()
+
     def get_items(self):
         today, begin_date, weekday = self.app.utils.get_begin_date()
         self.timecard = self.app.timecard.get(begin_date)
         self.days = self.app.day.get({'begin_date': self.timecard.begin_date})
         dayids = [day.dayid for day in self.days]
-        tasks = [t.as_dict() for t in self.app.task.get({'dayid': dayids})]
-        data_rows = self.app.utils.data_to_dict('task', tasks)
+        tasks = [t.as_dict() for t in self.app.task.get({'dayid': dayids})] if dayids else []
+        data_rows = self.app.utils.data_to_dict('task', tasks) if tasks else []
         totals = {}
         for d in data_rows:
             if d['code'] != os.environ["UNBILLED_PROJECT_CODE"]:
@@ -120,13 +123,11 @@ class TimebotWelcomeScreen(MDScreen):
         total = 0.0
         for t in items.values():
             total += t
-        print(items)
-        print(total)
-        items[list(items.keys())[0]] += 100.0 - total
-        print(items)
+        if items:
+            items[list(items.keys())[0]] += 100.0 - total
         return items
 
-    def add_chart(self):
+    def add_chart_box(self):
         chart_view = MDBoxLayout(orientation="vertical")
         chart_title = MDLabel(text='This Week', font_style="H6", size_hint=(1, None), height=dp(50), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
         chart_view.add_widget(chart_title)
@@ -139,7 +140,12 @@ class TimebotWelcomeScreen(MDScreen):
         chart_scroller = ScrollView()
         chart_view.add_widget(chart_scroller)
         self.add_widget(chart_view)
+
+    def add_chart(self):
+        self.chart_box.clear_widgets()
         items = self.get_items()
+        if not items:
+            items = {'no billable tasks': 100}
         self.piechart = AKPieChart(
             items=[items],
             pos_hint={"center_x": 0.5, "center_y": 0.5},
@@ -155,7 +161,7 @@ class TimebotWelcomeScreen(MDScreen):
         self.chart_box.remove_widget(self.piechart)
 
     def on_enter(self):
-        self.chart_box.items = self.get_items()
+        self.add_chart()
         if self.tour == '0.0.0':
             self.take_tour_0_0_0()
             options = self.tour_setting.options.split(',')
