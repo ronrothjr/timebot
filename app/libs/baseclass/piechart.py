@@ -411,13 +411,16 @@ class AKChartBase(DrawTools, ThemableBehavior, RelativeLayout):
                 text=text_y,
                 center=center_pos_y,
                 _owner=self,
+                width="100dp",
                 height=self.label_size * 2,
             )
             label_y.font_size = self.label_size
             label_x = AKChartLabel(
                 text=text_x,
+                size_hint=(None, None),
                 center=center_pos_x,
                 _owner=self,
+                width="100dp",
                 height=self.label_size * 2,
             )
             label_x.font_size = self.label_size
@@ -432,3 +435,82 @@ class AKChartBase(DrawTools, ThemableBehavior, RelativeLayout):
             child_x.y = center_pos_x[1]
 
 
+class AKBarChart(AKChartBase):
+    max_bar_width = NumericProperty("80dp")
+    min_bar_width = NumericProperty("10dp")
+    bars_spacing = NumericProperty("10dp")
+    bars_radius = NumericProperty("5dp")
+    bars_color = ColorProperty([1, 1, 1, 1])
+
+    def _update(self, anim=False, *args):
+        super()._update()
+        x_values = self.x_values
+        y_values = self.y_values
+        canvas = self._canvas.canvas
+        drawer = self.draw_shape
+        # bottom line
+        bottom_line_y = self._bottom_line_y()
+        count = len(self.y_values)
+        bars_x_list = self.get_bar_x(count)
+        bar_width = self.get_bar_width()
+        f_update = self._loaded if anim else 1
+        for i in range(0, count):
+            x = x_values[i]
+            x_label = self.x_labels[i] if self.x_labels else False
+            y_label = self.y_labels[i] if self.y_labels else False
+            y = y_values[i]
+            new_x = bars_x_list[i]
+            new_y = self._get_normalized_cor(y, "y", f_update)
+            drawer(
+                "bars",
+                shape_name="roundedRectangle",
+                canvas=canvas.after,
+                color=self.bars_color,
+                radius=[self.bars_radius, self.bars_radius, 0, 0],
+                size=[bar_width, new_y - bottom_line_y],
+                pos=[new_x, bottom_line_y],
+            )
+
+            if self.labels:
+                y_pos = [new_x + bar_width / 2, new_y]
+                x_pos = [new_x + bar_width / 2, 0]
+                self.draw_label(
+                    text_x=x_label if x_label else str(x),
+                    text_y=y_label if y_label else str(y),
+                    center_pos_x=x_pos,
+                    center_pos_y=y_pos,
+                    idx=len(x_values) - i - 1,
+                )
+        self._myinit = False
+
+    def get_bar_x(self, bar_count):
+        bar_width = self.get_bar_width()
+        total_width = (
+            bar_width * bar_count
+            + (bar_count - 1) * self.bars_spacing
+            + self.label_size * 4
+        )
+        start_pos = (self.width - total_width) / 2
+        x_list = []
+        for x in range(0, bar_count):
+            x_pos = (
+                start_pos
+                + (bar_width + self.bars_spacing) * x
+                + self.label_size * 2
+            )
+            x_list.append(x_pos)
+        return x_list
+        
+    def get_bar_width(self):
+        bars_count = len(self.x_values)
+        spacing = self.bars_spacing
+        width = self.width
+        bar_width = (
+            width - (bars_count + 1) * spacing - self.label_size * 4
+        ) / bars_count
+        if bar_width > self.max_bar_width:
+            return self.max_bar_width
+        elif bar_width < self.min_bar_width:
+            return self.min_bar_width
+        else:
+            return bar_width

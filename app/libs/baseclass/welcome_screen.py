@@ -13,7 +13,11 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
-from .piechart import AKPieChart
+from .piechart import AKPieChart, AKBarChart
+
+
+class Barchart:
+    pass
 
 
 class TimebotWelcomeScreen(MDScreen):
@@ -22,6 +26,119 @@ class TimebotWelcomeScreen(MDScreen):
         super(TimebotWelcomeScreen, self).__init__(**kw)
         self.app = App.get_running_app()
         self.add_chart_box()
+        self.setup_tour()
+
+    def on_enter(self):
+        self.chart_box.clear_widgets()
+        self.add_piechart()
+        self.add_barchart()
+        self.take_tour()
+
+    def refresh(self):
+        self.chart_box.clear_widgets()
+        self.add_piechart()
+        self.add_barchart()
+
+    def add_chart_box(self):
+        chart_view = MDBoxLayout(orientation="vertical")
+        chart_title = MDLabel(text='This Week', font_style="H6", size_hint=(1, None), height=dp(50), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
+        chart_view.add_widget(chart_title)
+        self.chart_box = MDBoxLayout(
+            adaptive_height=True,
+            padding=dp(24),
+            orientation="vertical"
+        )
+        chart_view.add_widget(self.chart_box)
+        chart_scroller = ScrollView()
+        chart_view.add_widget(chart_scroller)
+        self.add_widget(chart_view)
+
+    def add_piechart(self):
+        items = self.get_piechart_items()
+        if not items:
+            items = {'no billable tasks': 100}
+        piechart = AKPieChart(
+            items=[items],
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+            size_hint=[None, None],
+            size=(dp(300), dp(300)),
+        )
+        self.chart_box.add_widget(piechart)
+
+    def get_piechart_items(self):
+        today, begin_date, weekday = self.app.utils.get_begin_date()
+        self.timecard = self.app.timecard.get(begin_date)
+        self.days = self.app.day.get({'begin_date': self.timecard.begin_date})
+        dayids = [day.dayid for day in self.days]
+        tasks = [t.as_dict() for t in self.app.task.get({'dayid': dayids})] if dayids else []
+        data_rows = self.app.utils.data_to_dict('task', tasks) if tasks else []
+        totals = {}
+        for d in data_rows:
+            if d['code'] != os.environ["UNBILLED_PROJECT_CODE"]:
+                t = d['total'].split(':')
+                total = ( int(t[0]) * 60 ) + int(t[1])
+                if d['code'] not in totals:
+                    totals[d['code']] = 0
+                totals[d['code']] += total
+        total = 0
+        for t in totals.values():
+            total += t
+        items = {}
+        for k, v in totals.items():
+            items[k] = float("{:.4f}".format(v / total)) * 100
+        total = 0.0
+        for t in items.values():
+            total += t
+        if items:
+            items[list(items.keys())[0]] += 100.0 - total
+        return items
+
+    def add_barchart(self):
+        chart_title = MDLabel(text='Weekly Totals', font_style="H6", size_hint=(1, None), height=dp(80), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
+        self.chart_box.add_widget(chart_title)
+        v = self.get_barchart_values()
+        barchart = AKBarChart(
+            size_hint_y=None,
+            height=dp(240),
+            x_values=v['x_values'],
+            y_values=v['y_values'],
+            label_size=dp(16),
+            labels=True,
+            anim=True,
+            x_labels=v['x_labels'],
+            bars_color=(.2, .2, .2, 1),
+            labels_color=(.2, .2, .2, 1),
+            lines_color=(.3, .3, .3, 1)
+        )
+        self.chart_box.add_widget(barchart)
+
+    def get_barchart_values(self):
+        v = {
+            'x_values': [],
+            'y_values': [],
+            'x_labels': []
+        }
+        timecards = self.app.timecard.get()[-5:]
+        for t in timecards:
+            total = self.get_timecard_total(t)
+            v['x_values'].append(total)
+            v['y_values'].append(total)
+            v['x_labels'].append(str(t.begin_date)[-5:])
+        return v
+
+    def get_timecard_total(self, t):
+        self.days = self.app.day.get({'begin_date': t.begin_date})
+        dayids = [day.dayid for day in self.days]
+        tasks = [t.as_dict() for t in self.app.task.get({'dayid': dayids})] if dayids else []
+        data_rows = self.app.utils.data_to_dict('task', tasks) if tasks else []
+        total = 0
+        for d in data_rows:
+            if d['code'] != os.environ["UNBILLED_PROJECT_CODE"]:
+                t = d['total'].split(':')
+                total += ( int(t[0]) * 60 ) + int(t[1])
+        return float("{:.1f}".format(total / 60))
+
+    def setup_tour(self):
         self.tap = 0
         self.tap_text = {
             '0.0.0': [
@@ -96,72 +213,7 @@ class TimebotWelcomeScreen(MDScreen):
         self.tour_setting = self.app.api.get_setting('version_tour')
         self.tour = self.tour_setting.value
 
-    def refresh(self):
-        self.add_chart()
-
-    def get_items(self):
-        today, begin_date, weekday = self.app.utils.get_begin_date()
-        self.timecard = self.app.timecard.get(begin_date)
-        self.days = self.app.day.get({'begin_date': self.timecard.begin_date})
-        dayids = [day.dayid for day in self.days]
-        tasks = [t.as_dict() for t in self.app.task.get({'dayid': dayids})] if dayids else []
-        data_rows = self.app.utils.data_to_dict('task', tasks) if tasks else []
-        totals = {}
-        for d in data_rows:
-            if d['code'] != os.environ["UNBILLED_PROJECT_CODE"]:
-                t = d['total'].split(':')
-                total = ( int(t[0]) * 60 ) + int(t[1])
-                if d['code'] not in totals:
-                    totals[d['code']] = 0
-                totals[d['code']] += total
-        total = 0
-        for t in totals.values():
-            total += t
-        items = {}
-        for k, v in totals.items():
-            items[k] = float("{:.4f}".format(v / total)) * 100
-        total = 0.0
-        for t in items.values():
-            total += t
-        if items:
-            items[list(items.keys())[0]] += 100.0 - total
-        return items
-
-    def add_chart_box(self):
-        chart_view = MDBoxLayout(orientation="vertical")
-        chart_title = MDLabel(text='This Week', font_style="H6", size_hint=(1, None), height=dp(50), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
-        chart_view.add_widget(chart_title)
-        self.chart_box = MDBoxLayout(
-            adaptive_height=True,
-            padding=dp(24),
-            orientation="vertical"
-        )
-        chart_view.add_widget(self.chart_box)
-        chart_scroller = ScrollView()
-        chart_view.add_widget(chart_scroller)
-        self.add_widget(chart_view)
-
-    def add_chart(self):
-        self.chart_box.clear_widgets()
-        items = self.get_items()
-        if not items:
-            items = {'no billable tasks': 100}
-        self.piechart = AKPieChart(
-            items=[items],
-            pos_hint={"center_x": 0.5, "center_y": 0.5},
-            size_hint=[None, None],
-            size=(dp(300), dp(300)),
-        )
-        self.chart_box.add_widget(self.piechart)
-
-    def update_chart(self):
-        self.piechart.items = [{"Python": 70, "Dart": 10, "C#": 10, "Css": 10}]
-
-    def remove_chart(self):
-        self.chart_box.remove_widget(self.piechart)
-
-    def on_enter(self):
-        self.add_chart()
+    def take_tour(self):
         if self.tour == '0.0.0':
             self.take_tour_0_0_0()
             options = self.tour_setting.options.split(',')
