@@ -94,7 +94,7 @@ class TimebotWelcomeScreen(MDScreen):
         return items
 
     def add_barchart(self):
-        chart_title = MDLabel(text='Weekly Totals', font_style="H6", size_hint=(1, None), height=dp(80), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
+        chart_title = MDLabel(text='Weekly Totals', font_style="H6", size_hint=(1, None), height=dp(100), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
         self.chart_box.add_widget(chart_title)
         v = self.get_barchart_values()
         barchart = AKBarChart(
