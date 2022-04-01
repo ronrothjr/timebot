@@ -2,6 +2,7 @@ Run in the timebot repo folder to setup Timebot
 ```
 python -m virtualenv kivy_venv
 python setup.py develop
+```
 
 Run in the timebot repo folder to start Timebot
 ```
