@@ -240,6 +240,7 @@ class TimebotTasksScreen(MDScreen):
         self.last_task_box.clear_widgets()
         self.tasks = self.app.task.get({'dayid': self.day.dayid})
         if self.tasks:
+            self.tasks = sorted(self.tasks, key = lambda i: i.begin)
             self.show_task_grid()
             self.show_last_task_button()
         else:
@@ -281,6 +282,8 @@ class TimebotTasksScreen(MDScreen):
     def task_edit_callback(self, action, original, begin: str=None, end: str=None, code: str=None):
         if action == 'save':
             self.app.api.update_task(original, begin, end, code)
+        elif action == 'insert':
+            self.app.api.insert_task_before(original, code)
         elif action == 'delete':
             self.app.api.remove_task(*original)
         self.fill_task_grid()

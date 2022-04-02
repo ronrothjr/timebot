@@ -311,6 +311,7 @@ class TimebotTimecardsScreen(MDScreen):
         total.text = f'{self.app.api.get_total(tasks=dict_tasks)}' if dict_tasks else "0:00"
 
     def fill_weekday(self, day, dict_tasks, weekday_box, expand, is_expanding_weekday, keep_expanded_state, event=None):
+        dict_tasks = sorted(dict_tasks, key = lambda i: i['begin'])
         is_expanded = len(weekday_box.children) > (1 if is_expanding_weekday else 0)
         if keep_expanded_state:
             is_expanded = not is_expanded
@@ -353,6 +354,8 @@ class TimebotTimecardsScreen(MDScreen):
     def task_edit_callback(self, action, original, begin: str=None, end: str=None, code: str=None):
         if action == 'save':
             self.app.api.update_task(original, begin, end, code, self.weekday, begin_date=self.today[1])
+        elif action == 'insert':
+            self.app.api.insert_task_before(original, code, self.weekday, begin_date=self.today[1])
         elif action == 'delete':
             original += [self.weekday, self.today[1]]
             self.app.api.remove_task(*original)

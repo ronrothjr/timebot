@@ -29,7 +29,7 @@ def get_version() -> str:
 def write_version_info():
     """Create _version.py file with git revision and date."""
 
-    filename = os.path.join(os.path.dirname(__file__), "timebot", "_version.py")
+    filename = os.path.join(os.path.dirname(__file__), "app", "_version.py")
     version = get_version()
     epoch = int(os.environ.get("SOURCE_DATE_EPOCH", time()))
     date = datetime.utcfromtimestamp(epoch).strftime("%Y-%m-%d")
@@ -99,6 +99,7 @@ if __name__ == "__main__":
                 "kivymd",
                 "sqlite3",
                 "pydash",
+                "pyinstaller"
                 "isort[pyproject]",
                 "flake8",
                 "coveralls",
@@ -111,7 +112,12 @@ if __name__ == "__main__":
                 "sphinx-notfound-page",
             ],
         },
-        install_requires=["kivy>=2.0.0", "pillow"],
+        install_requires=[
+            "kivy>=2.0.0",
+            "pillow",
+            "kivymd",
+            "pydash"
+        ],
         setup_requires=[],
         python_requires=">=3.6",
         entry_points={},

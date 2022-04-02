@@ -26,7 +26,7 @@ from day import Day
 from task import Task
 from api import API
 
-os.environ["DEFAULT_PROJECT_CODE"] = "DRG-403001"
+os.environ["DEFAULT_PROJECT_CODE"] = "DRG-000099"
 
 if getattr(sys, "frozen", False):  # bundle mode with PyInstaller
     os.environ["TIMEBOT_ROOT"] = sys._MEIPASS

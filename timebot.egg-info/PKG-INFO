@@ -1,0 +1,49 @@
+Metadata-Version: 2.1
+Name: timebot
+Version: 1.0.0.dev0
+Summary: Time tracking for projects
+Home-page: https://github.com/ronrothjr/Timebot
+Author: Ron Roth Jr
+Author-email: ronrothjr@gmail.com
+License: MIT
+Project-URL: Documentation, https://timebot.readthedocs.io
+Project-URL: Wiki, https://github.com/timebot/Timebot/wiki
+Project-URL: Tracker, https://github.com/timebot/Timbot/issues
+Keywords: time,tracking,timesheet,timecard,project
+Platform: any
+Classifier: Development Status :: 1 - Alpha
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Operating System :: OS Independent
+Classifier: Operating System :: Android
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: POSIX :: BSD :: FreeBSD
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: iOS
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Environment :: MacOS X
+Classifier: Environment :: Win32 (MS Windows)
+Classifier: Environment :: X11 Applications
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Software Development :: User Interfaces
+Classifier: Topic :: Scientific/Engineering :: Human Machine Interfaces
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown; charset=UTF-8
+Provides-Extra: dev
+Provides-Extra: docs
+License-File: LICENSE
+
+python -m virtualenv kivy_venv
+
+
+

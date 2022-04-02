@@ -1,4 +1,4 @@
-import datetime
+import os, datetime
 import pydash as _
 from kivy.metrics import dp
 from kivy.utils import get_color_from_hex as gch
@@ -15,6 +15,7 @@ from kivy.uix.modalview import ModalView
 from kivymd.uix.selection import MDSelectionList
 from kivymd.uix.list import TwoLineListItem
 from kivymd.toast import toast
+from project import Project
 
 
 class TimebotEditTaskDialog(MDBoxLayout):
@@ -45,6 +46,11 @@ class TaskEdit():
             content_cls=edit_dialog,
             radius=[dp(20), dp(7), dp(20), dp(7)],
             buttons=[
+                MDFlatButton(
+                    text="ADD BEFORE",
+                    text_color=self.app.theme_cls.primary_color,
+                    on_release=self.insert_task_before
+                ),
                 MDFlatButton(
                     text="DELETE",
                     text_color=gch('903030'),
@@ -176,6 +182,17 @@ class TaskEdit():
 
     def cancel_dialog(self, *args):
         self.edit_dialog.dismiss(force=True)
+
+    def insert_task_before(self, *args):
+        ids = self.edit_dialog.content_cls.ids
+        begin = ids.begin.text
+        begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
+        end = ids.end.text
+        end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end)) if end else ''
+        code = os.environ.get('DEFAULT_PROJECT_CODE')
+        self.edit_dialog.dismiss(force=True)
+        self.callback('insert', self.original_values, begin, end, code)
+        toast('Inserted task')
 
     def save_task(self, *args):
         ids = self.edit_dialog.content_cls.ids
