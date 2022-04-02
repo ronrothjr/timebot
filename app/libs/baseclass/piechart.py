@@ -222,7 +222,7 @@ class AKPieChart(ThemableBehavior, RelativeLayout):
         if self.adding_pie:
             Clock.unschedule(self.adding_pie)
             self.adding_pie = None
-        self.adding_pie = Clock.schedule_once(partial(self.add_pie, items, circle_center), .5)
+        self.adding_pie = Clock.schedule_once(partial(self.add_pie, items, circle_center), 1)
 
     def add_pie(self, items, circle_center, *args):
         self.adding_pie = None
@@ -327,7 +327,7 @@ class AKPieChart(ThemableBehavior, RelativeLayout):
         orig = int(label.y)
         for other in self.pie_chart_labels:
             while label.title != other.title and label.is_colliding(other):
-                label.y += dp(5)
+                label.y += dp(10)
         diff = int(label.y)
         return diff - orig
 
