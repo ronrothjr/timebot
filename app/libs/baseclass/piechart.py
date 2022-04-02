@@ -297,7 +297,7 @@ class AKPieChart(ThemableBehavior, RelativeLayout):
                     number_anim = PieChartNumberLabel(
                         x=label_pos[0], y=label_pos[1], title=title
                     )
-                    self.add_widget(number_anim)
+                    # self.add_widget(number_anim)
                     self.pie_chart_labels.append(number_anim)
                 else:
                     number_anim.x = label_pos[0]
