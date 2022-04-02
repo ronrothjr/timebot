@@ -1,9 +1,12 @@
+Run in the timebot repo folder to setup Timebot
 ```
 python -m virtualenv kivy_venv
+python setup.py develop
 ```
 
+Run in the timebot repo folder to start Timebot
 ```
-python setup.py develop
+python app/main.py
 ```
 
 Run watcher while modifying files in app folder:
