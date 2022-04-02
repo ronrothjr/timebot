@@ -35,13 +35,7 @@ class TimebotWelcomeScreen(MDScreen):
         self.add_bar_chart_box()
 
     def orient(self, orienter):
-        pass
-#        if orienter.orientation == 'vertical':
-#            self.pie_chart_box.size_hint_y = None
-#            self.bar_chart_box.size_hint_y = None
-#        else:
-#            self.pie_chart_box.size_hint_y = 1
-#            self.bar_chart_box.size_hint_y = 1
+        self.refresh()
 
     def on_enter(self):
         self.refresh()
