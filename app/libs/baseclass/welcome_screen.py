@@ -13,6 +13,7 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
 from kivymd.uix.behaviors.elevation import RoundedRectangularElevationBehavior
+from .orienter import Orienter
 from .piechart import AKPieChart, AKBarChart
 
 
@@ -25,33 +26,48 @@ class TimebotWelcomeScreen(MDScreen):
     def __init__(self, **kw):
         super(TimebotWelcomeScreen, self).__init__(**kw)
         self.app = App.get_running_app()
-        self.add_chart_box()
+        self.top_center = {"center_x": .5, "top": 1}
+        self.orienter = Orienter()
+        self.add_pie_chart_box()
+        self.add_bar_chart_box()
         self.setup_tour()
+        self.add_widget(self.orienter)
+        self.orienter.set_callback(self.orient)
+        self.orienter.orient()
+
+    def orient(self, orienter):
+        pass
+#        if orienter.orientation == 'vertical':
+#            self.pie_chart_box.size_hint_y = None
+#            self.bar_chart_box.size_hint_y = None
+#        else:
+#            self.pie_chart_box.size_hint_y = 1
+#            self.bar_chart_box.size_hint_y = 1
 
     def on_enter(self):
-        self.chart_box.clear_widgets()
+        self.pie_chart_box.clear_widgets()
+        self.bar_chart_box.clear_widgets()
         self.add_piechart()
         self.add_barchart()
         self.take_tour()
 
     def refresh(self):
-        self.chart_box.clear_widgets()
+        self.pie_chart_box.clear_widgets()
         self.add_piechart()
+        self.bar_chart_box.clear_widgets()
         self.add_barchart()
 
-    def add_chart_box(self):
-        chart_view = MDBoxLayout(orientation="vertical")
-        chart_title = MDLabel(text='This Week', font_style="H6", size_hint=(1, None), height=dp(50), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
+    def add_pie_chart_box(self):
+        chart_view = MDBoxLayout(orientation="vertical", pos_hint=self.top_center)
+        chart_title = MDLabel(text='This Week', font_style="H6", size_hint=(1, 1), height=dp(50), halign="center", pos_hint=self.top_center)
         chart_view.add_widget(chart_title)
-        self.chart_box = MDBoxLayout(
+        self.pie_chart_box = MDBoxLayout(
             adaptive_height=True,
             padding=dp(24),
             orientation="vertical"
         )
-        chart_view.add_widget(self.chart_box)
-        chart_scroller = ScrollView()
-        chart_view.add_widget(chart_scroller)
-        self.add_widget(chart_view)
+        chart_view.add_widget(self.pie_chart_box)
+        self.orienter.add_widget(chart_view)
 
     def add_piechart(self):
         items = self.get_piechart_items()
@@ -61,10 +77,10 @@ class TimebotWelcomeScreen(MDScreen):
             items=[items],
             pos_hint={"center_x": 0.5, "center_y": 0.5},
             size_hint=[None, None],
-            size=(dp(300), dp(300)),
+            size=(dp(280), dp(280)),
             color_palette="Green"
         )
-        self.chart_box.add_widget(piechart)
+        self.pie_chart_box.add_widget(piechart)
 
     def get_piechart_items(self):
         today, begin_date, weekday = self.app.utils.get_begin_date()
@@ -94,9 +110,19 @@ class TimebotWelcomeScreen(MDScreen):
             items[list(items.keys())[0]] += 100.0 - total
         return items
 
+    def add_bar_chart_box(self):
+        chart_view = MDBoxLayout(orientation="vertical", pos_hint=self.top_center)
+        chart_title = MDLabel(text='Weekly Totals', font_style="H6", size_hint=(1, 1), height=dp(50), halign="center", pos_hint=self.top_center)
+        chart_view.add_widget(chart_title)
+        self.bar_chart_box = MDBoxLayout(
+            adaptive_height=True,
+            padding=dp(24),
+            orientation="vertical"
+        )
+        chart_view.add_widget(self.bar_chart_box)
+        self.orienter.add_widget(chart_view)
+
     def add_barchart(self):
-        chart_title = MDLabel(text='Weekly Totals', font_style="H6", size_hint=(1, None), height=dp(100), halign="center", pos_hint={'top': 1, 'center_y': 0.5})
-        self.chart_box.add_widget(chart_title)
         v = self.get_barchart_values()
         barchart = AKBarChart(
             size_hint_y=None,
@@ -111,7 +137,7 @@ class TimebotWelcomeScreen(MDScreen):
             labels_color=(.2, .2, .2, 1),
             lines_color=(.3, .3, .3, 1)
         )
-        self.chart_box.add_widget(barchart)
+        self.bar_chart_box.add_widget(barchart)
 
     def get_barchart_values(self):
         v = {
