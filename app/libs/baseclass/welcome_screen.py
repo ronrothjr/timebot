@@ -29,6 +29,7 @@ class TimebotWelcomeScreen(MDScreen):
         self.top_center = {"center_x": .5, "top": 1}
         self.orienter = Orienter()
         self.add_pie_chart_box()
+        self.add_piechart()
         self.add_bar_chart_box()
         self.setup_tour()
         self.add_widget(self.orienter)
@@ -45,15 +46,11 @@ class TimebotWelcomeScreen(MDScreen):
 #            self.bar_chart_box.size_hint_y = 1
 
     def on_enter(self):
-        self.pie_chart_box.clear_widgets()
-        self.bar_chart_box.clear_widgets()
-        self.add_piechart()
-        self.add_barchart()
+        self.refresh()
         self.take_tour()
 
     def refresh(self):
-        self.pie_chart_box.clear_widgets()
-        self.add_piechart()
+        self.piechart.items = [self.get_piechart_items()]
         self.bar_chart_box.clear_widgets()
         self.add_barchart()
 
@@ -73,14 +70,14 @@ class TimebotWelcomeScreen(MDScreen):
         items = self.get_piechart_items()
         if not items:
             items = {'no billable tasks': 100}
-        piechart = AKPieChart(
+        self.piechart = AKPieChart(
             items=[items],
             pos_hint={"center_x": 0.5, "center_y": 0.5},
             size_hint=[None, None],
             size=(dp(280), dp(280)),
             color_palette="Green"
         )
-        self.pie_chart_box.add_widget(piechart)
+        self.pie_chart_box.add_widget(self.piechart)
 
     def get_piechart_items(self):
         today, begin_date, weekday = self.app.utils.get_begin_date()
@@ -108,6 +105,7 @@ class TimebotWelcomeScreen(MDScreen):
             total += t
         if items:
             items[list(items.keys())[0]] += 100.0 - total
+            print(total, items)
         return items
 
     def add_bar_chart_box(self):

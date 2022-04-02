@@ -2,6 +2,8 @@
 #     https://github.com/kivymd-extensions/akivymd/blob/main/kivymd_extensions/akivymd/uix/charts.py
 
 from math import cos, radians, sin
+from functools import  partial
+from kivy.metrics import dp
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.graphics import Color, Ellipse, Line, RoundedRectangle
@@ -162,6 +164,9 @@ class PieChartNumberLabel(MDLabel):
         self.x -= self.width / 2
         self.y -= self.height / 2
 
+    def is_colliding(self, other):
+        return self.collide_widget(other)
+
 
 class AKPieChart(ThemableBehavior, BoxLayout):
     items = ListProperty()
@@ -261,6 +266,7 @@ class AKPieChart(ThemableBehavior, BoxLayout):
             angle_start += value
 
         angle_start = 0
+        self.pie_chart_labels = []
         for title, value in items.items():
             with self.canvas.after:
                 label_pos = point_on_circle(
@@ -271,9 +277,23 @@ class AKPieChart(ThemableBehavior, BoxLayout):
                 number_anim = PieChartNumberLabel(
                     x=label_pos[0], y=label_pos[1], title=title
                 )
+                self.pie_chart_labels.append(number_anim)
+                
                 Animation(percent=value * 100 / 360).start(number_anim)
 
             angle_start += value
+
+        Clock.schedule_once(partial(self.check_label_collision, items), 0.5)
+
+    def check_label_collision(self, items, *args):
+        print('check_label_collision')
+        for label in self.pie_chart_labels:
+            self.move_if_colliding(label)
+
+    def move_if_colliding(self, label):
+        for other in self.pie_chart_labels:
+            while label != other and label.is_colliding(other):
+                label.y += dp(5)
 
     def _clear_canvas(self):
         try:
