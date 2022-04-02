@@ -140,7 +140,7 @@ class API:
                 'weekday': task_weekday if task_weekday else weekday
             }
             day_obj: Day = day.get(query)[0]
-        tasks = task.get({'dayid': day_obj.dayid})
+        tasks = sorted(task.get({'dayid': day_obj.dayid}), key=lambda i: i.begin)
         return now, task, day_obj, tasks
 
     @staticmethod
@@ -275,6 +275,39 @@ class API:
             if not last or (last and begin_str > last_str):
                 last = task_obj
         return last
+
+    @staticmethod
+    def insert_task_before(original, code: str, weekday=None, begin_date=None):
+        now, task, day_obj, tasks = API.get_today(weekday, begin_date_orig=begin_date)
+        task_obj, task_dict, next_task = None, None, None
+        for obj in tasks:
+            obj_dict = obj.as_dict()
+            if obj_dict['begin'] == original[0]:
+                task_obj = obj
+                task_dict = obj_dict
+        if task_obj:
+            for obj in tasks:
+                obj_dict = obj.as_dict()
+                if obj_dict['begin'] > task_dict['begin'] and (not next_task or next_task and obj_dict['begin'] < next_task['begin']):
+                    next_task = obj_dict
+        begin = original[0]
+        end = Utils.db_format_time(datetime.datetime.now().time()) if original[1] == '(active)' else original[1]
+        time_diff = int(Utils.get_time_delta(begin, end).seconds / 60)
+        begin = Utils.db_format_add_time(begin, 1)
+        if time_diff < 2:
+            end = Utils.db_format_add_time(end, 1)
+            original[1] = end if original[1] != '(active)' else original[1]
+        task.update(task_obj, {'begin': begin, 'end': None if original[1] == '(active)' else original[1]})
+        end_after_next_begin = next_task and end and end != '(active)' and next_task['begin'] != end
+        if time_diff < 2 and end_after_next_begin:
+            API.move_or_cleanup_next_tasks(task, original, tasks, end)
+        task.add({
+            'entryid': 0,
+            'dayid': day_obj.dayid,
+            'begin': original[0],
+            'end': begin,
+            'code': code
+        })
 
     @staticmethod
     def update_task(original, begin: str, end: str, code: str, weekday=None, begin_date=None):
