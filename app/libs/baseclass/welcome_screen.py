@@ -28,13 +28,11 @@ class TimebotWelcomeScreen(MDScreen):
         self.app = App.get_running_app()
         self.top_center = {"center_x": .5, "top": 1}
         self.orienter = Orienter()
-        self.add_pie_chart_box()
-        self.add_piechart()
-        self.add_bar_chart_box()
-        self.setup_tour()
         self.add_widget(self.orienter)
         self.orienter.set_callback(self.orient)
-        self.orienter.orient()
+        self.setup_tour()
+        self.add_pie_chart_box()
+        self.add_bar_chart_box()
 
     def orient(self, orienter):
         pass
@@ -50,7 +48,8 @@ class TimebotWelcomeScreen(MDScreen):
         self.take_tour()
 
     def refresh(self):
-        self.piechart.items = [self.get_piechart_items()]
+        self.pie_chart_box.clear_widgets()
+        self.add_piechart()
         self.bar_chart_box.clear_widgets()
         self.add_barchart()
 
@@ -99,13 +98,12 @@ class TimebotWelcomeScreen(MDScreen):
             total += t
         items = {}
         for k, v in totals.items():
-            items[k] = float("{:.4f}".format(v / total)) * 100
+            items[k] = int(v / total * 10000) / 100
         total = 0.0
         for t in items.values():
             total += t
         if items:
             items[list(items.keys())[0]] += 100.0 - total
-            print(total, items)
         return items
 
     def add_bar_chart_box(self):

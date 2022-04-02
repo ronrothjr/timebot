@@ -1,8 +1,8 @@
 # drawn from
 #     https://github.com/kivymd-extensions/akivymd/blob/main/kivymd_extensions/akivymd/uix/charts.py
 
+from functools import partial
 from math import cos, radians, sin
-from functools import  partial
 from kivy.metrics import dp
 from kivy.animation import Animation
 from kivy.clock import Clock
@@ -168,7 +168,7 @@ class PieChartNumberLabel(MDLabel):
         return self.collide_widget(other)
 
 
-class AKPieChart(ThemableBehavior, BoxLayout):
+class AKPieChart(ThemableBehavior, RelativeLayout):
     items = ListProperty()
     order = BooleanProperty(True)
     starting_animation = BooleanProperty(True)
@@ -183,13 +183,17 @@ class AKPieChart(ThemableBehavior, BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.pie_chart_labels = []
+        self.adding_pie = None
+        self.adding_labels = None
+        self.checking_labels = None
 
     def _format_items(self, items):
-        percentage_sum = 0
+        percentage_sum = 0.0
         for k, v in items[0].items():
-            percentage_sum += v
+            percentage_sum += v * 100.0
 
-        if percentage_sum != 100:
+        if percentage_sum != 10000.0:
             raise Exception("Sum of percenages must be 100")
 
         new_items = {}
@@ -210,12 +214,20 @@ class AKPieChart(ThemableBehavior, BoxLayout):
             raise Exception("Items cannot be empty.")
 
         items = self._format_items(items)
-        angle_start = 0
-        color_item = 0
         circle_center = [
             self.pos[0] + self.size[0] / 2,
             self.pos[1] + self.size[1] / 2,
         ]
+
+        if self.adding_pie:
+            Clock.unschedule(self.adding_pie)
+            self.adding_pie = None
+        self.adding_pie = Clock.schedule_once(partial(self.add_pie, items, circle_center), .5)
+
+    def add_pie(self, items, circle_center, *args):
+        self.adding_pie = None
+        color_item = 0
+        angle_start = 0
 
         for title, value in items.items():
             with self.canvas.before:
@@ -265,8 +277,14 @@ class AKPieChart(ThemableBehavior, BoxLayout):
             color_item += 1
             angle_start += value
 
+        if self.adding_labels:
+            Clock.unschedule(self.adding_labels)
+            self.adding_labels = None
+        self.adding_labels = Clock.schedule_once(partial(self.add_labels, items, circle_center), .5)
+
+    def add_labels(self, items, circle_center, *args):
+        self.adding_labels = None
         angle_start = 0
-        self.pie_chart_labels = []
         for title, value in items.items():
             with self.canvas.after:
                 label_pos = point_on_circle(
@@ -274,26 +292,45 @@ class AKPieChart(ThemableBehavior, BoxLayout):
                     circle_center,
                     self.size[0] / 3,
                 )
-                number_anim = PieChartNumberLabel(
-                    x=label_pos[0], y=label_pos[1], title=title
-                )
-                self.pie_chart_labels.append(number_anim)
-                
+                number_anim = next((l for l in self.pie_chart_labels if l.title == title), None)
+                if number_anim is None:
+                    number_anim = PieChartNumberLabel(
+                        x=label_pos[0], y=label_pos[1], title=title
+                    )
+                    self.add_widget(number_anim)
+                    self.pie_chart_labels.append(number_anim)
+                else:
+                    number_anim.x = label_pos[0]
+                    number_anim.y = label_pos[1]
+                    number_anim.title = title
                 Animation(percent=value * 100 / 360).start(number_anim)
 
             angle_start += value
 
-        Clock.schedule_once(partial(self.check_label_collision, items), 0.5)
+        if self.checking_labels:
+            Clock.unschedule(self.checking_labels)
+            self.checking_labels = None
+        self.checking_labels = Clock.schedule_once(self.check_label_collision)
 
     def check_label_collision(self, items, *args):
-        print('check_label_collision')
+        self.checking_labels = None
+        orig_pos = [label.y for label in self.pie_chart_labels]
+        diff_pos = []
         for label in self.pie_chart_labels:
-            self.move_if_colliding(label)
+            diff_pos.append(self.move_if_colliding(label))
+        for i in range(0, len(orig_pos)):
+            l = self.pie_chart_labels[i]
+            l.y = orig_pos[i]
+            if diff_pos[i]:
+                Animation(y=l.y + diff_pos[i], t='in_out_elastic').start(self.pie_chart_labels[i])
 
     def move_if_colliding(self, label):
+        orig = int(label.y)
         for other in self.pie_chart_labels:
-            while label != other and label.is_colliding(other):
+            while label.title != other.title and label.is_colliding(other):
                 label.y += dp(5)
+        diff = int(label.y)
+        return diff - orig
 
     def _clear_canvas(self):
         try:
