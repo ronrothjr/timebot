@@ -277,7 +277,7 @@ class API:
         return last
 
     @staticmethod
-    def insert_task_before(original, code: str, weekday=None, begin_date=None):
+    def split_task_error_check(original, code: str, new_begin: str=None, new_end: str=None,  weekday: str=None, begin_date=None):
         now, task, day_obj, tasks = API.get_today(weekday, begin_date_orig=begin_date)
         task_obj, task_dict, next_task = None, None, None
         for obj in tasks:
@@ -290,27 +290,44 @@ class API:
                 obj_dict = obj.as_dict()
                 if obj_dict['begin'] > task_dict['begin'] and (not next_task or next_task and obj_dict['begin'] < next_task['begin']):
                     next_task = obj_dict
+        original_begin = str(original[0])
         begin = original[0]
         end = Utils.db_format_time(datetime.datetime.now().time()) if original[1] == '(active)' else original[1]
-        time_diff = int(Utils.get_time_delta(begin, end).seconds / 60)
-        begin = Utils.db_format_add_time(begin, 1)
+        end_after_original = new_end and end and new_end >= end
+        if end_after_original:
+            return f'Cannot end after the original task'
+        return {
+            'task': task,
+            'tasks': tasks,
+            'day_obj': day_obj,
+            'begin': begin,
+            'end': end,
+            'task_obj': task_obj,
+            'next_task': next_task
+        }
+
+    @staticmethod
+    def split_task(original, code: str, new_begin: str=None, new_end: str=None,  weekday: str=None, begin_date=None):
+        info = API.split_task_error_check(original, code, new_begin, new_end,  weekday, begin_date)
+        time_diff = int(Utils.get_time_delta(info['begin'], info['end']).seconds / 60)
+        begin = Utils.db_format_add_time(info['begin'], 1)
         if time_diff < 2:
-            end = Utils.db_format_add_time(end, 1)
+            end = Utils.db_format_add_time(info['end'], 1)
             original[1] = end if original[1] != '(active)' else original[1]
-        task.update(task_obj, {'begin': begin, 'end': None if original[1] == '(active)' else original[1]})
-        end_after_next_begin = next_task and end and end != '(active)' and next_task['begin'] != end
+        info['task'].update(info['task_obj'], {'begin': new_end if new_end else begin, 'end': None if original[1] == '(active)' else original[1]})
+        end_after_next_begin = info['next_task'] and end and end != '(active)' and info['next_task']['begin'] != end
         if time_diff < 2 and end_after_next_begin:
-            API.move_or_cleanup_next_tasks(task, original, tasks, end)
-        task.add({
+            API.move_or_cleanup_next_tasks(info['task'], original, info['tasks'], end)
+        info['task'].add({
             'entryid': 0,
-            'dayid': day_obj.dayid,
+            'dayid': info['day_obj'].dayid,
             'begin': original[0],
-            'end': begin,
+            'end': new_end if new_end else begin,
             'code': code
         })
 
     @staticmethod
-    def update_task(original, begin: str, end: str, code: str, weekday=None, begin_date=None):
+    def update_task_error_check(original, begin: str, end: str, code: str, weekday=None, begin_date=None):
         has_valid_time_lengths = len(begin) == 3 or len(begin) == 4
         if not has_valid_time_lengths:
             return f'invalid length for begin: {begin}'
@@ -364,18 +381,31 @@ class API:
         # end_before_end = end and next_task and next_task['end'] and end > next_task['end']
         # if end_before_end:
         #     return f'Cannot end after the next task'
-        if task_obj:
-            begin_before_prev_end = previous_task and previous_task['end'] != begin
+        return {
+            'task': task,
+            'tasks': tasks,
+            'task_obj': task_obj,
+            'next_task': next_task,
+            'previous_task': previous_task
+        }
+
+    @staticmethod
+    def update_task(original, begin: str, end: str, code: str, weekday=None, begin_date=None):
+        info = API.update_task_error_check(original, begin, end, code, weekday, begin_date)
+        if isinstance(info, str):
+            return info
+        if info['task_obj']:
+            begin_before_prev_end = info['previous_task'] and info['previous_task']['end'] != begin
             if begin_before_prev_end:
-                begin_on_prev_begin = begin == previous_task['begin']
+                begin_on_prev_begin = begin == info['previous_task']['begin']
                 if begin_on_prev_begin:
-                    task.remove(previous_obj.entryid)
+                    info['task'].remove(info['previous_obj'].entryid)
                 else:
-                    task.update(previous_obj, {'end': begin})
-            end_after_next_begin = next_task and end and next_task['begin'] != end
+                    info['task'].update(info['previous_obj'], {'end': begin})
+            end_after_next_begin = info['next_task'] and end and info['next_task']['begin'] != end
             if end_after_next_begin:
-                API.move_or_cleanup_next_tasks(task, original, tasks, end)
-            task.update(task_obj, {'begin': begin, 'end': None if end == '' else end, 'code': code})
+                API.move_or_cleanup_next_tasks(info['task'], original, info['tasks'], end)
+            info['task'].update(info['task_obj'], {'begin': begin, 'end': None if end == '' else end, 'code': code})
 
     @staticmethod
     def move_or_cleanup_next_tasks(task, original, tasks, end):

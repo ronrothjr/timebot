@@ -304,6 +304,8 @@ class TimebotTimecardsScreen(MDScreen):
                 weekday_box = self.weekday_task_box
                 weekday_box.clear_widgets()
             expand = weekday and day.weekday == weekday
+            if expand:
+                self.task_edit = TaskEdit(self.task_edit_callback, weekday, self.today[1])
             Clock.schedule_once(partial(self.fill_weekday, day, dict_tasks, weekday_box, expand, is_expanding_weekday, keep_expanded_state))
 
     def fill_weekday_total(self, day, dict_tasks):
@@ -354,8 +356,10 @@ class TimebotTimecardsScreen(MDScreen):
     def task_edit_callback(self, action, original, begin: str=None, end: str=None, code: str=None):
         if action == 'save':
             self.app.api.update_task(original, begin, end, code, self.weekday, begin_date=self.today[1])
-        elif action == 'insert':
-            self.app.api.insert_task_before(original, code, self.weekday, begin_date=self.today[1])
+        elif action == 'split':
+            new_begin = None if begin and original[0] == begin else begin
+            new_end = None if end and original[1] == end else end
+            self.app.api.split_task(original, code, new_begin, new_end, weekday=self.weekday, begin_date=self.today[1])
         elif action == 'delete':
             original += [self.weekday, self.today[1]]
             self.app.api.remove_task(*original)

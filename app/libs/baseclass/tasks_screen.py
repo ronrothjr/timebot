@@ -99,17 +99,21 @@ class TimebotTasksScreen(MDScreen):
         widget_spacer = Widget(size_hint_y=None, height=dp(5))
         self.project_box.add_widget(widget_spacer)
         self.heading_box = MDBoxLayout(adaptive_height=True, orientation='horizontal', size_hint=(1, None), padding=0, spacing=0, pos_hint=self.top_center)
-        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width=dp(110), font_style="H6")
-        timecard: Timecard = self.app.api.get_current_timecard()
-        self.heading_box.add_widget(weekday_label)
-        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week: {timecard.begin_date} - {timecard.end_date}", halign='right', font_style="Body2", pos_hint={'center_y': .5})
-        self.heading_box.add_widget(timecard_label)
+        self.fill_heading()
         if hasattr(self, 'show_time_interval'):
             Clock.unschedule(self.show_time_interval)
         self.show_time_interval = Clock.schedule_interval(self.show_time, 0.1)
         self.project_box.add_widget(self.heading_box)
         widget_spacer = Widget(size_hint_y=None, height=dp(5))
         self.project_box.add_widget(widget_spacer)
+
+    def fill_heading(self):
+        self.heading_box.clear_widgets()
+        weekday_label = MDLabel(adaptive_height=True, text=self.day.weekday, size_hint_x=None, width=dp(110), font_style="H6")
+        timecard: Timecard = self.app.api.get_current_timecard()
+        self.heading_box.add_widget(weekday_label)
+        timecard_label = MDLabel(adaptive_height=True, size_hint=(1, None), text=f"Week: {timecard.begin_date} - {timecard.end_date}", halign='right', font_style="Body2", pos_hint={'center_y': .5})
+        self.heading_box.add_widget(timecard_label)
 
     def add_time_box(self):
         self.time_box = MDBoxLayout(orientation='horizontal', size_hint=(1, None), height=dp(40), padding=0, spacing=0, pos_hint=self.top_center)
@@ -161,6 +165,7 @@ class TimebotTasksScreen(MDScreen):
         add_new_timecard = self.weekday == 'Saturday'
         if add_new_timecard:
             self.app.api.add_current_timecard()
+        self.fill_heading()
         self.get_today()
         self.fill_weekday_box()
         Clock.schedule_once(self.fill_task_grid, 1)
@@ -282,8 +287,10 @@ class TimebotTasksScreen(MDScreen):
     def task_edit_callback(self, action, original, begin: str=None, end: str=None, code: str=None):
         if action == 'save':
             self.app.api.update_task(original, begin, end, code)
-        elif action == 'insert':
-            self.app.api.insert_task_before(original, code)
+        elif action == 'split':
+            new_begin = None if begin and original[0] == begin else begin
+            new_end = None if end and original[1] == end else end
+            self.app.api.split_task(original, code, new_begin=new_begin, new_end=new_end)
         elif action == 'delete':
             self.app.api.remove_task(*original)
         self.fill_task_grid()

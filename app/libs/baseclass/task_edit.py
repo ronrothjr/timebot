@@ -28,8 +28,10 @@ class TimebotConfirmDeleteTaskDialog(MDBoxLayout):
 
 class TaskEdit():
 
-    def __init__(self, callback):
+    def __init__(self, callback, weekday: str=None, begin_date: str=None):
         self.callback = callback
+        self.weekday = weekday
+        self.begin_date = begin_date
         self.app = App.get_running_app()
         self.top_center = {"center_x": .5, "top": 1}
         self.center_center = {"center_x": .5, "center_y": .5}
@@ -47,9 +49,9 @@ class TaskEdit():
             radius=[dp(20), dp(7), dp(20), dp(7)],
             buttons=[
                 MDFlatButton(
-                    text="ADD BEFORE",
+                    text="SPLIT",
                     text_color=self.app.theme_cls.primary_color,
-                    on_release=self.insert_task_before
+                    on_release=self.split_task
                 ),
                 MDFlatButton(
                     text="DELETE",
@@ -183,16 +185,22 @@ class TaskEdit():
     def cancel_dialog(self, *args):
         self.edit_dialog.dismiss(force=True)
 
-    def insert_task_before(self, *args):
+    def split_task(self, *args):
         ids = self.edit_dialog.content_cls.ids
         begin = ids.begin.text
         begin = self.app.utils.db_format_time(self.app.utils.obj_format_time(begin))
         end = ids.end.text
         end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end)) if end else ''
-        code = os.environ.get('DEFAULT_PROJECT_CODE')
-        self.edit_dialog.dismiss(force=True)
-        self.callback('insert', self.original_values, begin, end, code)
-        toast('Inserted task')
+        code = ids.project_label.text if ids.project_label.text != self.original_values[2] else os.environ.get('DEFAULT_PROJECT_CODE')
+        new_begin = None if begin and self.original_values[0] == begin else begin
+        new_end = None if end and self.original_values[1] == end else end
+        error = self.app.api.split_task_error_check(self.original_values, code, new_begin, new_end, weekday=self.weekday, begin_date=self.begin_date)
+        if isinstance(error, str):
+            self.edit_dialog.content_cls.ids.error.text = error
+        else:
+            self.edit_dialog.dismiss(force=True)
+            self.callback('split', self.original_values, begin, end, code)
+            toast('Split task')
 
     def save_task(self, *args):
         ids = self.edit_dialog.content_cls.ids
@@ -201,8 +209,8 @@ class TaskEdit():
         end = ids.end.text
         end = self.app.utils.db_format_time(self.app.utils.obj_format_time(end)) if end else ''
         code = ids.project_label.text
-        error = self.app.api.update_task(self.original_values, begin, end, code)
-        if error:
+        error = self.app.api.update_task_error_check(self.original_values, begin, end, code, weekday=self.weekday, begin_date=self.begin_date)
+        if isinstance(error, str):
             self.edit_dialog.content_cls.ids.error.text = error
         else:
             self.edit_dialog.dismiss(force=True)

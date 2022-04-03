@@ -92,7 +92,7 @@ class TimebotWelcomeScreen(MDScreen):
             total += t
         items = {}
         for k, v in totals.items():
-            items[k] = int(v / total * 10000) / 100
+            items[k] = int(v / total * 10000) / 100 if total > 0 else 100.0
         total = 0.0
         for t in items.values():
             total += t
