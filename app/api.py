@@ -314,6 +314,8 @@ class API:
         if time_diff < 2:
             end = Utils.db_format_add_time(info['end'], 1)
             original[1] = end if original[1] != '(active)' else original[1]
+        else:
+            end = info['end']
         info['task'].update(info['task_obj'], {'begin': new_end if new_end else begin, 'end': None if original[1] == '(active)' else original[1]})
         end_after_next_begin = info['next_task'] and end and end != '(active)' and info['next_task']['begin'] != end
         if time_diff < 2 and end_after_next_begin:
