@@ -183,7 +183,7 @@ class AKPieChart(ThemableBehavior, RelativeLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.pie_chart_labels = []
+        self.pie_chart_labels = {}
         self.adding_pie = None
         self.adding_labels = None
         self.checking_labels = None
@@ -194,7 +194,7 @@ class AKPieChart(ThemableBehavior, RelativeLayout):
             percentage_sum += v * 100.0
 
         if percentage_sum != 10000.0:
-            raise Exception("Sum of percenages must be 100")
+            raise Exception(f"Sum of percenages must be 100: {items}")
 
         new_items = {}
         for k, v in items[0].items():
@@ -297,7 +297,7 @@ class AKPieChart(ThemableBehavior, RelativeLayout):
                     number_anim = PieChartNumberLabel(
                         x=label_pos[0], y=label_pos[1], title=title
                     )
-                    self.pie_chart_labels.append(number_anim)
+                    self.pie_chart_labels[title] = number_anim
                 else:
                     number_anim.x = label_pos[0]
                     number_anim.y = label_pos[1]
@@ -311,25 +311,31 @@ class AKPieChart(ThemableBehavior, RelativeLayout):
             self.checking_labels = None
         self.checking_labels = Clock.schedule_once(self.check_label_collision)
 
-    def check_label_collision(self, items, *args):
+    def check_label_collision(self, *args):
         self.checking_labels = None
-        orig_pos = [label.y for label in self.pie_chart_labels]
-        diff_pos = []
-        for label in self.pie_chart_labels:
-            diff_pos.append(self.move_if_colliding(label))
-        for i in range(0, len(orig_pos)):
-            l = self.pie_chart_labels[i]
-            l.y = orig_pos[i]
-            if diff_pos[i]:
-                Animation(y=l.y + diff_pos[i], t='in_out_elastic').start(self.pie_chart_labels[i])
+        self.orig_pos, self.diff_pos = {}, {}
+        for title, label in self.pie_chart_labels.items():
+            self.orig_pos[title] = {'x': int(label.x), 'y': int(label.y)}
+            self.diff_pos[title] = {'x': 0, 'y': 0}
+        for x in range(0, 10):
+            for title, label in self.pie_chart_labels.items():
+                self.move_if_colliding(label)
+        for title, label in self.pie_chart_labels.items():
+            label.x = self.orig_pos[title]['x']
+            label.y = self.orig_pos[title]['y']
+            Animation(
+                y=label.y + self.diff_pos[title]['y'],
+                x=label.x + self.diff_pos[title]['x'],
+                t='in_out_elastic'
+            ).start(label)
 
     def move_if_colliding(self, label):
-        orig = int(label.y)
-        for other in self.pie_chart_labels:
+        for other in self.pie_chart_labels.values():
             while label.title != other.title and label.is_colliding(other):
-                label.y += dp(10)
-        diff = int(label.y)
-        return diff - orig
+                self.diff_pos[other.title]['y'] -= dp(5)
+                other.y -= dp(5)
+                self.diff_pos[label.title]['y'] += dp(5)
+                label.y += dp(5)
 
     def _clear_canvas(self):
         try:

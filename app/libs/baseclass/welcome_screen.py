@@ -92,12 +92,16 @@ class TimebotWelcomeScreen(MDScreen):
             total += t
         items = {}
         for k, v in totals.items():
-            items[k] = int(v / total * 10000) / 100 if total > 0 else 100.0
-        total = 0.0
+            total_int = int(v / total * 10000)
+            print(total_int)
+            items[k] = total_int if total > 0 else 10000
+        total = 0
         for t in items.values():
             total += t
         if items:
-            items[list(items.keys())[0]] += 100.0 - total
+            items[list(items.keys())[0]] += 10000 - total
+        for k, v in totals.items():
+            items[k] /= 100
         return items
 
     def add_bar_chart_box(self):

@@ -386,6 +386,7 @@ class API:
             'tasks': tasks,
             'task_obj': task_obj,
             'next_task': next_task,
+            'previous_obj': previous_obj,
             'previous_task': previous_task
         }
 
