@@ -189,16 +189,17 @@ class AKPieChart(ThemableBehavior, RelativeLayout):
         self.checking_labels = None
 
     def _format_items(self, items):
-        percentage_sum = 0.0
+        percentage_sum = 0
         for k, v in items[0].items():
-            percentage_sum += v * 100.0
-
-        if percentage_sum != 10000.0:
+            int_value = v
+            percentage_sum += int_value
+        print(percentage_sum)
+        if percentage_sum != 10000:
             raise Exception(f"Sum of percenages must be 100: {items}")
 
         new_items = {}
         for k, v in items[0].items():
-            new_items[k] = 360 * v / 100
+            new_items[k] = 360 * v / 10000
 
         if self.order:
             new_items = {
