@@ -62,7 +62,7 @@ class TimebotWelcomeScreen(MDScreen):
     def add_piechart(self):
         items = self.get_piechart_items()
         if not items:
-            items = {'no billable tasks': 100}
+            items = {'no billable tasks': 10000}
         self.piechart = AKPieChart(
             items=[items],
             pos_hint={"center_x": 0.5, "center_y": 0.5},
