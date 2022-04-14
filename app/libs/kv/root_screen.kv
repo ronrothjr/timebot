@@ -30,12 +30,12 @@
             id: nav_bar
 
             NavigationItem:
-                id: 'welcome'
-                text: "WELCOME"
+                id: 'charts'
+                text: "CHARTS"
                 icon: "chart-pie"
                 on_release:
                     scr_manager.transition.direction = "right"
-                    scr_manager.current = "WELCOME"
+                    scr_manager.current = "CHARTS"
 
             NavigationItem:
                 id: 'today'
@@ -43,19 +43,19 @@
                 icon: "clock-time-five-outline"
                 on_release:
                     scr_manager.transition.direction = "left" \
-                    if scr_manager.current in ["WELCOME"] \
+                    if scr_manager.current in ["CHARTS"] \
                     else "right"
                     scr_manager.current = "TODAY"
 
             NavigationItem:
                 id: 'timecards'
-                text: "TIMECARDS"
+                text: "WEEK"
                 icon: "file-table-box-multiple"
                 on_release:
                     scr_manager.transition.direction = "left" \
-                    if scr_manager.current in ["WELCOME", "TODAY"] \
+                    if scr_manager.current in ["CHARTS", "TODAY"] \
                     else "right"
-                    scr_manager.current = "TIMECARDS"
+                    scr_manager.current = "WEEK"
 
             NavigationItem:
                 id: 'projects'
@@ -84,13 +84,13 @@
             id: scr_manager
 
             TimebotWelcomeScreen:
-                name: "WELCOME"
+                name: "CHARTS"
 
             TimebotTasksScreen:
                 name: "TODAY"
 
             TimebotTimecardsScreen:
-                name: "TIMECARDS"
+                name: "WEEK"
 
             TimebotProjectsScreen:
                 name: "PROJECTS"

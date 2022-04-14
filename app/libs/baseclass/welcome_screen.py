@@ -172,7 +172,7 @@ class TimebotWelcomeScreen(MDScreen):
         self.tap_text = {
             '0.0.0': [
                 {
-                    'name': 'entry_tip',
+                    'name': 'today_tip',
                     'title': 'This is the Today screen',
                     'desc': None,
                     'card_desc': 'Go here to record and edit tasks for today',
@@ -184,9 +184,9 @@ class TimebotWelcomeScreen(MDScreen):
                 },
                 {
                     'name': 'timecards_tip',
-                    'title': 'This is the Timecards screen',
+                    'title': 'This is the Week screen',
                     'desc': None,
-                    'card_desc': 'This will display the current timecard week, so you can review and edit the tasks before submission',
+                    'card_desc': 'This will display the current week, so you can review and edit the tasks before submission',
                     'widget_pos': 'center',
                     'title_pos': 'left_bottom',
                     'version': '0.0.0',
@@ -227,10 +227,10 @@ class TimebotWelcomeScreen(MDScreen):
                     'order': 5
                 },
                 {
-                    'name': 'welcome_tip',
-                    'title': 'This is the Welcome screen',
+                    'name': 'charts_tip',
+                    'title': 'This is the Charts screen',
                     'desc': None,
-                    'card_desc': 'Updates to the application and other data will show here in this screen',
+                    'card_desc': 'Review current and previous weekly totals and percentages',
                     'widget_pos': 'center',
                     'title_pos': 'right_bottom',
                     'version': '0.0.0',

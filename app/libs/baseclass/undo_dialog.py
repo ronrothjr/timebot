@@ -61,9 +61,9 @@ class TaskUndo():
         def restore(self, *args):
             self.app.utils.restore_db(file, os.environ["TIMEBOT_ROOT"])
             
-            self.manager.get_screen('WELCOME').refresh()
+            self.manager.get_screen('CHARTS').refresh()
             self.manager.get_screen('TODAY').refresh()
-            self.manager.get_screen('TIMECARDS').refresh()
+            self.manager.get_screen('WEEK').refresh()
             self.manager.get_screen('PROJECTS').refresh()
             self.undo_dialog.dismiss(force=True)
         Clock.schedule_once(partial(restore, self))
