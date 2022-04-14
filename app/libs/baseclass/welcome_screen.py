@@ -59,8 +59,8 @@ class TimebotWelcomeScreen(MDScreen):
         chart_view.add_widget(self.pie_chart_box)
         self.orienter.add_widget(chart_view)
 
-    def add_piechart(self):
-        items = self.get_piechart_items()
+    def add_piechart(self, timecard=None):
+        items = self.get_piechart_items(timecard)
         if not items:
             items = {'no billable tasks': 10000}
         self.piechart = AKPieChart(
@@ -72,9 +72,9 @@ class TimebotWelcomeScreen(MDScreen):
         )
         self.pie_chart_box.add_widget(self.piechart)
 
-    def get_piechart_items(self):
+    def get_piechart_items(self, timecard=None):
         today, begin_date, weekday = self.app.utils.get_begin_date()
-        self.timecard = self.app.timecard.get(begin_date)
+        self.timecard = timecard if timecard else self.app.timecard.get(begin_date)
         self.days = self.app.day.get({'begin_date': self.timecard.begin_date})
         dayids = [day.dayid for day in self.days]
         tasks = [t.as_dict() for t in self.app.task.get({'dayid': dayids})] if dayids else []
@@ -128,6 +128,7 @@ class TimebotWelcomeScreen(MDScreen):
             labels_color=(.2, .2, .2, 1),
             lines_color=(.3, .3, .3, 1)
         )
+        barchart.set_on_select_callback(self.on_select_barchart)
         self.bar_chart_box.add_widget(barchart)
 
     def get_barchart_values(self):
@@ -136,13 +137,19 @@ class TimebotWelcomeScreen(MDScreen):
             'y_values': [],
             'x_labels': []
         }
-        timecards = self.app.timecard.get()[-5:]
-        for t in timecards:
+        self.timecards = self.app.timecard.get()[-5:]
+        for t in self.timecards:
             total = self.get_timecard_total(t)
             v['x_values'].append(total)
             v['y_values'].append(total)
             v['x_labels'].append(str(t.begin_date)[-5:])
         return v
+
+    def on_select_barchart(self, args):
+        print(args)
+        timecard = self.timecards[args[0]]
+        self.pie_chart_box.clear_widgets()
+        self.add_piechart(timecard)
 
     def get_timecard_total(self, t):
         self.days = self.app.day.get({'begin_date': t.begin_date})

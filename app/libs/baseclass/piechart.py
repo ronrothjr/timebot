@@ -513,6 +513,13 @@ class AKBarChart(AKChartBase):
     bars_spacing = NumericProperty("10dp")
     bars_radius = NumericProperty("5dp")
     bars_color = ColorProperty([1, 1, 1, 1])
+    
+    def set_on_select_callback(self, callback):
+        self.callback = callback
+    
+    def on_select(self, *args):
+        if hasattr(self, 'callback'):
+            self.callback(args)
 
     def _update(self, anim=False, *args):
         super()._update()
