@@ -49,8 +49,8 @@ class TimebotWelcomeScreen(MDScreen):
 
     def add_pie_chart_box(self):
         chart_view = MDBoxLayout(orientation="vertical", pos_hint=self.top_center)
-        chart_title = MDLabel(text='This Week', font_style="H6", size_hint=(1, 1), height=dp(50), halign="center", pos_hint=self.top_center)
-        chart_view.add_widget(chart_title)
+        self.chart_title = MDLabel(text='This Week', font_style="H6", size_hint=(1, 1), height=dp(50), halign="center", pos_hint=self.top_center)
+        chart_view.add_widget(self.chart_title)
         self.pie_chart_box = MDBoxLayout(
             adaptive_height=True,
             padding=dp(24),
@@ -60,6 +60,10 @@ class TimebotWelcomeScreen(MDScreen):
         self.orienter.add_widget(chart_view)
 
     def add_piechart(self, timecard=None):
+        if timecard:
+            self.chart_title.text = f'{str(timecard.begin_date)[-5:]} - {str(timecard.end_date)[-5:]}'
+        else:
+            self.chart_title.text = 'This Week'
         items = self.get_piechart_items(timecard)
         if not items:
             items = {'no billable tasks': 10000}
