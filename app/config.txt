@@ -3,7 +3,7 @@
         "key": "default_project_code",
         "title": "Default Project Code",
         "type": "string",
-        "value": "DRG-000099",
+        "value": "DRG-403009",
         "desc": "The default code to assign new tasks in a timecard",
         "section": "Timecards"
     },
